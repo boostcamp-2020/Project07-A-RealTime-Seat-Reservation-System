@@ -1,9 +1,6 @@
 import socketIO from "socket.io";
 import http from "http";
-import { connectRedis } from "./db/redis";
 import { getSeatListData, setSeatData } from "./controllers";
-
-connectRedis();
 
 const server = http.createServer();
 
@@ -20,15 +17,15 @@ concertNamespace.on("connection", async (socket: any) => {
   socket.on("joinRoom", async (key: string) => {
     socket.join(key);
 
-    const seatData = await getSeatListData(key);
-    concertNamespace.to(key).emit("data", seatData);
+    const seats = await getSeatListData(key);
+    concertNamespace.to(key).emit("receiveData", seats);
   });
 
-  socket.on("click", async (key: string, seatId: any, color: any) => {
-    await setSeatData(key, seatId, color);
+  socket.on("clickSeat", async (key: string, seatId: string, seatData: object) => {
+    await setSeatData(key, seatId, seatData);
 
-    const seatData = await getSeatListData(key);
-    concertNamespace.to(key).emit("data", seatData);
+    const seats = await getSeatListData(key);
+    concertNamespace.to(key).emit("receiveData", seats);
   });
 });
 
