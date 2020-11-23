@@ -5,4 +5,12 @@ const redisHost =
     ? process.env.REDIS_PRODUCTION_HOST
     : (process.env.REDIS_LOCAL_HOST as string);
 
-export default new Redis(6379, redisHost);
+const redisClient = new Redis(6379, redisHost, { password: process.env.REIDS_PASSWORD });
+
+const connectRedis = () => {
+  redisClient.connect(() => {
+    console.log("welcome redis");
+  });
+};
+
+export { connectRedis, redisClient };
