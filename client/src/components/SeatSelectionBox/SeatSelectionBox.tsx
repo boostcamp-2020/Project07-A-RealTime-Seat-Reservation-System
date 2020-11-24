@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import SeatSelectedHeader from "./SeatSelectionHeader/SeatSelectionHeader";
 import SeatSelectedArea from "./SeatSelectionArea/SeatSelectionArea";
 import SeatInfoArea from "./SeatInfoArea/SeatInfoArea";
@@ -24,15 +24,8 @@ const tmpSelectedInfo: Array<selectedInfo> = [
 // TODO: SeatSelectionBox의 props로 공연 회차 정보 받아오기. -> useContext사용 고려
 export default function SeatSelectionBox() {
   const [selectedSeatCount, setSelectedSeatCount] = useState(0);
+
   useEffect(() => {
-    const socket = io(`http://localhost:8080/A`, {
-      transports: ["websocket"],
-      upgrade: false,
-    });
-    console.log(socket.emit("joinRoom", "A"));
-    socket.on("receiveData", (data: any) => {
-      console.log(data);
-    });
     return () => {
       // TODO: 페이지 이동시 emit
     };
