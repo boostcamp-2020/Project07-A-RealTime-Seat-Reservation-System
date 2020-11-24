@@ -1,0 +1,26 @@
+html {
+    height: 100%;
+    background-color: #d4dadf;
+}
+
+body {
+    position: relative;
+    height: 100%;
+    font-size: 16px;
+    line-height: 24px;
+    overflow-x: auto;
+    margin: 0 auto;
+    min-width: 320px;
+    max-width: 414px;
+    min-height: 100%;
+    background-color: #e9ecef;
+    word-break: break-word;
+}
+
+#root {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
