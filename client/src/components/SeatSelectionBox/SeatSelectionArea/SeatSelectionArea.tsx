@@ -3,7 +3,7 @@ import { Toolbar } from "@material-ui/core";
 import React from "react";
 
 const Box = styled(Toolbar)({
-  minHeight: "23rem",
+  minHeight: "22rem",
   justifyContent: "flex-start",
   padding: "0 1rem",
 });
