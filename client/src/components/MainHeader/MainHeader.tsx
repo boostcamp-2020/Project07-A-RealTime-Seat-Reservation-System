@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    fontWeight: "bold",
   },
 }));
 export default function MainHeader({ title }: props) {
