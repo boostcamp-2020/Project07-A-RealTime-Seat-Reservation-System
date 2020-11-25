@@ -25,7 +25,7 @@ export default function SeatSelectionBox() {
     };
   }, []);
   console.log(socket);
-  // TODO: SeatSelectHeader의 props로 공연 회차 정보 넘겨주기
+  // TODO: SeatSelectHeader의 props로 공연 회차 정보 넘겨주기 -> 공연 회차 정보도 redux 사용?
   return (
     <>
       <SeatSelectedHeader dateInfo="2020. 11. 28. (토), 오후 03:00" />
