@@ -9,6 +9,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { styled, makeStyles, Theme } from "@material-ui/core/styles";
 import React from "react";
 import { colors } from "../../styles/variables";
+import { useHistory } from "react-router-dom";
 
 interface props {
   title: string;
@@ -37,11 +38,20 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 export default function MainHeader({ title }: props) {
   const classes = useStyles();
+  const history = useHistory();
+  const handleClickBack = () => {
+    history.goBack();
+  };
   return (
     <>
       <Header position="static">
         <Box>
-          <IconButton edge="start" color="inherit" aria-label="menu">
+          <IconButton
+            onClick={handleClickBack}
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+          >
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
