@@ -26,6 +26,9 @@ export default function SeatSelectionBox() {
   const [selectedSeatCount, setSelectedSeatCount] = useState(0);
 
   useEffect(() => {
+
+
+    
     return () => {
       // TODO: 페이지 이동시 emit
     };
