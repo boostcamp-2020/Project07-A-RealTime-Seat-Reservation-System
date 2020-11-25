@@ -9,7 +9,7 @@ const cancelled = '#000000';
 const myClicked = '#6495ED';
 
 const Box = styled(Toolbar)({
-  minHeight: "23rem",
+  minHeight: "22rem",
   justifyContent: "flex-start",
   padding: "0 1rem",
 });

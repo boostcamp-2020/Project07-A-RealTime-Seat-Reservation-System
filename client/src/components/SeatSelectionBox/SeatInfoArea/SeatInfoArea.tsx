@@ -1,23 +1,11 @@
 import React from "react";
-import { Paper, Box, List, ListItem } from "@material-ui/core";
+import { Paper, Box, List, ListItem, Button } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { colors } from "../../../styles/variables";
-
-interface seatInfo {
-  color: string;
-  name: string;
-  count: number;
-}
-interface selectedInfo {
-  color: string;
-  info: string;
-}
-interface props {
-  selectedSeatCount: number;
-  seatInfo: Array<seatInfo>;
-  selectedSeat: Array<selectedInfo>;
-}
+import useSeats from "../../../hooks/useSeats";
+import useCancelSeat from "../../../hooks/useCancelSeat";
+import useSocket from "../../../hooks/useSocket";
 interface styleProps {
   color: string;
 }
@@ -26,7 +14,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   seatInfoArea: {
     height: "15rem",
     fontWeight: "bold",
-    borderRadius: "0.5rem",
+    borderRadius: "0.5rem 0.5rem 0 0",
   },
   seatInfoTitle: {
     display: "flex",
@@ -57,6 +45,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     float: "left",
     overflowY: "auto",
     width: "40%",
+    minHeight: "151px",
     maxHeight: "151px",
     padding: "5px 18px",
     boxSizing: "border-box",
@@ -80,7 +69,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     lineHeight: "1.25rem",
   },
   title: {
-    display: "table-cell",
+    display: "flex",
+    alignItems: "center",
     paddingLeft: "0",
     fontWeight: "bold",
   },
@@ -91,11 +81,44 @@ const useStyles = makeStyles((theme: Theme) => ({
     whiteSpace: "nowrap",
     fontWeight: "normal",
   },
-  grade: {},
+  seatLoca: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: "0",
+    fontWeight: "normal",
+  },
+  cancel: {
+    cursor: "pointer",
+  },
+  stepBtn: {
+    padding: "6px",
+    backgroundColor: "#efefef",
+    borderTop: "1px solid #dbdbdb",
+  },
+  beforeBtn: {
+    width: "39%",
+    height: "51px",
+    marginRight: "1%",
+    backgroundColor: `${colors.naverWhite}`,
+    borderRadius: "0",
+    border: `1px solid rgba(0,0,0,0.15)`,
+    fontWeight: "bold",
+  },
+  nextBtn: {
+    width: "59%",
+    height: "51px",
+    marginLeft: "1%",
+    backgroundColor: `${colors.naverGreen}`,
+    borderRadius: "0",
+    fontWeight: "bold",
+    fontColor: `${colors.naverWhite}`,
+  },
 }));
 
 const Badge = styled(Box)((props: styleProps) => ({
   display: "inline-block",
+  marginTop: "4px",
   width: "13px",
   height: "13px",
   top: "3px",
@@ -103,12 +126,16 @@ const Badge = styled(Box)((props: styleProps) => ({
   backgroundColor: props.color,
 }));
 
-export default function SeatInfoArea({
-  selectedSeatCount,
-  seatInfo,
-  selectedSeat,
-}: props) {
+export default function SeatInfoArea() {
   const classes = useStyles();
+  const seats = useSeats();
+  const cancelSeat = useCancelSeat();
+  const socket = useSocket();
+
+  const handleClickCancel = (id: number) => {
+    cancelSeat(id);
+    // TODO: 소켓으로 해당 좌석을 취소했다는것 emit
+  };
   return (
     <>
       <Paper elevation={3} className={classes.seatInfoArea}>
@@ -117,14 +144,14 @@ export default function SeatInfoArea({
           <Box className={classes.seatTitle}>
             선택좌석
             <Box component="span" className={classes.count}>
-              {selectedSeatCount}석
+              {seats.selectedSeat.length}석
             </Box>
           </Box>
         </Box>
         <Box className={classes.seatInfo}>
           <Box className={classes.info}>
             <List dense={true}>
-              {seatInfo.map((element, idx) => {
+              {seats.seatCount.map((element, idx) => {
                 return (
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.title}>
@@ -139,15 +166,22 @@ export default function SeatInfoArea({
           </Box>
           <Box className={classes.seat}>
             <List dense={true}>
-              {selectedSeat.map((element, idx) => {
+              {seats.selectedSeat.map((element, idx) => {
                 return (
                   <ListItem key={idx} className={classes.item}>
-                    <Box className={classes.title}>
-                      <Badge component="span" color={element.color}></Badge>
+                    <Box className={classes.seatLoca}>
                       <span>
-                        <span>{element.info}</span>
-                        <CloseIcon />
+                        <Badge component="span" color={element.color}></Badge>
+                        <span>
+                          {element.floor ? element.floor + "층 " : null}
+                          {element.row}열 {element.num}번
+                        </span>
                       </span>
+                      <CloseIcon
+                        className={classes.cancel}
+                        fontSize="small"
+                        onClick={() => handleClickCancel(element.id)}
+                      />
                     </Box>
                   </ListItem>
                 );
@@ -156,6 +190,14 @@ export default function SeatInfoArea({
           </Box>
         </Box>
       </Paper>
+      <Box className={classes.stepBtn}>
+        <Button size="large" variant="contained" className={classes.beforeBtn}>
+          이전단계
+        </Button>
+        <Button size="large" variant="contained" className={classes.nextBtn}>
+          다음단계
+        </Button>
+      </Box>
     </>
   );
 }
