@@ -9,6 +9,8 @@ const seatSchema = new mongoose.Schema({
 
 const seatGroupSchema = new mongoose.Schema({
   class: String,
+  price: String,
+  color: String,
   seats: [seatSchema],
 });
 
