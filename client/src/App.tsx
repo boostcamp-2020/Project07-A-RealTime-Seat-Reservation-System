@@ -6,8 +6,8 @@ function App() {
   return (
     <BrowserRouter>
       <Switch>
+        <Route path="/" exact component={SelectTime} />
         <Route path="/seat" component={SeatSelection} />
-        <Route path="/time" component={SelectTime} />
       </Switch>
     </BrowserRouter>
   );
