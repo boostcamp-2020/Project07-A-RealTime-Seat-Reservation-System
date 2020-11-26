@@ -2,6 +2,10 @@ import { styled } from "@material-ui/core/styles";
 import { Toolbar } from "@material-ui/core";
 import React, {useRef, useEffect} from 'react'
 import { io } from "socket.io-client";
+import useSelectSeat from '../../../hooks/useSelectSeat';
+import useCancelSeat from '../../../hooks/useCancelSeat';
+
+
 const sold = '#D8D8D8';
 const unsold = '#01DF3A';
 const clicked = '#FA58F4'
@@ -20,14 +24,17 @@ export default function SeatSelectionArea() {
   let ctx:any;
   let data:any;
   let mySeat:Array<String> = [];
+  const selectSeat = useSelectSeat();
+  const cancelSeat = useCancelSeat();
 
   const socket = io(`http://localhost:8080/A`, {
       transports: ["websocket"],
       upgrade: false,
   });
 
-  socket.on("receiveData",(seats: any ) => {
-      data = [...seats];
+  socket.on("receiveData",(seatData: any ) => {
+      data = [...seatData.seats];
+      console.log(seatData.seats);
       if (mySeat) {
         data = data.map((seat:any) => {
             for (let i = 0; i < mySeat.length; i++) {
@@ -63,6 +70,7 @@ export default function SeatSelectionArea() {
             seat.color = clicked;
             mySeat = [...mySeat, seat.id];
             socket.emit("clickSeat", "A", seat.id, seat);
+            selectSeat(seat);
             return seat;
           }
           else if (seat.status === 'clicked' && mySeat && mySeat.some((mySeatId: any) => mySeatId === seat.id)) {
@@ -70,8 +78,15 @@ export default function SeatSelectionArea() {
             seat.color = unsold;
             mySeat = mySeat.filter((mySeatId: any)=> mySeatId !== seat.id);
             socket.emit("clickSeat", "A", seat.id, seat);
+            cancelSeat(seat.id);
             return seat;
           }
+
+          // if (seat.status === 'clicked') {
+          //   seat.status = 'unsold';
+          //   seat.color = unsold;
+          //   socket.emit("clickSeat", "A", seat.id, seat);
+          // }
         }
       });
     };
