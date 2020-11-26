@@ -23,7 +23,7 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           cd project7 &&
-          git pull origin master
+          git pull origin dev
           cd socket-server &&
           yarn install &&
           yarn build &&
