@@ -7,10 +7,9 @@ const CANCEL_SEAT = "seats/CANCEL_SEAT" as const;
 interface SeatInfo {
   id: number;
   color: string;
-  floor?: number;
-  area?: string;
-  row: string;
-  num: number;
+  name: string;
+  point: object;
+  status: string;
 }
 
 interface SeatCount {
@@ -50,14 +49,7 @@ export interface Seat {
 type SeatState = Seat;
 
 const initialState: SeatState = {
-  selectedSeat: [
-    { id: 0, color: "#6c5ce7", floor: 1, row: "9", num: 8 },
-    { id: 1, color: "#6c5ce7", floor: 1, row: "9", num: 9 },
-    { id: 2, color: "#6c5ce7", floor: 1, row: "9", num: 10 },
-    { id: 3, color: "#6c5ce7", floor: 1, row: "9", num: 11 },
-    { id: 4, color: "#6c5ce7", floor: 1, row: "9", num: 12 },
-    { id: 5, color: "#6c5ce7", floor: 1, row: "9", num: 13 },
-  ],
+  selectedSeat: [],
   seatCount: [
     { color: "#6c5ce7", name: "VIP석", count: 2 },
     { color: "#74b9ff", name: "R석", count: 0 },
