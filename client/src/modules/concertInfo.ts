@@ -5,16 +5,24 @@ export const changeSelectedConcert = (id: string) => ({
   payload: id,
 });
 
-export interface concertInfo {
+export interface ConcertInfo {
   title: string;
+  price: string;
+  period: string;
+  runningTime: string;
+  class: string;
 }
 
 type ConcertInfoAction = ReturnType<typeof changeSelectedConcert>;
 
-type ConcertInfoState = concertInfo;
+type ConcertInfoState = ConcertInfo;
 
 const initialState: ConcertInfoState = {
   title: "뮤지컬 <그날들>",
+  price: "무료 ~ 140,000원",
+  period: "2020. 11. 13(금) ~ 2021. 2. 7(일)",
+  runningTime: "2시간 45분",
+  class: "8세이상 관람가",
 };
 
 const concertInfoReducer = (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect } from "react";
 import SeatSelectedHeader from "./SeatSelectionHeader/SeatSelectionHeader";
 import SeatSelectedArea from "./SeatSelectionArea/SeatSelectionArea";
 import SeatInfoArea from "./SeatInfoArea/SeatInfoArea";
