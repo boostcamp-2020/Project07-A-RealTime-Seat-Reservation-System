@@ -1,5 +1,5 @@
 import React from "react";
-import { MainHeader } from "../components";
+import { MainHeader, ContentsArea, ConcertDetails } from "../components";
 import useConcertInfo from "../hooks/useConcertInfo";
 
 export default function SelectTime() {
@@ -7,6 +7,8 @@ export default function SelectTime() {
   return (
     <>
       <MainHeader title={concertInfo.title} />
+      <ContentsArea />
+      <ConcertDetails />
     </>
   );
 }

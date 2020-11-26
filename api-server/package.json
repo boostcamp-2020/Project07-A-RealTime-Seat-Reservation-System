@@ -33,7 +33,8 @@
     "graphql-import": "^1.0.2",
     "nodemon": "^2.0.6",
     "prettier": "^2.1.2",
-    "ts-node": "^9.0.0"
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
   },
   "scripts": {
     "start": "nodemon --exec ts-node app.ts",

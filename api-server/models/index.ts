@@ -1,4 +1,5 @@
-import testModel from "./test";
+import concertModel from "./concert";
+import placeModel from "./place";
+import scheduleModel from "./schedule";
 
-const model = "hello";
-export { testModel, model };
+export { concertModel, placeModel, scheduleModel };
