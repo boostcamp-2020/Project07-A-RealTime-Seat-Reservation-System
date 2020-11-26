@@ -1,4 +1,5 @@
 import { concertRedis, userRedis } from "../db/redis";
+import { Status, Color, Class } from "../constants";
 
 interface ISeatData {
   id: any;
@@ -46,11 +47,11 @@ const changeData = async (
   const count = counts[seatData.class];
   let newCount;
 
-  if (seatData.status === "unsold") {
+  if (seatData.status === Status.UNSOLD) {
     newCount = parseInt(count, 10) + 1;
     await userRedis.hdel(socketId, seatId);
   }
-  if (seatData.status !== "unsold") {
+  if (seatData.status === Status.CLICKED) {
     newCount = parseInt(count, 10) - 1;
     await userRedis.hset(socketId, seatId, "true");
   }
@@ -71,7 +72,11 @@ const getAllClassCount = async (concertId: string) => {
 };
 
 const expireSeat = async (concertId: string, seatData: ISeatData) => {
-  const expiredSeat = { ...seatData, status: "unsold", color: "#01DF3A" };
+  let newColor;
+  Object.keys(Class).forEach((key) => {
+    if ((Class as any)[key] === seatData.class) newColor = (Color as any)[key];
+  });
+  const expiredSeat = { ...seatData, status: Status.UNSOLD, color: newColor };
 
   await concertRedis.hset(concertId, seatData.id, JSON.stringify(expiredSeat));
 
