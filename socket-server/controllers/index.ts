@@ -72,13 +72,19 @@ const getAllClassCount = async (concertId: string) => {
 };
 
 const expireSeat = async (concertId: string, seatData: ISeatData) => {
-  let newColor;
-  Object.keys(Class).forEach((key) => {
-    if ((Class as any)[key] === seatData.class) newColor = (Color as any)[key];
-  });
-  const expiredSeat = { ...seatData, status: Status.UNSOLD, color: newColor };
+  // let newColor;
+  // Object.keys(Class).forEach((key) => {
+  //   if ((Class as any)[key] === seatData.class) newColor = (Color as any)[key];
+  // });
+  const expiredSeat = { ...seatData, status: Status.UNSOLD, color: Color.UNSOLD_SEAT };
 
   await concertRedis.hset(concertId, seatData.id, JSON.stringify(expiredSeat));
+
+  const counts = JSON.parse((await concertRedis.hget(concertId, "counts")) as string);
+  const count = counts[seatData.class];
+  const newCount = parseInt(count, 10) + 1;
+  const newCounts = { ...counts, [seatData.class]: newCount };
+  await concertRedis.hset(concertId, "counts", JSON.stringify(newCounts));
 
   return seatData.id;
 };

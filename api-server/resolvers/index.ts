@@ -1,13 +1,11 @@
 import { IResolvers } from "graphql-tools";
-import { testModel } from "../models";
+import { placeModel } from "../models";
 
 const resolverMap: IResolvers = {
   Query: {
-    test: async (_: void, args) => {
-      await testModel.create({ name: args.name });
-      const data = await testModel.findOne({ name: args.name });
-
-      return data;
+    seatGroup: async (_: void, args, __: void) => {
+      const [data] = await placeModel.find({ name: args.id }, "seatGroup").exec();
+      return (data as any).seatGroup;
     },
   },
 };

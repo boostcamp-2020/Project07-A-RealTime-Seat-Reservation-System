@@ -1,8 +1,9 @@
 type Query {
-  hello: String
-  test(name: String!): Test!
+  seatGroup(id: String): [Class]
 }
 
-type Test {
-  name: String!
+type Class {
+  class: String
+  price: String
+  color: String
 }

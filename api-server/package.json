@@ -12,7 +12,8 @@
     "graphql-depth-limit": "^1.1.0",
     "graphql-import-node": "^0.0.4",
     "graphql-tools": "^7.0.1",
-    "mongoose": "^5.10.15"
+    "mongoose": "^5.10.15",
+    "typescript": "^4.0.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.8",
@@ -33,12 +34,13 @@
     "graphql-import": "^1.0.2",
     "nodemon": "^2.0.6",
     "prettier": "^2.1.2",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.0.5"
+    "ts-node": "^9.0.0"
   },
   "scripts": {
     "start": "nodemon --exec ts-node app.ts",
     "dev": "NODE_ENV=development nodemon --exec ts-node app.ts",
-    "production": "NODE_ENV=production nodemon --exec ts-node app.ts"
+    "pro": "NODE_ENV=production nodemon --exec ts-node app.ts",
+    "build": "tsc",
+    "production": "NODE_ENV=production pm2 start ./dist/app.js --name api-server"
   }
 }
