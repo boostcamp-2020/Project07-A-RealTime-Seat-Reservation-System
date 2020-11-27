@@ -173,8 +173,7 @@ export default function SeatInfoArea() {
                       <span>
                         <Badge component="span" color={element.color}></Badge>
                         <span>
-                          {element.floor ? element.floor + "층 " : null}
-                          {element.row}열 {element.num}번
+                          {element.name}
                         </span>
                       </span>
                       <CloseIcon
