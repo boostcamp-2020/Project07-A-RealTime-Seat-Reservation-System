@@ -16,6 +16,7 @@ interface SeatCount {
   name: string;
   color: string;
   count: number;
+  price?: string;
 }
 
 export const increaseSeat = (seatName: string) => ({
@@ -51,9 +52,9 @@ type SeatState = Seat;
 const initialState: SeatState = {
   selectedSeat: [],
   seatCount: [
-    { color: "#6c5ce7", name: "VIP석", count: 2 },
-    { color: "#74b9ff", name: "R석", count: 0 },
-    { color: "#e17055", name: "S석", count: 5 },
+    { color: "#6c5ce7", name: "VIP석", count: 2, price: "140,000" },
+    { color: "#74b9ff", name: "R석", count: 0, price: "120,000" },
+    { color: "#e17055", name: "S석", count: 5, price: "100,000" },
   ],
 };
 

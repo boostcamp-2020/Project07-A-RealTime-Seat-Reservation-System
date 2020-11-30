@@ -172,10 +172,7 @@ export default function SeatInfoArea() {
                     <Box className={classes.seatLoca}>
                       <span>
                         <Badge component="span" color={element.color}></Badge>
-                        <span>
-                          {element.floor ? element.floor + "층 " : null}
-                          {element.row}열 {element.num}번
-                        </span>
+                        <span>{element.name}</span>
                       </span>
                       <CloseIcon
                         className={classes.cancel}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import SwipeableViews from "react-swipeable-views";
 import {
   makeStyles,
@@ -12,6 +12,7 @@ import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { colors } from "../../styles/variables";
+import CalendarPicker from "./CalendarPicker/CalendarPicker";
 //import CalendarPicker from "./CalendarPicker/CalendarPicker.js";
 
 interface TabPanelProps {
@@ -39,8 +40,8 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
+        <Box p={1}>
+          <div>{children}</div>
         </Box>
       )}
     </div>
@@ -71,7 +72,15 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function ConcertDetails() {
   const classes = useStyles();
   const theme = useTheme();
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
+  const date = new Date();
+  const [timeDetail, setTimeDetail] = useState({
+    year: date.getFullYear(),
+    month: date.getMonth(),
+    date: date.getDate(),
+    hour: undefined,
+    minute: undefined,
+  });
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
@@ -99,7 +108,9 @@ export default function ConcertDetails() {
         index={value}
         onChangeIndex={handleChangeIndex}
       >
-        <TabPanel value={value} index={0} dir={theme.direction}></TabPanel>
+        <TabPanel value={value} index={0} dir={theme.direction}>
+          <CalendarPicker setTimeDetail={setTimeDetail} />
+        </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           Item Two
         </TabPanel>
