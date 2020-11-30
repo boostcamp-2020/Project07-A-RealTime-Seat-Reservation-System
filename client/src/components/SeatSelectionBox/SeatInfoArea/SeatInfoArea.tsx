@@ -1,11 +1,11 @@
-import React, {useEffect}from "react";
+import React, { useEffect } from "react";
 import { Paper, Box, List, ListItem, Button } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
 import useCancelSeat from "../../../hooks/useCancelSeat";
-import {socket} from "../../../socket"
+import { socket } from "../../../socket";
 import useSocket from "../../../hooks/useSocket";
 interface styleProps {
   color: string;
@@ -127,7 +127,7 @@ const Badge = styled(Box)((props: styleProps) => ({
   backgroundColor: props.color,
 }));
 
-const unsold = '#01DF3A';
+const unsold = "#01DF3A";
 
 export default function SeatInfoArea() {
   const classes = useStyles();
@@ -135,7 +135,7 @@ export default function SeatInfoArea() {
   const cancelSeat = useCancelSeat();
 
   const handleClickCancel = (seat: any) => {
-    seat.status = 'unsold';
+    seat.status = "unsold";
     seat.color = unsold;
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat.id, seat);
@@ -178,9 +178,7 @@ export default function SeatInfoArea() {
                     <Box className={classes.seatLoca}>
                       <span>
                         <Badge component="span" color={element.color}></Badge>
-                        <span>
-                          {element.name}
-                        </span>
+                        <span>{element.name}</span>
                       </span>
                       <CloseIcon
                         className={classes.cancel}
