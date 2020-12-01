@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, styled } from "@material-ui/core/styles";
 import { differenceInCalendarDays } from "date-fns";
 import { colors } from "../../../styles/variables";
-import Box from "@material-ui/core/Box";
+import { Box, Button } from "@material-ui/core";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
+import { useHistory } from "react-router-dom";
 
 const date = new Date();
 
@@ -67,31 +68,51 @@ const useStyles = makeStyles(() => ({
     height: "auto",
     margin: "0 -5px",
   },
-  timeItem: {
-    width: "33.3333%",
-    height: "57px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: "9px",
-    margin: "0 5px",
-    background: `${colors.naverWhite}`,
-    border: `1px solid ${colors.borderGray2}`,
-    borderRadius: "3px",
-    fontSize: "14px",
-    color: "#424242",
-    cursor: "pointer",
-    "&:hover": {
-      border: `1px solid ${colors.naverBlue}`,
-      color: `${colors.naverBlue}`,
-    },
-  },
   selectedItem: {
     border: `1px solid ${colors.naverBlue}`,
     backgroundColor: `${colors.naverBlue}`,
   },
   timeItemTitle: {
     fontWeight: "bold",
+  },
+  btnArea: {
+    padding: "0 12px",
+  },
+}));
+
+const TimeBox = styled(Box)((props) => ({
+  width: "33.3333%",
+  height: "57px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: "9px",
+  margin: "0 5px",
+  backgroundColor: props.color,
+  background: `${colors.naverWhite}`,
+  border: `1px solid ${colors.borderGray2}`,
+  borderRadius: "3px",
+  fontSize: "14px",
+  color: "#424242",
+  cursor: "pointer",
+  "&:hover": {
+    border: `1px solid ${colors.naverBlue}`,
+    color: `${colors.naverBlue}`,
+  },
+}));
+
+const SelectSeatBtn = styled(Button)((props) => ({
+  width: "100%",
+  padding: "0",
+  margin: "8px 0",
+  backgroundColor: props.backgroundcolor,
+  borderRadius: "5px",
+  fontSize: "18px",
+  fontWeight: "bold",
+  color: colors.naverWhite,
+  lineHeight: "52px",
+  "&:hover": {
+    backgroundColor: props.backgroundcolor,
   },
 }));
 
@@ -110,6 +131,7 @@ export default function CalendarPicker({ setTimeDetail }) {
   const [concertList, setConcertList] = useState([]);
   const [selectedConcertId, setSelectedConcertId] = useState();
   const classes = useStyles();
+  const history = useHistory();
 
   const handleOnChange = (value) => {
     if (value) {
@@ -130,10 +152,20 @@ export default function CalendarPicker({ setTimeDetail }) {
     }
     setValue(value);
   };
-
+  // TODO: 해당 시간 클릭하면 그 box만 색칠하기.(다른 시간이 선택되어있었으면 그 box 다시 흰색으로 바꾸기)
   const handleOnClick = (e) => {
     setSelectedConcertId(e.target.id);
     console.log(selectedConcertId);
+  };
+
+  const handleOnClickBtn = () => {
+    const selectSeatLink = "/seat";
+    history.push({
+      pathname: selectSeatLink,
+      state: {
+        selectedConcertId,
+      },
+    });
   };
 
   return (
@@ -157,11 +189,15 @@ export default function CalendarPicker({ setTimeDetail }) {
           <h4 className={classes.scheduleTitle}>회차를 선택하세요.</h4>
           <Box className={classes.timeBox}>
             {concertList.map((concert) => (
-              <Box
+              <TimeBox
                 key={concert.id}
                 id={concert.id}
-                className={classes.timeItem}
                 onClick={handleOnClick}
+                color={
+                  concert.id === selectedConcertId
+                    ? colors.naverBlue
+                    : colors.naverWhite
+                }
               >
                 {concert.hour >= 12 ? (
                   <span
@@ -180,12 +216,26 @@ export default function CalendarPicker({ setTimeDetail }) {
                     오전 {concert.hour}:{("0" + concert.minute).slice(-2)}
                   </span>
                 )}
-              </Box>
+              </TimeBox>
             ))}
           </Box>
           {selectedConcertId ? <EmptySeatsCount /> : null}
         </Box>
       ) : null}
+      <Box className={classes.btnArea}>
+        {selectedConcertId ? (
+          <SelectSeatBtn
+            onClick={handleOnClickBtn}
+            backgroundcolor={colors.naverBtnGreen}
+          >
+            좌석 선택하기
+          </SelectSeatBtn>
+        ) : (
+          <SelectSeatBtn backgroundcolor={colors.naverBtnDisabled} disabled>
+            좌석 선택하기
+          </SelectSeatBtn>
+        )}
+      </Box>
     </>
   );
 }

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Paper, Button } from "@material-ui/core";
-import DateFnsUtils from "@date-io/date-fns";
 import {
   useStaticState,
   Calendar,
