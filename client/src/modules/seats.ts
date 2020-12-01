@@ -2,10 +2,10 @@ const INCREASE_SEAT = "seats/INCREASE_SEAT" as const;
 const DECREASE_SEAT = "seats/DECREASE_SEAT" as const;
 const SELECT_SEAT = "seats/SELECT_SEAT" as const;
 const CANCEL_SEAT = "seats/CANCEL_SEAT" as const;
+const INIT_SERVER_SEAT = "seats/INIT_SERVER_SEAT" as const;
 // TODO: 해당 회차 공연 정보 가져오는 action추가?
-
 interface SeatInfo {
-  id: number;
+  id: string;
   color: string;
   name: string;
   point: object;
@@ -30,7 +30,7 @@ export const selectSeat = (seat: SeatInfo) => ({
   type: SELECT_SEAT,
   payload: seat,
 });
-export const cancelSeat = (id: number) => ({
+export const cancelSeat = (id: string) => ({
   type: CANCEL_SEAT,
   payload: id,
 });
@@ -39,7 +39,7 @@ type SeatsAction =
   | ReturnType<typeof increaseSeat>
   | ReturnType<typeof decreaseSeat>
   | ReturnType<typeof selectSeat>
-  | ReturnType<typeof cancelSeat>;
+  | ReturnType<typeof cancelSeat>
 
 export interface Seat {
   selectedSeat: Array<SeatInfo>;
@@ -56,6 +56,8 @@ const initialState: SeatState = {
     { color: "#e17055", name: "S석", count: 5 },
   ],
 };
+
+
 
 const seatsReducer = (
   state: SeatState = initialState,
@@ -80,7 +82,7 @@ const seatsReducer = (
       };
     case SELECT_SEAT:
       return {
-        selectedSeat: state.selectedSeat.concat(action.payload),
+        selectedSeat: [...state.selectedSeat, action.payload],
         seatCount: state.seatCount.map((seatGrade) => seatGrade),
       };
     case CANCEL_SEAT:
