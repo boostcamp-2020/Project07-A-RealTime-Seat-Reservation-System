@@ -1,17 +1,9 @@
+import {SeatInfo}from "../types/seatInfo"
 const INCREASE_SEAT = "seats/INCREASE_SEAT" as const;
 const DECREASE_SEAT = "seats/DECREASE_SEAT" as const;
 const SELECT_SEAT = "seats/SELECT_SEAT" as const;
 const CANCEL_SEAT = "seats/CANCEL_SEAT" as const;
-const INIT_SERVER_SEAT = "seats/INIT_SERVER_SEAT" as const;
 // TODO: 해당 회차 공연 정보 가져오는 action추가?
-interface SeatInfo {
-  id: string;
-  color: string;
-  name: string;
-  point: object;
-  status: string;
-}
-
 interface SeatCount {
   name: string;
   color: string;
