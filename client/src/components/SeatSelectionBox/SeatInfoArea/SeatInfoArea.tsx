@@ -1,10 +1,11 @@
-import React from "react";
+import React, {useEffect}from "react";
 import { Paper, Box, List, ListItem, Button } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
 import useCancelSeat from "../../../hooks/useCancelSeat";
+import {socket} from "../../../socket"
 import useSocket from "../../../hooks/useSocket";
 interface styleProps {
   color: string;
@@ -126,16 +127,21 @@ const Badge = styled(Box)((props: styleProps) => ({
   backgroundColor: props.color,
 }));
 
+const unsold = '#01DF3A';
+
 export default function SeatInfoArea() {
   const classes = useStyles();
   const seats = useSeats();
   const cancelSeat = useCancelSeat();
-  const socket = useSocket();
 
-  const handleClickCancel = (id: number) => {
-    cancelSeat(id);
+  const handleClickCancel = (seat: any) => {
+    seat.status = 'unsold';
+    seat.color = unsold;
+    cancelSeat(seat.id);
+    socket.emit("clickSeat", "A", seat.id, seat);
     // TODO: 소켓으로 해당 좌석을 취소했다는것 emit
   };
+
   return (
     <>
       <Paper elevation={3} className={classes.seatInfoArea}>
@@ -179,7 +185,7 @@ export default function SeatInfoArea() {
                       <CloseIcon
                         className={classes.cancel}
                         fontSize="small"
-                        onClick={() => handleClickCancel(element.id)}
+                        onClick={() => handleClickCancel(element)}
                       />
                     </Box>
                   </ListItem>
