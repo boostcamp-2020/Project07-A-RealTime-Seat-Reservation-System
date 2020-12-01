@@ -1,9 +1,0 @@
-type Query {
-  seatGroup(id: String): [Class]
-}
-
-type Class {
-  class: String
-  price: String
-  color: String
-}
