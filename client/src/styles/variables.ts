@@ -5,6 +5,8 @@ export const colors = {
   naverFontBlack: "#242424",
   naverFontSub: "#666",
   naverBlue: "#3787ff",
+  naverBtnGreen: "#00d780",
+  naverBtnDisabled: "#d1d1d1",
 
   borderGray: "#dbdbdb",
   borderGray2: "#bbb",
