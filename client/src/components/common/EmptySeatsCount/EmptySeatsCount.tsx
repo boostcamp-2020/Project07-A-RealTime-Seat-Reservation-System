@@ -73,7 +73,9 @@ export default function EmptySeatsCount() {
                     <span>{element.name}</span>
                   </td>
                   <td className={classes.seatCount}>잔여 {element.count}석</td>
-                  <td className={classes.price}>{element.price}원</td>
+                  <td className={classes.price}>
+                    {new Intl.NumberFormat("ko-KR").format(element.price)}원
+                  </td>
                 </tr>
               );
             })}

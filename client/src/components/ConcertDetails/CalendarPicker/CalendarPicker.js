@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { makeStyles, styled } from "@material-ui/core/styles";
-import { differenceInCalendarDays } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 import { colors } from "../../../styles/variables";
 import { Box, Button } from "@material-ui/core";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
+import { ko } from "date-fns/locale";
 
 const date = new Date();
 
@@ -199,23 +200,17 @@ export default function CalendarPicker({ setTimeDetail }) {
                     : colors.naverWhite
                 }
               >
-                {concert.hour >= 12 ? (
-                  <span
-                    className={classes.timeItemTitle}
-                    id={concert.id}
-                    onClick={handleOnClick}
-                  >
-                    오후 {concert.hour - 12}:{("0" + concert.minute).slice(-2)}
-                  </span>
-                ) : (
-                  <span
-                    className={classes.timeItemTitle}
-                    id={concert.id}
-                    onClick={handleOnClick}
-                  >
-                    오전 {concert.hour}:{("0" + concert.minute).slice(-2)}
-                  </span>
-                )}
+                <span
+                  className={classes.timeItemTitle}
+                  id={concert.id}
+                  onClick={handleOnClick}
+                >
+                  {format(
+                    new Date(0, 0, 0, concert.hour, concert.minute),
+                    "a H:mm",
+                    { locale: ko }
+                  )}
+                </span>
               </TimeBox>
             ))}
           </Box>
