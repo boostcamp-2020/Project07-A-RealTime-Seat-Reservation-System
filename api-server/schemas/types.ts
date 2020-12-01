@@ -13,8 +13,8 @@ const typeDefs = gql`
 
   type Mutation {
     createUser(userName: String): UserResult
-    bookItem(userId: ID, seats: [SeatInput]): Boolean
-    cancelItem(userID: ID, bookingId: ID): [Booking]
+    bookItem(userId: ID, item: ItemInput, schedule: ScheduleInput, seats: [SeatInput]): [Booking]
+    cancelItem(userId: ID, bookingId: ID): [Booking]
   }
 
   type Item {
@@ -62,8 +62,8 @@ const typeDefs = gql`
 
   type Booking {
     _id: ID
-    itemName: String
-    date: Date
+    item: Item
+    schedule: Schedule
     seats: [Seat]
   }
 
@@ -75,11 +75,25 @@ const typeDefs = gql`
     class: String
   }
 
+  input ItemInput {
+    _id: ID
+    name: String
+    place: PlaceInput
+  }
+
+  input PlaceInput {
+    name: String
+    location: String
+  }
+
+  input ScheduleInput {
+    _id: ID
+    date: ISODate
+  }
+
   input SeatInput {
     _id: ID
     name: String
-    status: String
-    color: String
     class: String
   }
 `;
