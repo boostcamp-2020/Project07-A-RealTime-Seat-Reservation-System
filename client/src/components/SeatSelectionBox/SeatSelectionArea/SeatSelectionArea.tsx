@@ -35,16 +35,15 @@ export default function SeatSelectionArea() {
       return seat;
     })
 
-    componentSeats.forEach(function (x:any) {
-        ctx.current.fillStyle = x.color;
-        ctx.current.fillRect(x.point.x, x.point.y, 10, 10);
+    componentSeats.forEach((seat:SeatInfo) => {
+        ctx.current.fillStyle = seat.color;
+        ctx.current.fillRect(seat.point.x, seat.point.y, 10, 10);
       });
   }
 
   const clickEvent = (e:any) => {
     e.stopPropagation();
-
-    componentSeats.forEach((seat:any) => {
+    componentSeats.forEach((seat:SeatInfo) => {
         if (
           e.offsetX > seat.point.x &&
           e.offsetX < seat.point.x + 10 &&
