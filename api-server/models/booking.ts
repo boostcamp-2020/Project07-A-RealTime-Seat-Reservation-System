@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
-  username: String,
+  userId: mongoose.Schema.Types.ObjectId,
+  item: Object,
+  schedule: Object,
   seats: Array,
   isAvailable: Boolean,
 });
