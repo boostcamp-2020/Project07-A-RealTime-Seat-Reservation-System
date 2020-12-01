@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
-const bookingSchema = new mongoose.Schema({});
+const bookingSchema = new mongoose.Schema({
+  username: String,
+  seats: Array,
+  isAvailable: Boolean,
+});
 
 const bookingModel = mongoose.model("Booking", bookingSchema);
 

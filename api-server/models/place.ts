@@ -5,19 +5,20 @@ const seatSchema = new mongoose.Schema({
   point: Object,
   status: String,
   color: String,
-});
-
-const seatGroupSchema = new mongoose.Schema({
   class: String,
-  price: String,
-  color: String,
-  seats: [seatSchema],
 });
 
 const placeSchema = new mongoose.Schema({
   name: String,
   location: String,
-  seatGroup: [seatGroupSchema],
+  seatGroups: [
+    {
+      class: String,
+      count: Number,
+      color: String,
+      seats: [seatSchema],
+    },
+  ],
 });
 
 const placeModel = mongoose.model("Place", placeSchema);
