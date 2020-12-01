@@ -9,9 +9,9 @@ import useSocket from "../../hooks/useSocket";
 // TODO: SeatSelectionBox의 props로 공연 회차 정보 받아오기. -> useContext사용 고려
 export default function SeatSelectionBox() {
   const dispatch = useDispatch();
-  const socket = useSocket();
+  // const socket = useSocket();
   useEffect(() => {
-    dispatch(create());
+    // dispatch(create());
     /*
     TODO: socket.on에 대한 처리들
     ex)

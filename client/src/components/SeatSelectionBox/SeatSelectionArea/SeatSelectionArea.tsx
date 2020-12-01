@@ -1,9 +1,12 @@
+import {useContext} from "react";
 import { styled } from "@material-ui/core/styles";
 import { Toolbar } from "@material-ui/core";
 import React, {useRef, useEffect} from 'react'
-import { io } from "socket.io-client";
+import {SeatContext} from "../../../stores/SeatStore";
 import useSelectSeat from '../../../hooks/useSelectSeat';
 import useCancelSeat from '../../../hooks/useCancelSeat';
+import useSeats from '../../../hooks/useSeats';
+import {socket} from "../../../socket"
 
 
 const sold = '#D8D8D8';
@@ -18,38 +21,30 @@ const Box = styled(Toolbar)({
   padding: "0 1rem",
 });
 
+let mySeat:Array<String> = [];
+let data:any;
+
 export default function SeatSelectionArea() {
   let canvasRef: any = useRef();
   let canvas: any;
   let ctx:any;
-  let data:any;
-  let mySeat:Array<String> = [];
+  const {serverSeats} = useContext(SeatContext);
+  const seats = useSeats().selectedSeat;
   const selectSeat = useSelectSeat();
   const cancelSeat = useCancelSeat();
 
-  const socket = io(`http://localhost:8080/A`, {
-      transports: ["websocket"],
-      upgrade: false,
-  });
-
-  socket.on("receiveData",(seatData: any ) => {
-      data = [...seatData.seats];
-      console.log(seatData.seats);
-      if (mySeat) {
-        data = data.map((seat:any) => {
-            for (let i = 0; i < mySeat.length; i++) {
-                if (mySeat[i] === seat.id)  {
-                    seat.color = myClicked;
-                    return seat;
-                }
-            }
-            return seat;
-        })
-    }
-    draw();
-  });
-
   const draw = () => {
+      if (mySeat.length) {
+        data = data.map((seat:any) => {
+        for (let i = 0; i < mySeat.length; i++) {
+            if (mySeat[i] === seat.id)  {
+                seat.color = myClicked;
+                return seat;
+            }
+        }
+        return seat;
+    })
+  }
       data.forEach(function (x:any) {
           ctx.fillStyle = x.color;
           ctx.fillRect(x.point.x, x.point.y, 10, 10);
@@ -68,37 +63,42 @@ export default function SeatSelectionArea() {
           if (seat.status === 'unsold' ) {
             seat.status = 'clicked';
             seat.color = clicked;
-            mySeat = [...mySeat, seat.id];
-            socket.emit("clickSeat", "A", seat.id, seat);
             selectSeat(seat);
+            socket.emit("clickSeat", "A", seat.id, seat);
             return seat;
           }
           else if (seat.status === 'clicked' && mySeat && mySeat.some((mySeatId: any) => mySeatId === seat.id)) {
             seat.status = 'unsold';
             seat.color = unsold;
-            mySeat = mySeat.filter((mySeatId: any)=> mySeatId !== seat.id);
-            socket.emit("clickSeat", "A", seat.id, seat);
             cancelSeat(seat.id);
+            socket.emit("clickSeat", "A", seat.id, seat);
             return seat;
           }
-
-          // if (seat.status === 'clicked') {
-          //   seat.status = 'unsold';
-          //   seat.color = unsold;
-          //   socket.emit("clickSeat", "A", seat.id, seat);
-          // }
         }
       });
     };
   
   useEffect(() => {
-      canvas = canvasRef.current;
-      canvas.style.width = '414';
-      canvas.style.height = '749';
-      ctx = canvas.getContext("2d");
-      socket.emit("joinRoom", "A");
-      canvas.addEventListener('click', clickEvent);
+    canvas = canvasRef.current;
+    ctx = canvas.getContext("2d");
+    canvas.addEventListener('click', clickEvent);
+    socket.emit("joinRoom", "A");
   }, [])
+
+  useEffect(()=> {
+  if (seats.length) mySeat = seats.map((seat)=>`${seat.id}`);
+  else mySeat = [];
+  }, [seats]);
+
+  useEffect(()=> {
+    if (!ctx) {
+      canvas = canvasRef.current;
+      ctx = canvas.getContext("2d");
+    }
+
+    data = [...serverSeats];
+    draw();
+  }, [serverSeats])
 
   return (
     <>
