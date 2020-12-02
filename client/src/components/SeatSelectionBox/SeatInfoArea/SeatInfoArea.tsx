@@ -6,7 +6,7 @@ import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
 import useCancelSeat from "../../../hooks/useCancelSeat";
 import { socket } from "../../../socket";
-import useSocket from "../../../hooks/useSocket";
+import { useHistory } from "react-router-dom";
 interface styleProps {
   color: string;
 }
@@ -133,6 +133,7 @@ export default function SeatInfoArea() {
   const classes = useStyles();
   const seats = useSeats();
   const cancelSeat = useCancelSeat();
+  const history = useHistory();
 
   const handleClickCancel = (seat: any) => {
     seat.status = "unsold";
@@ -140,6 +141,17 @@ export default function SeatInfoArea() {
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat.id, seat);
     // TODO: 소켓으로 해당 좌석을 취소했다는것 emit
+  };
+
+  const handleClickPre = () => {
+    history.goBack();
+  };
+
+  const handleClickNext = () => {
+    const paymentLink = "/payment";
+    history.push({
+      pathname: paymentLink,
+    });
   };
 
   return (
@@ -194,10 +206,20 @@ export default function SeatInfoArea() {
         </Box>
       </Paper>
       <Box className={classes.stepBtn}>
-        <Button size="large" variant="contained" className={classes.beforeBtn}>
+        <Button
+          size="large"
+          variant="contained"
+          onClick={handleClickPre}
+          className={classes.beforeBtn}
+        >
           이전단계
         </Button>
-        <Button size="large" variant="contained" className={classes.nextBtn}>
+        <Button
+          size="large"
+          variant="contained"
+          onClick={handleClickNext}
+          className={classes.nextBtn}
+        >
           다음단계
         </Button>
       </Box>
