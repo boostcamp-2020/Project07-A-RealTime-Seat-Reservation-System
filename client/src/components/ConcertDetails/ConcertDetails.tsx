@@ -121,7 +121,7 @@ export default function ConcertDetails() {
         onChangeIndex={handleChangeIndex}
       >
         <TabPanel value={value} index={0} dir={theme.direction}>
-          <CalendarPicker setTimeDetail={setTimeDetail} />
+          <CalendarPicker { ...{ setTimeDetail } } />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           Item Two
