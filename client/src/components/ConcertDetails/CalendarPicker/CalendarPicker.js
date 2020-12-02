@@ -10,8 +10,6 @@ import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 
-const date = new Date();
-
 const disabledDates = [
   new Date("2020-12-01"),
   new Date("2020-12-04"),
@@ -119,7 +117,7 @@ const SelectSeatBtn = styled(Button)((props) => ({
 
 const tileDisabled = ({ date, view }) => {
   if (view === "month") {
-    return disabledDates.find(dDate => isSameDay(dDate, date));
+    return disabledDates.find((dDate) => isSameDay(dDate, date));
   }
 };
 
@@ -149,7 +147,6 @@ export default function CalendarPicker({ setTimeDetail }) {
             concert.date === value.getDate()
         )
       );
-      console.log(value.getMonth());
     }
     setValue(value);
   };

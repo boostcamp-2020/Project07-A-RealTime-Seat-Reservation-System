@@ -1,9 +1,27 @@
-import React from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { Box } from "@material-ui/core";
 import { makeStyles, styled } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
+import { SeatContext } from "../../../stores/SeatStore";
+import { EmptySeatCount } from "../../../types/seatInfo";
+import { socket } from "../../../socket";
+import { useQuery, gql } from "@apollo/client";
 
+const GET_ITEMS = gql`
+  query {
+    itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+      prices {
+        class
+        price
+      }
+      classes {
+        class
+        color
+      }
+    }
+  }
+`;
 interface styleProps {
   color: string;
 }
@@ -60,21 +78,37 @@ const Badge = styled(Box)((props: styleProps) => ({
 export default function EmptySeatsCount() {
   const classes = useStyles();
   const seats = useSeats();
+  const [seatsCount, setSeatsCount] = useState<EmptySeatCount[]>([]);
+  const { serverSeats } = useContext(SeatContext);
+
+  const { loading, error, data } = useQuery(GET_ITEMS);
+  console.log(loading, error, data);
+
+  useEffect(() => {
+    socket.emit("joinRoom", "A");
+    setSeatsCount([...serverSeats.counts]);
+  }, []);
+
+  useEffect(() => {
+    setSeatsCount([...serverSeats.counts]);
+    console.log(seatsCount);
+  }, [serverSeats.counts]);
+
   return (
     <>
       <Box className={classes.info}>
         <table className={classes.table}>
           <tbody>
-            {seats.seatCount.map((element, idx) => {
+            {seatsCount.map((element, idx) => {
               return (
                 <tr key={idx} className={classes.item}>
                   <td className={classes.title}>
-                    <Badge component="span" color={element.color}></Badge>
-                    <span>{element.name}</span>
+                    <Badge component="span" color="#1200D3"></Badge>
+                    <span>{element.class}</span>
                   </td>
                   <td className={classes.seatCount}>잔여 {element.count}석</td>
                   <td className={classes.price}>
-                    {new Intl.NumberFormat("ko-KR").format(element.price)}원
+                    {new Intl.NumberFormat("ko-KR").format(100000)}원
                   </td>
                 </tr>
               );
