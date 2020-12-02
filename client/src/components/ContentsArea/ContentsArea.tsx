@@ -10,7 +10,7 @@ import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFill
 const useStyles = makeStyles((theme: Theme) => ({
   poster: {
     backgroundImage: `url(${tmp})`,
-    height: "210px",
+    minHeight: "210px",
     backgroundSize: "cover",
     backgroundPosition: "50% 50%",
   },

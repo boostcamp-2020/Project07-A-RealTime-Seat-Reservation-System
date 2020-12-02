@@ -16,6 +16,7 @@ interface SeatCount {
   name: string;
   color: string;
   count: number;
+  price: number;
 }
 
 export const increaseSeat = (seatName: string) => ({
@@ -39,7 +40,7 @@ type SeatsAction =
   | ReturnType<typeof increaseSeat>
   | ReturnType<typeof decreaseSeat>
   | ReturnType<typeof selectSeat>
-  | ReturnType<typeof cancelSeat>
+  | ReturnType<typeof cancelSeat>;
 
 export interface Seat {
   selectedSeat: Array<SeatInfo>;
@@ -51,13 +52,11 @@ type SeatState = Seat;
 const initialState: SeatState = {
   selectedSeat: [],
   seatCount: [
-    { color: "#6c5ce7", name: "VIP석", count: 2 },
-    { color: "#74b9ff", name: "R석", count: 0 },
-    { color: "#e17055", name: "S석", count: 5 },
+    { color: "#6c5ce7", name: "VIP석", count: 2, price: 140000 },
+    { color: "#74b9ff", name: "R석", count: 0, price: 120000 },
+    { color: "#e17055", name: "S석", count: 5, price: 100000 },
   ],
 };
-
-
 
 const seatsReducer = (
   state: SeatState = initialState,

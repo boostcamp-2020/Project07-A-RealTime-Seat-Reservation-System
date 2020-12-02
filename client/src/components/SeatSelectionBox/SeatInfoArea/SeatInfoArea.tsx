@@ -1,12 +1,12 @@
-import React, {useEffect}from "react";
+import React, { useEffect } from "react";
 import { Paper, Box, List, ListItem, Button } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
 import useCancelSeat from "../../../hooks/useCancelSeat";
-import {socket} from "../../../socket"
-import useSocket from "../../../hooks/useSocket";
+import { socket } from "../../../socket";
+import { useHistory } from "react-router-dom";
 interface styleProps {
   color: string;
 }
@@ -127,19 +127,31 @@ const Badge = styled(Box)((props: styleProps) => ({
   backgroundColor: props.color,
 }));
 
-const unsold = '#01DF3A';
+const unsold = "#01DF3A";
 
 export default function SeatInfoArea() {
   const classes = useStyles();
   const seats = useSeats();
   const cancelSeat = useCancelSeat();
+  const history = useHistory();
 
   const handleClickCancel = (seat: any) => {
-    seat.status = 'unsold';
+    seat.status = "unsold";
     seat.color = unsold;
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat.id, seat);
     // TODO: 소켓으로 해당 좌석을 취소했다는것 emit
+  };
+
+  const handleClickPre = () => {
+    history.goBack();
+  };
+
+  const handleClickNext = () => {
+    const paymentLink = "/payment";
+    history.push({
+      pathname: paymentLink,
+    });
   };
 
   return (
@@ -178,9 +190,7 @@ export default function SeatInfoArea() {
                     <Box className={classes.seatLoca}>
                       <span>
                         <Badge component="span" color={element.color}></Badge>
-                        <span>
-                          {element.name}
-                        </span>
+                        <span>{element.name}</span>
                       </span>
                       <CloseIcon
                         className={classes.cancel}
@@ -196,10 +206,20 @@ export default function SeatInfoArea() {
         </Box>
       </Paper>
       <Box className={classes.stepBtn}>
-        <Button size="large" variant="contained" className={classes.beforeBtn}>
+        <Button
+          size="large"
+          variant="contained"
+          onClick={handleClickPre}
+          className={classes.beforeBtn}
+        >
           이전단계
         </Button>
-        <Button size="large" variant="contained" className={classes.nextBtn}>
+        <Button
+          size="large"
+          variant="contained"
+          onClick={handleClickNext}
+          className={classes.nextBtn}
+        >
           다음단계
         </Button>
       </Box>
