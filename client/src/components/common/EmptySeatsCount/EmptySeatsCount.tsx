@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, List, ListItem } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { makeStyles, styled } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
@@ -13,8 +13,6 @@ const useStyles = makeStyles(() => ({
     float: "left",
     overflowY: "auto",
     width: "100%",
-    minHeight: "151px",
-    maxHeight: "151px",
     padding: "8px 0 7px",
     boxSizing: "border-box",
     borderTop: `1px solid ${colors.borderGray}`,
@@ -66,20 +64,22 @@ export default function EmptySeatsCount() {
     <>
       <Box className={classes.info}>
         <table className={classes.table}>
-          {seats.seatCount.map((element, idx) => {
-            return (
-              <tr className={classes.item}>
-                <td className={classes.title}>
-                  <Badge component="span" color={element.color}></Badge>
-                  <span>{element.name}</span>
-                </td>
-                <td className={classes.seatCount}>잔여 {element.count}석</td>
-                <td className={classes.price}>
-                  {new Intl.NumberFormat("ko-KR").format(element.price)}원
-                </td>
-              </tr>
-            );
-          })}
+          <tbody>
+            {seats.seatCount.map((element, idx) => {
+              return (
+                <tr key={idx} className={classes.item}>
+                  <td className={classes.title}>
+                    <Badge component="span" color={element.color}></Badge>
+                    <span>{element.name}</span>
+                  </td>
+                  <td className={classes.seatCount}>잔여 {element.count}석</td>
+                  <td className={classes.price}>
+                    {new Intl.NumberFormat("ko-KR").format(element.price)}원
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
       </Box>
     </>
