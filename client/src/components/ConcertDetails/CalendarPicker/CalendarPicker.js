@@ -119,7 +119,7 @@ const SelectSeatBtn = styled(Button)((props) => ({
 
 const tileDisabled = ({ date, view }) => {
   if (view === "month") {
-    return disabledDates.find((dDate) => isSameDay(dDate, date));
+    return disabledDates.find(dDate => isSameDay(dDate, date));
   }
 };
 
