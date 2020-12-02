@@ -1,6 +1,6 @@
 import socketIO from "socket.io";
 import http from "http";
-import { subRedis, userRedis } from "./db/redis";
+// import { subRedis } from "./db/redis";
 
 import controller from "./controllers";
 
@@ -13,53 +13,118 @@ const Server = () => {
       methods: ["GET", "POST"],
     },
   });
-  const concertNamespace = io.of(/^\/\w+$/);
+  const itemNamespace = io.of(/^\/\w+$/);
 
-  const subRedisClient = subRedis;
-  const userRedisClient = userRedis;
+  // const subRedisClient = subRedis;
 
-  concertNamespace.on("connection", async (socket: any) => {
-    concertNamespace.sockets.set(socket.id, socket);
-
+  itemNamespace.on("connection", async (socket: any) => {
     socket.on("disconnecting", async () => {
-      if (concertNamespace.sockets.delete(socket.id)) {
-        await controller.deleteUser(socket.id);
+      const scheduleId = await controller.deleteUserData(socket.id);
+      if (scheduleId) {
+        const seats = await controller.getSeatDataByScheduleId(scheduleId as string);
+        const counts = await controller.getAllClassCount(scheduleId as string);
+
+        itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+        itemNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
+        itemNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
       }
     });
 
-    socket.on("joinRoom", async (concertId: string) => {
-      socket.join(concertId);
+    socket.on("joinBookingRoom", async (scheduleId: string) => {
+      socket.join(`${scheduleId}-booking`);
+      itemNamespace.sockets.set(socket.id, socket);
 
-      const data = await controller.getAllDataByConcertId(concertId);
-      socket.emit("receiveData", data);
+      await controller.setScheduleIdOfSocketId(socket.id, scheduleId);
+      const seats = await controller.getSeatDataByScheduleId(scheduleId);
+      const counts = await controller.getAllClassCount(scheduleId);
+
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
+      itemNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     });
 
-    // socket.on("clickCount", async (concertId: string) => {
-    //   const countData = await controller.getAllClassCount(concertId);
-    //   socket.emit("receiveCount", countData);
-    // });
+    socket.on("leaveBookingRoom", async (scheduleId: string) => {
+      socket.leave(`${scheduleId}-booking`);
 
-    socket.on("clickSeat", async (concertId: string, seatId: any, seatData: any) => {
-      const data = await controller.changeData(socket.id, concertId, seatId, seatData);
-      concertNamespace.to(concertId).emit("receiveData", data);
+      const sId = await controller.deleteUserData(socket.id);
+      if (sId) {
+        const seats = await controller.getSeatDataByScheduleId(scheduleId);
+        const counts = await controller.getAllClassCount(scheduleId);
 
-      const newKey = `${socket.id}"Delimiter"${concertId}"Delimiter"${JSON.stringify(seatData)}`;
-      userRedisClient.setex(newKey, 5, "true");
+        itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+        itemNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
+        itemNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
+      }
+    });
+
+    socket.on("joinCountRoom", async (scheduleId: string) => {
+      socket.join(`${scheduleId}-count`);
+
+      const counts = await controller.getAllClassCount(scheduleId);
+      socket.emit("receiveCount", counts);
+    });
+
+    socket.on("leaveCountRoom", async (scheduleId: string) => {
+      socket.leave(`${scheduleId}-count`);
+    });
+
+    socket.on("willCancelBooking", async (scheduleId: string, seatData: any) => {
+      await controller.setCancelingSeats(socket.id, scheduleId, seatData);
+      const seats = await controller.getSeatDataByScheduleId(scheduleId);
+
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+    });
+
+    socket.on("notCancelBooking", async (scheduleId: string, seatData: any) => {
+      await controller.setSoldSeats(socket.id, scheduleId, seatData);
+      const seats = await controller.getSeatDataByScheduleId(scheduleId);
+
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+    });
+
+    socket.on("cancelBooking", async (scheduleId: string, seatData: any) => {
+      await controller.setUnSoldSeats(socket.id, scheduleId, seatData);
+      const seats = await controller.getSeatDataByScheduleId(scheduleId);
+      const counts = await controller.getAllClassCount(scheduleId);
+
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
+      itemNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
+    });
+
+    socket.on("bookSeat", async (scheduleId: string, seatData: any) => {
+      await controller.setSoldSeats(socket.id, scheduleId, seatData);
+      const seats = await controller.getSeatDataByScheduleId(scheduleId);
+
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+    });
+
+    socket.on("clickSeat", async (scheduleId: string, seatData: any) => {
+      await controller.clickSeat(socket.id, scheduleId, seatData);
+      const seats = await controller.getSeatDataByScheduleId(scheduleId);
+      const counts = await controller.getAllClassCount(scheduleId);
+
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+      itemNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
+      itemNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     });
   });
 
-  subRedisClient.psubscribe("__key*__:*");
-  subRedisClient.on("pmessage", async (pattern: any, channel: any, message: string) => {
-    const [socketId, concertId, seatData] = message.split(`"Delimiter"`);
+  // subRedisClient.psubscribe("__key*__:*");
+  // subRedisClient.on("pmessage", async (pattern: any, channel: any, message: string) => {
+  //   const [socketId, scheduleId, seatData] = message.split(`"Delimiter"`);
+  //   const privateSocket = itemNamespace.sockets.get(socketId) as socketIO.Socket;
 
-    if (concertNamespace.sockets.get(socketId) as socketIO.Socket) {
-      const expiredSeat = await controller.expireSeat(concertId, JSON.parse(seatData));
-      const allData = await controller.getAllDataByConcertId(concertId);
+  //   if (privateSocket) {
+  //     const expiredSeatId = await controller.expireSeat(scheduleId, JSON.parse(seatData));
+  //     const seats = await controller.getSeatDataByScheduleId(scheduleId);
+  //     const counts = await controller.getAllClassCount(scheduleId);
 
-      (concertNamespace.sockets.get(socketId) as socketIO.Socket).emit("expireSeat", expiredSeat);
-      concertNamespace.to(concertId).emit("receiveData", allData);
-    }
-  });
+  //     privateSocket.emit("expireSeat", expiredSeatId);
+  //     itemNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+  //     itemNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
+  //   }
+  // });
 
   server.listen(8080);
 };
