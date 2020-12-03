@@ -141,7 +141,7 @@ export default function SeatInfoArea() {
   const seats = useSeats();
   const cancelSeat = useCancelSeat();
   const history = useHistory();
-  const [seatsCount, setSeatsCount] = useState<EmptySeatCount[]>([]);
+  const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
   const GET_ITEMS = gql`
     query {
@@ -159,7 +159,7 @@ export default function SeatInfoArea() {
     seat.status = "unsold";
     seat.color = unsold;
     cancelSeat(seat.id);
-    socket.emit("clickSeat", "A", seat.id, seat);
+    socket.emit("clickSeat", "A", seat);
   };
 
   const handleClickPre = () => {
@@ -198,14 +198,19 @@ export default function SeatInfoArea() {
         <Box className={classes.seatInfo}>
           <Box className={classes.info}>
             <List dense={true}>
-              {seats.seatCount.map((element, idx) => {
+              {Object.keys(seatsCount).map((element, idx) => {
                 return (
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.title}>
-                      <Badge component="span" color={element.color}></Badge>
-                      <span>{element.name}</span>
+                      <Badge
+                        component="span"
+                        color={data.itemDetail.classes[idx].color}
+                      ></Badge>
+                      <span>{element}</span>
                     </Box>
-                    <Box className={classes.seatCount}>{element.count}석</Box>
+                    <Box className={classes.seatCount}>
+                      {seatsCount[element]}석
+                    </Box>
                   </ListItem>
                 );
               })}
