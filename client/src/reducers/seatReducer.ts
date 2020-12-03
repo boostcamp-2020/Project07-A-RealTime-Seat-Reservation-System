@@ -10,7 +10,7 @@ export const seatReducer = (serverSeats: any, data: ReducerData) => {
     case "SET_DATA":
       return {
         seats: [...data.payload.seats],
-        counts: [...data.payload.counts],
+        counts: { ...data.payload.counts },
       };
     default:
       return serverSeats;

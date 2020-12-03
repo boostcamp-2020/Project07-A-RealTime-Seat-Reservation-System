@@ -9,7 +9,7 @@ export const CountContext = React.createContext<any>(null);
 export function SeatStore({ children }: { children: React.ReactNode }) {
   const [serverSeats, dispatch] = useReducer(seatReducer, {
     seats: [],
-    counts: [],
+    counts: {},
   });
 
   const setServerSeats = (seats: any) => {
@@ -18,11 +18,17 @@ export function SeatStore({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     socket.on(
-      "receiveData",
+      "receiveSeat",
       (seatData: { seats: SeatInfo[]; counts: EmptySeatCount[] }) => {
+        console.log(seatData);
         setServerSeats(seatData);
       }
     );
+    socket.on("receiveCount", (seatData: { counts: Object[] }) => {
+      console.log(seatData);
+      console.log({ ...serverSeats, counts: seatData.counts[0] });
+      setServerSeats({ ...serverSeats, counts: seatData.counts[0] });
+    });
   }, []);
 
   return (

@@ -9,6 +9,7 @@ import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
+import { socket } from "../../../socket";
 
 const disabledDates = [
   new Date("2020-12-01"),
@@ -154,6 +155,8 @@ export default function CalendarPicker({ setTimeDetail }) {
   const handleOnClick = (e) => {
     setSelectedConcertId(e.target.id);
     console.log(selectedConcertId);
+    //socket.emit("leaveCountRoom", scheduleID);
+    socket.emit("joinCountRoom", "A");
   };
 
   const handleOnClickBtn = () => {
