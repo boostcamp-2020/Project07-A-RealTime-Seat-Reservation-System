@@ -2,28 +2,17 @@ import React, { useEffect, useContext, useState } from "react";
 import { Box } from "@material-ui/core";
 import { makeStyles, styled } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
-import useSeats from "../../../hooks/useSeats";
 import { SeatContext } from "../../../stores/SeatStore";
 import { EmptySeatCount } from "../../../types/seatInfo";
 import { socket } from "../../../socket";
 import { useQuery, gql } from "@apollo/client";
 
-const GET_ITEMS = gql`
-  query {
-    itemDetail(itemId: "5fc7834bd703ca7366b38959") {
-      prices {
-        class
-        price
-      }
-      classes {
-        class
-        color
-      }
-    }
-  }
-`;
 interface styleProps {
   color: string;
+}
+interface SeatInfo {
+  color: string;
+  price: number;
 }
 
 const useStyles = makeStyles(() => ({
@@ -50,7 +39,8 @@ const useStyles = makeStyles(() => ({
   },
   seatCount: {
     color: "#666",
-    paddingTop: "10px",
+    paddingTop: "5px",
+    paddingBottom: "5px",
     textAlign: "right",
     whiteSpace: "nowrap",
     fontWeight: "normal",
@@ -77,12 +67,29 @@ const Badge = styled(Box)((props: styleProps) => ({
 
 export default function EmptySeatsCount() {
   const classes = useStyles();
-  const seats = useSeats();
   const [seatsCount, setSeatsCount] = useState<EmptySeatCount[]>([]);
   const { serverSeats } = useContext(SeatContext);
+  let seatInfo: SeatInfo[] = [];
+  // const [seatInfo, setSeatInfo] = useState<{ color: string; price: number }[]>(
+  //   []
+  // );
+
+  const GET_ITEMS = gql`
+    query {
+      itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+        prices {
+          class
+          price
+        }
+        classes {
+          class
+          color
+        }
+      }
+    }
+  `;
 
   const { loading, error, data } = useQuery(GET_ITEMS);
-  console.log(loading, error, data);
 
   useEffect(() => {
     socket.emit("joinRoom", "A");
@@ -91,8 +98,18 @@ export default function EmptySeatsCount() {
 
   useEffect(() => {
     setSeatsCount([...serverSeats.counts]);
-    console.log(seatsCount);
   }, [serverSeats.counts]);
+
+  if (loading) return "Loading...";
+  if (error) return `Error! ${error.message}`;
+  if (data) {
+    seatInfo = data.itemDetail.classes.map((value: any, index: number) => {
+      return {
+        color: value.color,
+        price: data.itemDetail.prices[index].price,
+      };
+    });
+  }
 
   return (
     <>
@@ -103,12 +120,13 @@ export default function EmptySeatsCount() {
               return (
                 <tr key={idx} className={classes.item}>
                   <td className={classes.title}>
-                    <Badge component="span" color="#1200D3"></Badge>
+                    <Badge component="span" color={seatInfo[idx].color}></Badge>
                     <span>{element.class}</span>
                   </td>
                   <td className={classes.seatCount}>잔여 {element.count}석</td>
                   <td className={classes.price}>
-                    {new Intl.NumberFormat("ko-KR").format(100000)}원
+                    {new Intl.NumberFormat("ko-KR").format(seatInfo[idx].price)}
+                    원
                   </td>
                 </tr>
               );

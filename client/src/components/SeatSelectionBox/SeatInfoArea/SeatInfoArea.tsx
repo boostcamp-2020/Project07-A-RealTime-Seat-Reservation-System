@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Paper, Box, List, ListItem, Button } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
@@ -7,10 +7,17 @@ import useSeats from "../../../hooks/useSeats";
 import useCancelSeat from "../../../hooks/useCancelSeat";
 import { socket } from "../../../socket";
 import { useHistory } from "react-router-dom";
+import { useQuery, gql } from "@apollo/client";
+import { SeatContext } from "../../../stores/SeatStore";
+import { EmptySeatCount } from "../../../types/seatInfo";
+
 interface styleProps {
   color: string;
 }
-
+interface SeatInfo {
+  color: string;
+  price: number;
+}
 const useStyles = makeStyles((theme: Theme) => ({
   seatInfoArea: {
     height: "15rem",
@@ -134,13 +141,25 @@ export default function SeatInfoArea() {
   const seats = useSeats();
   const cancelSeat = useCancelSeat();
   const history = useHistory();
+  const [seatsCount, setSeatsCount] = useState<EmptySeatCount[]>([]);
+  const { serverSeats } = useContext(SeatContext);
+  const GET_ITEMS = gql`
+    query {
+      itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+        classes {
+          class
+          color
+        }
+      }
+    }
+  `;
+  const { loading, error, data } = useQuery(GET_ITEMS);
 
   const handleClickCancel = (seat: any) => {
     seat.status = "unsold";
     seat.color = unsold;
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat.id, seat);
-    // TODO: 소켓으로 해당 좌석을 취소했다는것 emit
   };
 
   const handleClickPre = () => {
@@ -153,6 +172,16 @@ export default function SeatInfoArea() {
       pathname: paymentLink,
     });
   };
+
+  useEffect(() => {
+    socket.emit("joinRoom", "A");
+    setSeatsCount([...serverSeats.counts]);
+  }, []);
+  useEffect(() => {
+    setSeatsCount([...serverSeats.counts]);
+  }, [serverSeats.counts]);
+  if (loading) return <h1>"Loading..."</h1>;
+  if (error) return <h1>`Error! ${error.message}`</h1>;
 
   return (
     <>
