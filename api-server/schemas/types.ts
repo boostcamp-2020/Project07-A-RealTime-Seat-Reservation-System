@@ -27,6 +27,7 @@ const typeDefs = gql`
     minBookingCount: Int
     maxBookingCount: Int
     prices: [Price]
+    classes: [Class]
   }
 
   type Price {

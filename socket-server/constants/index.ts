@@ -20,3 +20,10 @@ export enum Class {
   R_SEAT = "R석",
   S_SEAT = "S석",
 }
+
+export enum Key {
+  SEATS = "seats",
+  COUNTS = "counts",
+  USER_SCHEDULE = "user-schedule",
+  USER_SEATS = "user-seats",
+}

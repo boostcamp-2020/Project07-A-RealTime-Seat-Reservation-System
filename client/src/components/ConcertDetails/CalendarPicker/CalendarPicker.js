@@ -104,7 +104,6 @@ const SelectSeatBtn = styled(Button)((props) => ({
 }));
 
 
-
 const isSameDay = (a, b) => {
   return differenceInCalendarDays(a, b) === 0;
 };
@@ -246,7 +245,7 @@ export default function CalendarPicker({ setTimeDetail }) {
                 >
                   {format(
                     new Date(0, 0, 0, concert.hour, concert.minute),
-                    "a H:mm",
+                    "a h:mm",
                     { locale: ko }
                   )}
                 </span>

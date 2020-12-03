@@ -7,6 +7,7 @@ const itemSchema = new mongoose.Schema({
   img: String,
   place: { type: mongoose.SchemaTypes.ObjectId, ref: "Place" },
   prices: Array,
+  classes: Array,
   minBookingCount: Number,
   maxBookingCount: Number,
 });
