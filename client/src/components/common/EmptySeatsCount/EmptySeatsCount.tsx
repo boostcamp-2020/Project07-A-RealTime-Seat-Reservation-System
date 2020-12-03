@@ -2,11 +2,26 @@ import React, { useEffect, useContext, useState } from "react";
 import { Box } from "@material-ui/core";
 import { makeStyles, styled } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
+import useSeats from "../../../hooks/useSeats";
 import { SeatContext } from "../../../stores/SeatStore";
 import { EmptySeatCount } from "../../../types/seatInfo";
 import { socket } from "../../../socket";
 import { useQuery, gql } from "@apollo/client";
 
+const GET_ITEMS = gql`
+  query {
+    itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+      prices {
+        class
+        price
+      }
+      classes {
+        class
+        color
+      }
+    }
+  }
+`;
 interface styleProps {
   color: string;
 }
