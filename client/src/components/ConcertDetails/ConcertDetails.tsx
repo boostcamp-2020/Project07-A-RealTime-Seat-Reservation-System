@@ -15,14 +15,6 @@ import CalendarPicker from "./CalendarPicker/CalendarPicker";
 //import CalendarPicker from "./CalendarPicker/CalendarPicker.js";
 import { useQuery, gql } from "@apollo/client";
 
-const GET_ITEMS = gql`
-  {
-    itemDetail(itemId: "5fc50ac37ac124455f4f2d04") {
-      name
-    }
-  }
-`;
-
 interface TabPanelProps {
   children?: React.ReactNode;
   dir?: string;
@@ -89,11 +81,7 @@ export default function ConcertDetails() {
     hour: undefined,
     minute: undefined,
   });
-
-  const { loading, error, data } = useQuery(GET_ITEMS);
-
-  console.log(loading, error, data);
-
+  
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
   };
