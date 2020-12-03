@@ -174,11 +174,11 @@ export default function SeatInfoArea() {
   };
 
   useEffect(() => {
-    socket.emit("joinRoom", "A");
-    setSeatsCount([...serverSeats.counts]);
+    socket.emit("joinCountRoom", "A");
+    setSeatsCount({ ...serverSeats.counts });
   }, []);
   useEffect(() => {
-    setSeatsCount([...serverSeats.counts]);
+    setSeatsCount({ ...serverSeats.counts });
   }, [serverSeats.counts]);
   if (loading) return <h1>"Loading..."</h1>;
   if (error) return <h1>`Error! ${error.message}`</h1>;

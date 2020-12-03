@@ -10,7 +10,8 @@ import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
-import { DnsTwoTone } from '@material-ui/icons';
+import { DnsTwoTone } from "@material-ui/icons";
+import { socket } from "../../../socket";
 
 // const muiTheme = createMuiTheme({
 //   palette: { primary: colors.naverWhite, secondary: colors.naverBlue },
@@ -103,24 +104,27 @@ const SelectSeatBtn = styled(Button)((props) => ({
   },
 }));
 
-
 const isSameDay = (a, b) => {
   return differenceInCalendarDays(a, b) === 0;
 };
 
-
 const GET_SCHGEDULE = gql`
-query {
-	scheduleListByMonth(itemId:"5fc7834bd703ca7366b38959", startDate:"2020-12-1", endDate:"2021-02-01") {
-    _id
-    date
-  }
+  query {
+    scheduleListByMonth(
+      itemId: "5fc7834bd703ca7366b38959"
+      startDate: "2020-12-1"
+      endDate: "2021-02-01"
+    ) {
+      _id
+      date
+    }
 
-  itemDetail(itemId:"5fc7834bd703ca7366b38959") {
-    startDate
-    endDate
+    itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+      startDate
+      endDate
+    }
   }
-}`;
+`;
 
 const MILESCONT_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -132,40 +136,53 @@ export default function CalendarPicker({ setTimeDetail }) {
   const history = useHistory();
 
   //스케쥴 관련 API 호출
-  const {loading, error, data} = useQuery(GET_SCHGEDULE);
+  const { loading, error, data } = useQuery(GET_SCHGEDULE);
 
-  if (loading)  return <p> loading.... </p>;
+  if (loading) return <p> loading.... </p>;
 
   const startDate = new Date(data.itemDetail.startDate);
-  const endDate = new Date(data.itemDetail.endDate)
+  const endDate = new Date(data.itemDetail.endDate);
 
   //서버에서 날라온 데이터를 오브젝트에 형식에 맞게 변경
-  const scheduleList = data.scheduleListByMonth.map((concert) =>{
+  const scheduleList = data.scheduleListByMonth.map((concert) => {
     const date = new Date(concert.date);
-    return {id: concert._id, year:date.getFullYear(), month:date.getMonth() + 1, date:date.getDate(), hour:date.getHours(), minute:date.getMinutes()}
-  })
+    return {
+      id: concert._id,
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      date: date.getDate(),
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+    };
+  });
 
- 
   //비활성화 해야하는 날짜들을 선별
   const getDisableList = () => {
     const scheduleMap = scheduleList.reduce((map, concert) => {
-      map[new Date(`${concert.year}-${concert.month}-${concert.date}`).getTime()] = concert;
+      map[
+        new Date(`${concert.year}-${concert.month}-${concert.date}`).getTime()
+      ] = concert;
       return map;
     }, {});
 
-    const startMilesecond = new Date(`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`).getTime();
-    const endMilesecond = new Date(`${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`).getTime();
+    const startMilesecond = new Date(
+      `${startDate.getFullYear()}-${
+        startDate.getMonth() + 1
+      }-${startDate.getDate()}`
+    ).getTime();
+    const endMilesecond = new Date(
+      `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`
+    ).getTime();
     let disableList = [];
-    for(let i = startMilesecond; i <= endMilesecond; i+= MILESCONT_PER_DAY ) {
-      if (!scheduleMap[i])
-        disableList = [...disableList, new Date(i)]
+    for (let i = startMilesecond; i <= endMilesecond; i += MILESCONT_PER_DAY) {
+      if (!scheduleMap[i]) disableList = [...disableList, new Date(i)];
     }
     return disableList;
-  }
+  };
 
   const tileDisabled = ({ date, view }) => {
     if (view === "month") {
-      return getDisableList().find(dDate => isSameDay(dDate, date));
+      return getDisableList().find((dDate) => isSameDay(dDate, date));
     }
   };
 
@@ -177,14 +194,13 @@ export default function CalendarPicker({ setTimeDetail }) {
         date: value.getDate(),
       });
       setConcertList(
-        scheduleList
-        .filter(
-          (concert) => {
-            return concert.year === value.getFullYear() &&
+        scheduleList.filter((concert) => {
+          return (
+            concert.year === value.getFullYear() &&
             concert.month === value.getMonth() + 1 &&
             concert.date === value.getDate()
-          }
-        )
+          );
+        })
       );
     }
     setValue(value);
@@ -192,6 +208,9 @@ export default function CalendarPicker({ setTimeDetail }) {
   // TODO: 해당 시간 클릭하면 그 box만 색칠하기.(다른 시간이 선택되어있었으면 그 box 다시 흰색으로 바꾸기)
   const handleOnClick = (e) => {
     setSelectedConcertId(e.target.id);
+    console.log(selectedConcertId);
+    //socket.emit("leaveCountRoom", scheduleID);
+    socket.emit("joinCountRoom", "A");
   };
 
   const handleOnClickBtn = () => {
@@ -203,7 +222,6 @@ export default function CalendarPicker({ setTimeDetail }) {
       },
     });
   };
-
 
   //minDate는 최소 날짜 maxDate는 최고 날짜가 보이는 듯
   //tileDisabled는 비활성화 되어야 하는 날짜가 배열로 들어가야함
