@@ -4,12 +4,11 @@ import { socket } from "../socket";
 import { SeatInfo, EmptySeatCount } from "../types/seatInfo";
 
 export const SeatContext = React.createContext<any>(null);
-export const CountContext = React.createContext<any>(null);
 
 export function SeatStore({ children }: { children: React.ReactNode }) {
   const [serverSeats, dispatch] = useReducer(seatReducer, {
     seats: [],
-    counts: [],
+    counts: {},
   });
 
   const setServerSeats = (seats: any) => {
@@ -17,12 +16,16 @@ export function SeatStore({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    socket.on(
-      "receiveData",
-      (seatData: { seats: SeatInfo[]; counts: EmptySeatCount[] }) => {
-        setServerSeats(seatData);
-      }
-    );
+    let seats: any[] = [];
+    let counts = {};
+    socket.on("receiveSeat", (seatData: { seats: SeatInfo[] }) => {
+      seats = [...seatData.seats];
+      setServerSeats({ counts: { ...counts }, seats: seatData.seats });
+    });
+    socket.on("receiveCount", (seatData: { counts: Object[] }) => {
+      counts = { ...seatData.counts[0] };
+      setServerSeats({ seats: [...seats], counts: seatData.counts[0] });
+    });
   }, []);
 
   return (

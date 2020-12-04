@@ -2,7 +2,7 @@ import { SeatInfo, EmptySeatCount } from "../types/seatInfo";
 
 interface ReducerData {
   type: string;
-  payload: { seats: SeatInfo[]; counts: EmptySeatCount[] };
+  payload: { seats: SeatInfo[]; counts: Object };
 }
 
 export const seatReducer = (serverSeats: any, data: ReducerData) => {
@@ -10,7 +10,7 @@ export const seatReducer = (serverSeats: any, data: ReducerData) => {
     case "SET_DATA":
       return {
         seats: [...data.payload.seats],
-        counts: [...data.payload.counts],
+        counts: { ...data.payload.counts },
       };
     default:
       return serverSeats;
