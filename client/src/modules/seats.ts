@@ -1,4 +1,4 @@
-import {SeatInfo}from "../types/seatInfo"
+import { SeatInfo } from "../types/seatInfo";
 const INCREASE_SEAT = "seats/INCREASE_SEAT" as const;
 const DECREASE_SEAT = "seats/DECREASE_SEAT" as const;
 const SELECT_SEAT = "seats/SELECT_SEAT" as const;
@@ -43,11 +43,7 @@ type SeatState = Seat;
 
 const initialState: SeatState = {
   selectedSeat: [],
-  seatCount: [
-    { color: "#6c5ce7", name: "VIP석", count: 2, price: 140000 },
-    { color: "#74b9ff", name: "R석", count: 0, price: 120000 },
-    { color: "#e17055", name: "S석", count: 5, price: 100000 },
-  ],
+  seatCount: [],
 };
 
 const seatsReducer = (
