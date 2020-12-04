@@ -81,11 +81,11 @@ const TimeBox = styled(Box)((props) => ({
   border: `1px solid ${colors.borderGray2}`,
   borderRadius: "3px",
   fontSize: "14px",
-  color: "#424242",
+  color: props.fontColor,
   cursor: "pointer",
   "&:hover": {
     border: `1px solid ${colors.naverBlue}`,
-    color: `${colors.naverBlue}`,
+    color: props.hoverFontColor,
   },
 }));
 
@@ -254,6 +254,16 @@ export default function CalendarPicker({ setTimeDetail }) {
                   concert.id === selectedConcertId
                     ? colors.naverBlue
                     : colors.naverWhite
+                }
+                fontColor={
+                  concert.id === selectedConcertId
+                    ? colors.naverWhite
+                    : colors.naverFontBlack
+                }
+                hoverFontColor={
+                  concert.id === selectedConcertId
+                    ? colors.naverWhite
+                    : colors.naverBlue
                 }
               >
                 <span

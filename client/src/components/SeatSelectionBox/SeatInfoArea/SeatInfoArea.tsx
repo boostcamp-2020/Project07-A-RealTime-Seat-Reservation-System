@@ -143,6 +143,7 @@ export default function SeatInfoArea() {
   const history = useHistory();
   const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
+  let seatColor;
   const GET_ITEMS = gql`
     query {
       itemDetail(itemId: "5fc7834bd703ca7366b38959") {
@@ -160,6 +161,7 @@ export default function SeatInfoArea() {
     seat.color = unsold;
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat);
+    console.log("cancel");
   };
 
   const handleClickPre = () => {
@@ -179,9 +181,12 @@ export default function SeatInfoArea() {
   }, []);
   useEffect(() => {
     setSeatsCount({ ...serverSeats.counts });
+    console.log(seats.selectedSeat);
   }, [serverSeats.counts]);
-  if (loading) return <h1>"Loading..."</h1>;
-  if (error) return <h1>`Error! ${error.message}`</h1>;
+  if (loading) return <>Loading...</>;
+  if (error) return <>`Error! ${error.message}`</>;
+  if (data) {
+  }
 
   return (
     <>
