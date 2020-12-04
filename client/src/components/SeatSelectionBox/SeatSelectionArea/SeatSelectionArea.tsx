@@ -53,7 +53,8 @@ export default function SeatSelectionArea() {
           seat.status = SEAT_STATUS.CLICKED;
           seat.color = SEAT_COLOR.CLICKED;
           selectSeat(seat);
-          socket.emit("clickSeat", "A", seat.id, seat);
+          socket.emit("clickSeat", "A", seat);
+          console.log(seat);
           return seat;
         } else if (
           seat.status === SEAT_STATUS.CLICKED &&
@@ -62,7 +63,8 @@ export default function SeatSelectionArea() {
           seat.status = SEAT_STATUS.UNSOLD;
           seat.color = SEAT_COLOR.UNSOLD;
           cancelSeat(seat.id);
-          socket.emit("clickSeat", "A", seat.id, seat);
+          socket.emit("clickSeat", "A", seat);
+          console.log(seat);
           return seat;
         }
       }
@@ -73,7 +75,10 @@ export default function SeatSelectionArea() {
     const canvas = canvasRef.current;
     ctx.current = canvas.getContext("2d");
     canvas.addEventListener("click", clickEvent);
-    socket.emit("joinRoom", "A");
+    socket.emit("joinBookingRoom", "A");
+    return () => {
+      socket.emit("leaveBookingRoom", "A");
+    };
   }, []);
 
   useEffect(() => {

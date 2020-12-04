@@ -82,7 +82,7 @@ const Badge = styled(Box)((props: styleProps) => ({
 
 export default function EmptySeatsCount() {
   const classes = useStyles();
-  const [seatsCount, setSeatsCount] = useState<EmptySeatCount[]>([]);
+  const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
   let seatInfo: SeatInfo[] = [];
   // const [seatInfo, setSeatInfo] = useState<{ color: string; price: number }[]>(
@@ -107,12 +107,12 @@ export default function EmptySeatsCount() {
   const { loading, error, data } = useQuery(GET_ITEMS);
 
   useEffect(() => {
-    socket.emit("joinRoom", "A");
-    setSeatsCount([...serverSeats.counts]);
+    socket.emit("joinCountRoom", "A");
+    setSeatsCount({ ...serverSeats.counts });
   }, []);
 
   useEffect(() => {
-    setSeatsCount([...serverSeats.counts]);
+    setSeatsCount({ ...serverSeats.counts });
   }, [serverSeats.counts]);
 
   if (loading) return "Loading...";
@@ -131,14 +131,16 @@ export default function EmptySeatsCount() {
       <Box className={classes.info}>
         <table className={classes.table}>
           <tbody>
-            {seatsCount.map((element, idx) => {
+            {Object.keys(seatsCount).map((element, idx) => {
               return (
                 <tr key={idx} className={classes.item}>
                   <td className={classes.title}>
                     <Badge component="span" color={seatInfo[idx].color}></Badge>
-                    <span>{element.class}</span>
+                    <span>{element}</span>
                   </td>
-                  <td className={classes.seatCount}>잔여 {element.count}석</td>
+                  <td className={classes.seatCount}>
+                    잔여 {seatsCount[element]}석
+                  </td>
                   <td className={classes.price}>
                     {new Intl.NumberFormat("ko-KR").format(seatInfo[idx].price)}
                     원
