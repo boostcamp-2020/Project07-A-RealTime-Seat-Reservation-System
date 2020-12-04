@@ -157,8 +157,7 @@ export default function SeatInfoArea() {
   const { loading, error, data } = useQuery(GET_ITEMS);
 
   const handleClickCancel = (seat: any) => {
-    seat.status = "unsold";
-    seat.color = unsold;
+    seat.status = "clicked";
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat);
     console.log("cancel");
@@ -176,7 +175,7 @@ export default function SeatInfoArea() {
   };
 
   useEffect(() => {
-    socket.emit("joinCountRoom", "A");
+    socket.emit("joinBookingRoom", "A");
     setSeatsCount({ ...serverSeats.counts });
   }, []);
   useEffect(() => {

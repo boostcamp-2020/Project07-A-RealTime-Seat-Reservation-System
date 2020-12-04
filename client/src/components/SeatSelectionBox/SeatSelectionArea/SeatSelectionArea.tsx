@@ -50,8 +50,6 @@ export default function SeatSelectionArea() {
         e.offsetY < seat.point.y + 10
       ) {
         if (seat.status === SEAT_STATUS.UNSOLD) {
-          seat.status = SEAT_STATUS.CLICKED;
-          seat.color = SEAT_COLOR.CLICKED;
           selectSeat(seat);
           socket.emit("clickSeat", "A", seat);
           console.log(seat);
@@ -60,8 +58,6 @@ export default function SeatSelectionArea() {
           seat.status === SEAT_STATUS.CLICKED &&
           componentSelectedSeats[seat.id]
         ) {
-          seat.status = SEAT_STATUS.UNSOLD;
-          seat.color = SEAT_COLOR.UNSOLD;
           cancelSeat(seat.id);
           socket.emit("clickSeat", "A", seat);
           console.log(seat);
