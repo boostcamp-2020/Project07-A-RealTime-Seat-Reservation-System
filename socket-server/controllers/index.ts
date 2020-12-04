@@ -26,7 +26,6 @@ const setUserSeatData = async (socketId: string, seatData: ISeatData) => {
 const setClassCount = async (scheduleId: string, seatData: ISeatData) => {
   const count = (await itemRedis.hget(getKey(scheduleId, Key.COUNTS), seatData.class)) as string;
   let newCount = parseInt(count, 10);
-
   if (seatData.status === Status.UNSOLD) {
     newCount += 1;
   }
@@ -208,7 +207,9 @@ const deleteUserData = async (socketId: string) => {
     ),
   );
 
-  await Promise.all(newSeatArray.map((seat) => setClassCount(scheduleId as string, seat)));
+  for (const seat of newSeatArray) {
+    await setClassCount(scheduleId as string, seat);
+  }
 
   await userRedis.del(getKey(socketId, Key.USER_SEATS));
   await userRedis.del(getKey(socketId, Key.USER_SCHEDULE));
