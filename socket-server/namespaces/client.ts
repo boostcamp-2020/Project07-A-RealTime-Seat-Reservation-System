@@ -70,23 +70,6 @@ const getClientNamespace = (io: socketIO.Server) => {
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
     });
 
-    socket.on("cancelBooking", async (scheduleId: string, seatData: any) => {
-      await controller.setUnSoldSeats(socket.id, scheduleId, seatData);
-      const seats = await controller.getSeatDataByScheduleId(scheduleId);
-      const counts = await controller.getAllClassCount(scheduleId);
-
-      clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
-      clientNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
-      clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
-    });
-
-    socket.on("bookSeat", async (scheduleId: string, seatData: any) => {
-      await controller.setSoldSeats(socket.id, scheduleId, seatData);
-      const seats = await controller.getSeatDataByScheduleId(scheduleId);
-
-      clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
-    });
-
     socket.on("clickSeat", async (scheduleId: string, seatData: any) => {
       await controller.clickSeat(socket.id, scheduleId, seatData);
       const seats = await controller.getSeatDataByScheduleId(scheduleId);
