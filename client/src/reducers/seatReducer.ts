@@ -1,4 +1,4 @@
-import { SeatInfo, EmptySeatCount } from "../types/seatInfo";
+import { SeatInfo } from "../types/seatInfo";
 
 interface ReducerData {
   type: string;

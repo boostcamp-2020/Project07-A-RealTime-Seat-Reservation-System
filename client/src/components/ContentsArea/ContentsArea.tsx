@@ -6,6 +6,7 @@ import tmp from "../../imgs/tmp.jpg";
 import useConcertInfo from "../../hooks/useConcertInfo";
 import DateRangeOutlinedIcon from "@material-ui/icons/DateRangeOutlined";
 import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";
+import { gql, useQuery } from "@apollo/client";
 
 const useStyles = makeStyles((theme: Theme) => ({
   poster: {
@@ -60,6 +61,31 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function ContentsArea() {
   const classes = useStyles();
   const concertInfo = useConcertInfo();
+  const GET_ITEMS = gql`
+    query {
+      itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+        name
+        startDate
+        endDate
+        place {
+          name
+          location
+        }
+        img
+        maxBookingCount
+        prices {
+          class
+          price
+        }
+      }
+    }
+  `;
+
+  const { loading, error, data } = useQuery(GET_ITEMS);
+
+  if (loading) return <>"Loading..."</>;
+  if (error) return <>`Error! ${error.message}`</>;
+
   return (
     <>
       <Box className={classes.poster}></Box>

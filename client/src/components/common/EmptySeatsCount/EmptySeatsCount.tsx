@@ -85,9 +85,6 @@ export default function EmptySeatsCount() {
   const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
   let seatInfo: SeatInfo[] = [];
-  // const [seatInfo, setSeatInfo] = useState<{ color: string; price: number }[]>(
-  //   []
-  // );
 
   const GET_ITEMS = gql`
     query {
