@@ -1,29 +1,31 @@
-export enum Color {
-  VIP_SEAT = "#B40958",
-  R_SEAT = "#DAB8AF",
-  S_SEAT = "#6FAACC",
-  UNSOLD_SEAT = "#01DF3A",
-  SOLD_SEAT = "#D8D8D8",
-  CLICKED_SEAT = "#FA58F4",
-  CANCELING_SEAT = "#000000",
-}
+const Color = {
+  VIP_SEAT: "#B40958",
+  R_SEAT: "#DAB8AF",
+  S_SEAT: "#6FAACC",
+  UNSOLD_SEAT: "#01DF3A",
+  SOLD_SEAT: "#D8D8D8",
+  CLICKED_SEAT: "#FA58F4",
+  CANCELING_SEAT: "#000000",
+};
 
-export enum Status {
-  SOLD = "sold",
-  UNSOLD = "unsold",
-  CLICKED = "clicked",
-  CANCELING = "canceling",
-}
+const Status = {
+  SOLD: "sold",
+  UNSOLD: "unsold",
+  CLICKED: "clicked",
+  CANCELING: "canceling",
+};
 
-export enum Class {
-  VIP_SEAT = "VIP석",
-  R_SEAT = "R석",
-  S_SEAT = "S석",
-}
+const Class = {
+  VIP_SEAT: "VIP석",
+  R_SEAT: "R석",
+  S_SEAT: "S석",
+};
 
-export enum Key {
-  SEATS = "seats",
-  COUNTS = "counts",
-  USER_SCHEDULE = "user-schedule",
-  USER_SEATS = "user-seats",
-}
+const Key = {
+  SEATS: "seats",
+  COUNTS: "counts",
+  USER_SCHEDULE: "user-schedule",
+  USER_SEATS: "user-seats",
+};
+
+export { Color, Status, Class, Key };
