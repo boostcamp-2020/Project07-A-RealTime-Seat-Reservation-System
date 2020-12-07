@@ -3,8 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Tab } from "@material-ui/core";
 import { TabPanel, TabList, TabContext } from "@material-ui/lab";
 
-interface FilterProps {
-  filterList: Array<string>;
+interface ItemFilterPropsInterface {
+  genre: string;
+  setGenre: any;
+  genres: Array<string>;
 }
 const useStyles = makeStyles(() => ({
   root: {},
@@ -14,21 +16,20 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function ItemFilter({ filterList }: FilterProps) {
-  const [value, setValue] = useState("1");
+function ItemFilter({ genre, setGenre, genres }: ItemFilterPropsInterface) {
   const tabStyle = useStyles();
 
   const handleChange = (event: any, newValue: string) => {
-    setValue(newValue);
+    setGenre(newValue);
   };
 
-  const tabList = filterList.map((filterName, idx) => {
-    return <Tab label={filterName} value={(idx + 1).toString()}></Tab>;
+  const tabList = genres.map((genreName: string) => {
+    return <Tab key={genreName} label={genreName} value={genreName}></Tab>;
   });
 
   return (
     <div className={tabStyle.root}>
-      <TabContext value={value}>
+      <TabContext value={genre}>
         <TabList
           className={tabStyle.tabList}
           onChange={handleChange}
