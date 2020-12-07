@@ -8,7 +8,7 @@ import genreResolvers from "./genre";
 
 const resolverMap: IResolvers = {
   Query: {
-    items: itemResolvers.getItemList,
+    items: itemResolvers.getItemListByGenre,
     itemDetail: itemResolvers.getItemDetail,
     scheduleListByMonth: scheduleResolvers.getScheduleListByMonth,
     bookingListByUserId: bookingResolvers.getBookingItem,

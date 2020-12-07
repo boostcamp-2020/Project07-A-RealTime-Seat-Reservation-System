@@ -5,7 +5,7 @@ const typeDefs = gql`
   scalar Date
 
   type Query {
-    items: [Item]
+    items(genre: String): [Item]
     itemDetail(itemId: ID): Item
     scheduleListByMonth(itemId: ID, startDate: String, endDate: String): [Schedule]
     bookingListByUserId(userId: ID): [Booking]

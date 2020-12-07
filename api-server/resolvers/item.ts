@@ -1,8 +1,9 @@
 import { itemModel } from "../models";
 
-const getItemList = async () => {
+const getItemListByGenre = async (_: void, { genre }: any) => {
+  const filter = genre === "전체" ? {} : { genre };
   const itemList = await itemModel
-    .find({}, "_id name startDate endDate img ")
+    .find(filter, "_id name startDate endDate img genre ")
     .populate("place", "name location");
 
   return itemList;
@@ -14,4 +15,4 @@ const getItemDetail = async (_: void, { itemId }: any) => {
   return item;
 };
 
-export default { getItemList, getItemDetail };
+export default { getItemListByGenre, getItemDetail };
