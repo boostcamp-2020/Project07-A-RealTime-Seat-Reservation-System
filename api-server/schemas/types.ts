@@ -9,6 +9,7 @@ const typeDefs = gql`
     itemDetail(itemId: ID): Item
     scheduleListByMonth(itemId: ID, startDate: String, endDate: String): [Schedule]
     bookingListByUserId(userId: ID): [Booking]
+    genres: [Genre]
   }
 
   type Mutation {
@@ -28,6 +29,7 @@ const typeDefs = gql`
     maxBookingCount: Int
     prices: [Price]
     classes: [Class]
+    genre: String
   }
 
   type Price {
@@ -38,6 +40,10 @@ const typeDefs = gql`
   type Place {
     name: String
     location: String
+  }
+
+  type Genre {
+    name: String
   }
 
   type Schedule {

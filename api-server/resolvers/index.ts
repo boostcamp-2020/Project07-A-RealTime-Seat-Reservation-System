@@ -4,6 +4,7 @@ import itemResolvers from "./item";
 import scheduleResolvers from "./schedule";
 import userResolvers from "./user";
 import bookingResolvers from "./booking";
+import genreResolvers from "./genre";
 
 const resolverMap: IResolvers = {
   Query: {
@@ -11,6 +12,7 @@ const resolverMap: IResolvers = {
     itemDetail: itemResolvers.getItemDetail,
     scheduleListByMonth: scheduleResolvers.getScheduleListByMonth,
     bookingListByUserId: bookingResolvers.getBookingItem,
+    genres: genreResolvers.getGenres,
   },
 
   Mutation: {
