@@ -21,5 +21,5 @@ ReactDOM.render(
       </SeatStore>
     </Provider>
   </ApolloProvider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );

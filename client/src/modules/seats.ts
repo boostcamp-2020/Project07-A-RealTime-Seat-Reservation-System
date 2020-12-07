@@ -46,10 +46,7 @@ const initialState: SeatState = {
   seatCount: [],
 };
 
-const seatsReducer = (
-  state: SeatState = initialState,
-  action: SeatsAction
-): SeatState => {
+const seatsReducer = (state: SeatState = initialState, action: SeatsAction): SeatState => {
   switch (action.type) {
     case INCREASE_SEAT:
       return {
@@ -74,9 +71,7 @@ const seatsReducer = (
       };
     case CANCEL_SEAT:
       return {
-        selectedSeat: state.selectedSeat.filter(
-          (seat) => seat.id !== action.payload
-        ),
+        selectedSeat: state.selectedSeat.filter((seat) => seat.id !== action.payload),
         seatCount: state.seatCount.map((seatGrade) => seatGrade),
       };
     default:

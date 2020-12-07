@@ -12,6 +12,9 @@ import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
 import { DnsTwoTone } from "@material-ui/icons";
 import { socket } from "../../../socket";
+import useConcertInfo from "../../../hooks/useConcertInfo";
+import { useDispatch } from "react-redux";
+import { selectSchedule } from "../../../modules/concertInfo";
 
 // const muiTheme = createMuiTheme({
 //   palette: { primary: colors.naverWhite, secondary: colors.naverBlue },
@@ -81,11 +84,11 @@ const TimeBox = styled(Box)((props) => ({
   border: `1px solid ${colors.borderGray2}`,
   borderRadius: "3px",
   fontSize: "14px",
-  color: props.fontColor,
+  color: props.fontcolor,
   cursor: "pointer",
   "&:hover": {
     border: `1px solid ${colors.naverBlue}`,
-    color: props.hoverFontColor,
+    color: props.hoverfontcolor,
   },
 }));
 
@@ -109,17 +112,13 @@ const isSameDay = (a, b) => {
 };
 
 const GET_SCHGEDULE = gql`
-  query {
-    scheduleListByMonth(
-      itemId: "5fc7834bd703ca7366b38959"
-      startDate: "2020-12-1"
-      endDate: "2021-02-01"
-    ) {
+  query GetItem($id: ID) {
+    scheduleListByMonth(itemId: $id, startDate: "2020-12-1", endDate: "2021-02-01") {
       _id
       date
     }
 
-    itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+    itemDetail(itemId: $id) {
       startDate
       endDate
     }
@@ -134,9 +133,13 @@ export default function CalendarPicker({ setTimeDetail }) {
   const [selectedConcertId, setSelectedConcertId] = useState();
   const classes = useStyles();
   const history = useHistory();
+  const concertInfo = useConcertInfo();
+  const dispatch = useDispatch();
 
   //스케쥴 관련 API 호출
-  const { loading, error, data } = useQuery(GET_SCHGEDULE);
+  const { loading, error, data } = useQuery(GET_SCHGEDULE, {
+    variables: { id: concertInfo.id },
+  });
 
   if (loading) return <p> loading.... </p>;
 
@@ -159,19 +162,15 @@ export default function CalendarPicker({ setTimeDetail }) {
   //비활성화 해야하는 날짜들을 선별
   const getDisableList = () => {
     const scheduleMap = scheduleList.reduce((map, concert) => {
-      map[
-        new Date(`${concert.year}-${concert.month}-${concert.date}`).getTime()
-      ] = concert;
+      map[new Date(`${concert.year}-${concert.month}-${concert.date}`).getTime()] = concert;
       return map;
     }, {});
 
     const startMilesecond = new Date(
-      `${startDate.getFullYear()}-${
-        startDate.getMonth() + 1
-      }-${startDate.getDate()}`
+      `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`,
     ).getTime();
     const endMilesecond = new Date(
-      `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`
+      `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`,
     ).getTime();
     let disableList = [];
     for (let i = startMilesecond; i <= endMilesecond; i += MILESCONT_PER_DAY) {
@@ -200,7 +199,7 @@ export default function CalendarPicker({ setTimeDetail }) {
             concert.month === value.getMonth() + 1 &&
             concert.date === value.getDate()
           );
-        })
+        }),
       );
     }
     setValue(value);
@@ -208,7 +207,7 @@ export default function CalendarPicker({ setTimeDetail }) {
   // TODO: 해당 시간 클릭하면 그 box만 색칠하기.(다른 시간이 선택되어있었으면 그 box 다시 흰색으로 바꾸기)
   const handleOnClick = (e) => {
     setSelectedConcertId(e.target.id);
-    console.log(selectedConcertId);
+    dispatch(selectSchedule(e.target.id));
     //socket.emit("leaveCountRoom", scheduleID);
     socket.emit("joinCountRoom", "A");
   };
@@ -250,32 +249,18 @@ export default function CalendarPicker({ setTimeDetail }) {
                 key={concert.id}
                 id={concert.id}
                 onClick={handleOnClick}
-                color={
-                  concert.id === selectedConcertId
-                    ? colors.naverBlue
-                    : colors.naverWhite
+                color={concert.id === selectedConcertId ? colors.naverBlue : colors.naverWhite}
+                fontcolor={
+                  concert.id === selectedConcertId ? colors.naverWhite : colors.naverFontBlack
                 }
-                fontColor={
-                  concert.id === selectedConcertId
-                    ? colors.naverWhite
-                    : colors.naverFontBlack
-                }
-                hoverFontColor={
-                  concert.id === selectedConcertId
-                    ? colors.naverWhite
-                    : colors.naverBlue
+                hoverfontcolor={
+                  concert.id === selectedConcertId ? colors.naverWhite : colors.naverBlue
                 }
               >
-                <span
-                  className={classes.timeItemTitle}
-                  id={concert.id}
-                  onClick={handleOnClick}
-                >
-                  {format(
-                    new Date(0, 0, 0, concert.hour, concert.minute),
-                    "a h:mm",
-                    { locale: ko }
-                  )}
+                <span className={classes.timeItemTitle} id={concert.id} onClick={handleOnClick}>
+                  {format(new Date(0, 0, 0, concert.hour, concert.minute), "a h:mm", {
+                    locale: ko,
+                  })}
                 </span>
               </TimeBox>
             ))}
@@ -285,10 +270,7 @@ export default function CalendarPicker({ setTimeDetail }) {
       ) : null}
       <Box className={classes.btnArea}>
         {selectedConcertId ? (
-          <SelectSeatBtn
-            onClick={handleOnClickBtn}
-            backgroundcolor={colors.naverBtnGreen}
-          >
+          <SelectSeatBtn onClick={handleOnClickBtn} backgroundcolor={colors.naverBtnGreen}>
             좌석 선택하기
           </SelectSeatBtn>
         ) : (

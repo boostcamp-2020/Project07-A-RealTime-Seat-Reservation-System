@@ -29,8 +29,6 @@ export function SeatStore({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SeatContext.Provider value={{ serverSeats, setServerSeats }}>
-      {children}
-    </SeatContext.Provider>
+    <SeatContext.Provider value={{ serverSeats, setServerSeats }}>{children}</SeatContext.Provider>
   );
 }

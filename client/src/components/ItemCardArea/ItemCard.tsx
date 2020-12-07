@@ -5,6 +5,8 @@ import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
+import { useDispatch } from "react-redux";
+import { changeSelectedConcert } from "../../modules/concertInfo";
 
 interface ItemCardPropsInterface {
   item: any;
@@ -22,9 +24,16 @@ const useStyles = makeStyles((theme) => ({
 export default function ItemCard({ item }: ItemCardPropsInterface) {
   const cardStyles = useStyles();
   const history = useHistory();
-
+  const dispatch = useDispatch();
   const handleClick = () => {
-    history.push("/");
+    dispatch(changeSelectedConcert(item._id, item.name));
+    const path = "/";
+    history.push({
+      pathname: path,
+      state: {
+        itemId: item._id,
+      },
+    });
   };
 
   return (

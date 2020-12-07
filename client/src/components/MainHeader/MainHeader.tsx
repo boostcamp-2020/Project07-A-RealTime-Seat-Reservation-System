@@ -1,10 +1,4 @@
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Button,
-} from "@material-ui/core";
+import { AppBar, Toolbar, IconButton, Typography, Button } from "@material-ui/core";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { styled, makeStyles, Theme } from "@material-ui/core/styles";
 import React from "react";
@@ -46,12 +40,7 @@ export default function MainHeader({ title }: props) {
     <>
       <Header position="static">
         <Box>
-          <IconButton
-            onClick={handleClickBack}
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-          >
+          <IconButton onClick={handleClickBack} edge="start" color="inherit" aria-label="menu">
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
