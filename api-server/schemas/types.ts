@@ -30,6 +30,8 @@ const typeDefs = gql`
     prices: [Price]
     classes: [Class]
     genre: String
+    runningTime: String
+    ageLimit: String
   }
 
   type Price {
