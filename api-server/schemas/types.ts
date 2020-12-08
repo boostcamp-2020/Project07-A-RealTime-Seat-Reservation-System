@@ -7,7 +7,7 @@ const typeDefs = gql`
   type Query {
     items(genre: String): [Item]
     itemDetail(itemId: ID): Item
-    scheduleListByMonth(itemId: ID, startDate: String, endDate: String): [Schedule]
+    scheduleListByMonth(itemId: ID): [Schedule]
     bookingListByUserId(userId: ID): [Booking]
     genres: [Genre]
   }

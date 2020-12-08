@@ -10,7 +10,7 @@ const resolverMap: IResolvers = {
   Query: {
     items: itemResolvers.getItemListByGenre,
     itemDetail: itemResolvers.getItemDetail,
-    scheduleListByMonth: scheduleResolvers.getScheduleListByMonth,
+    scheduleListByMonth: scheduleResolvers.getScheduleListByItemId,
     bookingListByUserId: bookingResolvers.getBookingItem,
     genres: genreResolvers.getGenres,
   },
