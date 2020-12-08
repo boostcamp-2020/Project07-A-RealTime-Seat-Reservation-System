@@ -47,7 +47,7 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
   if (
     typeof socketId !== "string" ||
     typeof scheduleId !== "string" ||
-    typeof seatId !== "object"
+    typeof seatId !== "string"
   ) {
     throw Error;
   }
@@ -67,7 +67,7 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
       newSeatData.id,
       JSON.stringify(newSeatData),
     );
-    await setClassCount(scheduleId, newSeatData.class, 1);
+    await setClassCount(scheduleId, newSeatData.class, -1);
     await setUserSeatData(socketId, newSeatData);
   }
 
@@ -84,7 +84,7 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
         newSeatData.id,
         JSON.stringify(newSeatData),
       );
-      await setClassCount(scheduleId, newSeatData.class, -1);
+      await setClassCount(scheduleId, newSeatData.class, 1);
       await setUserSeatData(socketId, newSeatData);
     }
 
@@ -164,7 +164,7 @@ const setUnSoldSeats = async (socketId: string, scheduleId: string, seatIdArray:
   newSeatArray.forEach((seat: SeatDataInterface) => {
     newCountObj = {
       ...newCountObj,
-      [seat.class]: newCountObj[seat.class] === undefined ? -1 : newCountObj[seat.class] - 1,
+      [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
     };
   });
 
@@ -256,7 +256,7 @@ const deleteUserData = async (socketId: string) => {
 
       newCountObj = {
         ...newCountObj,
-        [seat.class]: newCountObj[seat.class] === undefined ? -1 : newCountObj[seat.class] - 1,
+        [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
       };
 
       return { ...seat, status: Status.UNSOLD, color: newColor };

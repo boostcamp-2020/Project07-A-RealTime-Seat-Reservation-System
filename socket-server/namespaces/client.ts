@@ -75,6 +75,9 @@ const getClientNamespace = (io: socketIO.Server) => {
       const seats = await controller.getSeatDataByScheduleId(scheduleId);
       const counts = await controller.getAllClassCount(scheduleId);
 
+      console.log(seats);
+      console.log(counts);
+
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
       clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
