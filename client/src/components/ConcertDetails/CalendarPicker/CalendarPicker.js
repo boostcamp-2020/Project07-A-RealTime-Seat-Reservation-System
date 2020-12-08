@@ -142,7 +142,6 @@ export default function CalendarPicker({ setTimeDetail }) {
   });
 
   if (loading) return <p> loading.... </p>;
-
   const startDate = new Date(data.itemDetail.startDate);
   const endDate = new Date(data.itemDetail.endDate);
 
@@ -162,10 +161,9 @@ export default function CalendarPicker({ setTimeDetail }) {
   //비활성화 해야하는 날짜들을 선별
   const getDisableList = () => {
     const scheduleMap = scheduleList.reduce((map, concert) => {
-      map[new Date(`${concert.year}-${concert.month}-${concert.date}`).getTime()] = concert;
+      map[new Date(`${concert.year}-${concert.month}-${concert.date} 0:0:0`).getTime()] = concert;
       return map;
     }, {});
-
     const startMilesecond = new Date(
       `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`,
     ).getTime();
@@ -174,14 +172,18 @@ export default function CalendarPicker({ setTimeDetail }) {
     ).getTime();
     let disableList = [];
     for (let i = startMilesecond; i <= endMilesecond; i += MILESCONT_PER_DAY) {
-      if (!scheduleMap[i]) disableList = [...disableList, new Date(i)];
+      if (!scheduleMap[i]) {
+        disableList.push(new Date(i));
+      }
     }
     return disableList;
   };
 
+  const disalbeList = getDisableList();
+
   const tileDisabled = ({ date, view }) => {
     if (view === "month") {
-      return getDisableList().find((dDate) => isSameDay(dDate, date));
+      return disalbeList.find((dDate) => isSameDay(dDate, date));
     }
   };
 
