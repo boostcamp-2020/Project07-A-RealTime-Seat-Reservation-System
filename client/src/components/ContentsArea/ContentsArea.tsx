@@ -85,6 +85,8 @@ export default function ContentsArea({ concertId }: Props) {
           price
         }
         img
+        runningTime
+        ageLimit
       }
     }
   `;
@@ -98,7 +100,7 @@ export default function ContentsArea({ concertId }: Props) {
 
   if (loading) return <>"Loading..."</>;
   if (error) return <>`Error! ${error.message}`</>;
-  const { name, startDate, endDate, prices, img } = data.itemDetail;
+  const { name, startDate, endDate, prices, img, runningTime, ageLimit } = data.itemDetail;
   const pricesArr = prices.map((price: Price) => price.price);
 
   return (
@@ -130,7 +132,9 @@ export default function ContentsArea({ concertId }: Props) {
             </Box>
             <Box className={classes.infoRow}>
               <PlayCircleFilledWhiteOutlinedIcon className={classes.infoIcon} fontSize="small" />
-              <span>2시간, 8세 이상 관람가</span>
+              <span>
+                {runningTime}, {ageLimit}
+              </span>
             </Box>
           </Box>
         </Box>

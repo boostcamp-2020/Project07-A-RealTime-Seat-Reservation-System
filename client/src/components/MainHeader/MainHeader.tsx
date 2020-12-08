@@ -44,7 +44,7 @@ export default function MainHeader({ title }: props) {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            {title}
+            {title.length <= 18 ? title : title.substring(0, 17) + "..."}
           </Typography>
           <MyButton color="inherit">MY</MyButton>
         </Box>

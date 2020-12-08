@@ -7,7 +7,7 @@ import { colors } from "../../../styles/variables";
 import { Box, Button } from "@material-ui/core";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
 import { DnsTwoTone } from "@material-ui/icons";
@@ -16,9 +16,6 @@ import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
 
-// const muiTheme = createMuiTheme({
-//   palette: { primary: colors.naverWhite, secondary: colors.naverBlue },
-// });
 const useStyles = makeStyles(() => ({
   calendar: {
     width: "100%",
