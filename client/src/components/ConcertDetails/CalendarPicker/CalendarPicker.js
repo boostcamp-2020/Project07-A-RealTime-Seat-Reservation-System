@@ -7,7 +7,7 @@ import { colors } from "../../../styles/variables";
 import { Box, Button } from "@material-ui/core";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
 import { DnsTwoTone } from "@material-ui/icons";
