@@ -27,7 +27,7 @@ export default function ItemCard({ item }: ItemCardPropsInterface) {
   const dispatch = useDispatch();
   const handleClick = () => {
     dispatch(changeSelectedConcert(item._id, item.name));
-    const path = "/";
+    const path = "/schedule";
     history.push({
       pathname: path,
       state: {
