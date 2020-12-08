@@ -16,7 +16,7 @@ const resolverMap: IResolvers = {
   },
 
   Mutation: {
-    createUser: userResolvers.createUser,
+    loginUser: userResolvers.loginUser,
     bookItem: bookingResolvers.bookItem,
     cancelItem: bookingResolvers.cancelItem,
   },
