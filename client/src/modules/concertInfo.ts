@@ -47,6 +47,7 @@ const concertInfoReducer = (
   switch (action.type) {
     case CHANGE_SELECTED_CONCERT:
       return {
+        ...state,
         id: action.payload.id,
         name: action.payload.name,
       };

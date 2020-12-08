@@ -142,6 +142,7 @@ export default function CalendarPicker({ setTimeDetail }) {
   });
 
   if (loading) return <p> loading.... </p>;
+  if (error) return <>`Error! ${error.message}`</>;
 
   const startDate = new Date(data.itemDetail.startDate);
   const endDate = new Date(data.itemDetail.endDate);
@@ -165,7 +166,6 @@ export default function CalendarPicker({ setTimeDetail }) {
       map[new Date(`${concert.year}-${concert.month}-${concert.date}`).getTime()] = concert;
       return map;
     }, {});
-
     const startMilesecond = new Date(
       `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`,
     ).getTime();
@@ -174,7 +174,9 @@ export default function CalendarPicker({ setTimeDetail }) {
     ).getTime();
     let disableList = [];
     for (let i = startMilesecond; i <= endMilesecond; i += MILESCONT_PER_DAY) {
-      if (!scheduleMap[i]) disableList = [...disableList, new Date(i)];
+      if (!scheduleMap[i]) {
+        disableList = [...disableList, new Date(i)];
+      }
     }
     return disableList;
   };
