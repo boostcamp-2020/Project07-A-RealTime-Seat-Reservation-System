@@ -52,15 +52,10 @@ export default function SeatSelectionArea() {
         if (seat.status === SEAT_STATUS.UNSOLD) {
           selectSeat(seat);
           socket.emit("clickSeat", "A", seat);
-          console.log(seat);
           return seat;
-        } else if (
-          seat.status === SEAT_STATUS.CLICKED &&
-          componentSelectedSeats[seat.id]
-        ) {
+        } else if (seat.status === SEAT_STATUS.CLICKED && componentSelectedSeats[seat.id]) {
           cancelSeat(seat.id);
           socket.emit("clickSeat", "A", seat);
-          console.log(seat);
           return seat;
         }
       }
@@ -79,13 +74,10 @@ export default function SeatSelectionArea() {
 
   useEffect(() => {
     if (seats.length)
-      componentSelectedSeats = seats.reduce(
-        (map: { [index: string]: SeatInfo }, seat) => {
-          map[seat.id] = seat;
-          return map;
-        },
-        {}
-      );
+      componentSelectedSeats = seats.reduce((map: { [index: string]: SeatInfo }, seat) => {
+        map[seat.id] = seat;
+        return map;
+      }, {});
     else componentSelectedSeats = {};
   }, [seats]);
 

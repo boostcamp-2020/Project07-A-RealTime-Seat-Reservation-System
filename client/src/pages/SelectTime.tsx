@@ -6,7 +6,7 @@ export default function SelectTime() {
   const concertInfo = useConcertInfo();
   return (
     <>
-      <MainHeader title={concertInfo.title} />
+      <MainHeader title={concertInfo.name} />
       <ContentsArea />
       <ConcertDetails />
     </>

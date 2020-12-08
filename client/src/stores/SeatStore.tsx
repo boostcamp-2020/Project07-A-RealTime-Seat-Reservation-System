@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from "react";
 import { seatReducer } from "../reducers/seatReducer";
 import { socket } from "../socket";
-import { SeatInfo, EmptySeatCount } from "../types/seatInfo";
+import { SeatInfo } from "../types/seatInfo";
 
 export const SeatContext = React.createContext<any>(null);
 
@@ -29,8 +29,6 @@ export function SeatStore({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SeatContext.Provider value={{ serverSeats, setServerSeats }}>
-      {children}
-    </SeatContext.Provider>
+    <SeatContext.Provider value={{ serverSeats, setServerSeats }}>{children}</SeatContext.Provider>
   );
 }

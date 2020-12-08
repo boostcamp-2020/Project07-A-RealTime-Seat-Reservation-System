@@ -9,7 +9,7 @@ import { socket } from "../../../socket";
 import { useHistory } from "react-router-dom";
 import { useQuery, gql } from "@apollo/client";
 import { SeatContext } from "../../../stores/SeatStore";
-import { EmptySeatCount } from "../../../types/seatInfo";
+import useConcertInfo from "../../../hooks/useConcertInfo";
 
 interface styleProps {
   color: string;
@@ -137,16 +137,16 @@ const Badge = styled(Box)((props: styleProps) => ({
 const unsold = "#01DF3A";
 
 export default function SeatInfoArea() {
+  const concertInfo = useConcertInfo();
   const classes = useStyles();
   const seats = useSeats();
   const cancelSeat = useCancelSeat();
   const history = useHistory();
   const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
-  let seatColor;
   const GET_ITEMS = gql`
-    query {
-      itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+    query ItemDetail($id: ID) {
+      itemDetail(itemId: $id) {
         classes {
           class
           color
@@ -154,13 +154,14 @@ export default function SeatInfoArea() {
       }
     }
   `;
-  const { loading, error, data } = useQuery(GET_ITEMS);
+  const { loading, error, data } = useQuery(GET_ITEMS, {
+    variables: { id: concertInfo.id },
+  });
 
   const handleClickCancel = (seat: any) => {
     seat.status = "clicked";
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat);
-    console.log("cancel");
   };
 
   const handleClickPre = () => {
@@ -180,7 +181,6 @@ export default function SeatInfoArea() {
   }, []);
   useEffect(() => {
     setSeatsCount({ ...serverSeats.counts });
-    console.log(seats.selectedSeat);
   }, [serverSeats.counts]);
   if (loading) return <>Loading...</>;
   if (error) return <>`Error! ${error.message}`</>;
@@ -206,15 +206,10 @@ export default function SeatInfoArea() {
                 return (
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.title}>
-                      <Badge
-                        component="span"
-                        color={data.itemDetail.classes[idx].color}
-                      ></Badge>
+                      <Badge component="span" color={data.itemDetail.classes[idx].color}></Badge>
                       <span>{element}</span>
                     </Box>
-                    <Box className={classes.seatCount}>
-                      {seatsCount[element]}석
-                    </Box>
+                    <Box className={classes.seatCount}>{seatsCount[element]}석</Box>
                   </ListItem>
                 );
               })}

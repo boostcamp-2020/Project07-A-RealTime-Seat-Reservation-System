@@ -1,18 +1,12 @@
 import React, { useState } from "react";
 import SwipeableViews from "react-swipeable-views";
-import {
-  makeStyles,
-  Theme,
-  useTheme,
-  withStyles,
-} from "@material-ui/core/styles";
+import { makeStyles, Theme, useTheme, withStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
 import { colors } from "../../styles/variables";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
-//import CalendarPicker from "./CalendarPicker/CalendarPicker.js";
 import { useQuery, gql } from "@apollo/client";
 
 interface TabPanelProps {
@@ -81,7 +75,7 @@ export default function ConcertDetails() {
     hour: undefined,
     minute: undefined,
   });
-  
+
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
   };
@@ -96,11 +90,7 @@ export default function ConcertDetails() {
         <CustomTabs value={value} onChange={handleChange}>
           <Tab className={classes.tabBtn} label="예매하기" {...a11yProps(0)} />
           <Tab className={classes.tabBtn} label="상세정보" {...a11yProps(1)} />
-          <Tab
-            className={classes.tabBtn}
-            label="리뷰(구현X)"
-            {...a11yProps(2)}
-          />
+          <Tab className={classes.tabBtn} label="리뷰(구현X)" {...a11yProps(2)} />
         </CustomTabs>
       </AppBar>
       <SwipeableViews
@@ -109,7 +99,7 @@ export default function ConcertDetails() {
         onChangeIndex={handleChangeIndex}
       >
         <TabPanel value={value} index={0} dir={theme.direction}>
-          <CalendarPicker { ...{ setTimeDetail } } />
+          <CalendarPicker {...{ setTimeDetail }} />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           Item Two

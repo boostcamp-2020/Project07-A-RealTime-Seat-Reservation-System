@@ -15,10 +15,7 @@ const initialState: socketState = {
   socket: undefined,
 };
 
-const socketReducer = (
-  state: socketState = initialState,
-  action: socketAction
-) => {
+const socketReducer = (state: socketState = initialState, action: socketAction) => {
   switch (action.type) {
     case CREATE:
       return {

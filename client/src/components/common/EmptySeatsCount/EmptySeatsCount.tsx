@@ -7,21 +7,8 @@ import { SeatContext } from "../../../stores/SeatStore";
 import { EmptySeatCount } from "../../../types/seatInfo";
 import { socket } from "../../../socket";
 import { useQuery, gql } from "@apollo/client";
+import useConcertInfo from "../../../hooks/useConcertInfo";
 
-const GET_ITEMS = gql`
-  query {
-    itemDetail(itemId: "5fc7834bd703ca7366b38959") {
-      prices {
-        class
-        price
-      }
-      classes {
-        class
-        color
-      }
-    }
-  }
-`;
 interface styleProps {
   color: string;
 }
@@ -84,14 +71,12 @@ export default function EmptySeatsCount() {
   const classes = useStyles();
   const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
+  const concertInfo = useConcertInfo();
   let seatInfo: SeatInfo[] = [];
-  // const [seatInfo, setSeatInfo] = useState<{ color: string; price: number }[]>(
-  //   []
-  // );
 
   const GET_ITEMS = gql`
-    query {
-      itemDetail(itemId: "5fc7834bd703ca7366b38959") {
+    query ItemDetail($id: ID) {
+      itemDetail(itemId: $id) {
         prices {
           class
           price
@@ -104,7 +89,9 @@ export default function EmptySeatsCount() {
     }
   `;
 
-  const { loading, error, data } = useQuery(GET_ITEMS);
+  const { loading, error, data } = useQuery(GET_ITEMS, {
+    variables: { id: concertInfo.id },
+  });
 
   useEffect(() => {
     socket.emit("joinCountRoom", "A");
@@ -138,12 +125,9 @@ export default function EmptySeatsCount() {
                     <Badge component="span" color={seatInfo[idx].color}></Badge>
                     <span>{element}</span>
                   </td>
-                  <td className={classes.seatCount}>
-                    잔여 {seatsCount[element]}석
-                  </td>
+                  <td className={classes.seatCount}>잔여 {seatsCount[element]}석</td>
                   <td className={classes.price}>
-                    {new Intl.NumberFormat("ko-KR").format(seatInfo[idx].price)}
-                    원
+                    {new Intl.NumberFormat("ko-KR").format(seatInfo[idx].price)}원
                   </td>
                 </tr>
               );
