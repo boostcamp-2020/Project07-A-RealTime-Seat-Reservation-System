@@ -8,6 +8,9 @@ import { EmptySeatCount } from "../../../types/seatInfo";
 import { socket } from "../../../socket";
 import { useQuery, gql } from "@apollo/client";
 import useConcertInfo from "../../../hooks/useConcertInfo";
+import { Prices } from "../../../types/concertInfo";
+import { useDispatch } from "react-redux";
+import { setPrice } from "../../../modules/concertInfo";
 
 interface styleProps {
   color: string;
@@ -72,7 +75,8 @@ export default function EmptySeatsCount() {
   const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
   const concertInfo = useConcertInfo();
-  let seatInfo: SeatInfo[] = [];
+  const dispatch = useDispatch();
+  let seatInfo: Prices[] = [];
 
   const GET_ITEMS = gql`
     query ItemDetail($id: ID) {
@@ -107,6 +111,7 @@ export default function EmptySeatsCount() {
   if (data) {
     seatInfo = data.itemDetail.classes.map((value: any, index: number) => {
       return {
+        class: value.class,
         color: value.color,
         price: data.itemDetail.prices[index].price,
       };

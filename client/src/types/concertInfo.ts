@@ -1,4 +1,4 @@
-interface Prices {
+export interface Prices {
   color: string;
   class: string;
   price: number;
