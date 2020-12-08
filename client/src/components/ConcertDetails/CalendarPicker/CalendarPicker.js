@@ -142,6 +142,8 @@ export default function CalendarPicker({ setTimeDetail }) {
   });
 
   if (loading) return <p> loading.... </p>;
+  if (error) return <>`Error! ${error.message}`</>;
+
   const startDate = new Date(data.itemDetail.startDate);
   const endDate = new Date(data.itemDetail.endDate);
 
