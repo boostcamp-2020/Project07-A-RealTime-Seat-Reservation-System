@@ -7,7 +7,7 @@ import { colors } from "../../../styles/variables";
 import { Box, Button } from "@material-ui/core";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
 import { DnsTwoTone } from "@material-ui/icons";
@@ -113,7 +113,7 @@ const isSameDay = (a, b) => {
 
 const GET_SCHGEDULE = gql`
   query GetItem($id: ID) {
-    scheduleListByMonth(itemId: $id, startDate: "2020-12-1", endDate: "2021-02-01") {
+    scheduleListByMonth(itemId: $id) {
       _id
       date
     }
@@ -142,6 +142,8 @@ export default function CalendarPicker({ setTimeDetail }) {
   });
 
   if (loading) return <p> loading.... </p>;
+  if (error) return <>`Error! ${error.message}`</>;
+
   const startDate = new Date(data.itemDetail.startDate);
   const endDate = new Date(data.itemDetail.endDate);
 

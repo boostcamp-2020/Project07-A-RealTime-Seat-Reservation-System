@@ -1,9 +1,9 @@
 const CHANGE_SELECTED_CONCERT = "concertInfo/CHANGE_SELECTED_CONCERT" as const;
 const SELECT_SCHEDULE = "concertInfo/SELECT_SCHEDULE" as const;
 
-export const changeSelectedConcert = (id: string, name: string) => ({
+export const changeSelectedConcert = (id: string) => ({
   type: CHANGE_SELECTED_CONCERT,
-  payload: { id, name },
+  payload: id,
 });
 
 export const selectSchedule = (id: string) => ({
@@ -19,8 +19,8 @@ export interface ConcertInfo {
   price?: string;
   startDate?: string;
   endDate?: string;
-  //runningTime: string;
-  //class: number;
+  runningTime?: string;
+  class?: string;
 }
 
 type ConcertInfoAction =
@@ -36,8 +36,8 @@ const initialState: ConcertInfoState = {
   price: undefined,
   startDate: undefined,
   endDate: undefined,
-  //runningTime: "2시간 45분",
-  //class: "8세이상 관람가",
+  runningTime: "2시간 45분",
+  class: "8세이상 관람가",
 };
 
 const concertInfoReducer = (
@@ -47,8 +47,8 @@ const concertInfoReducer = (
   switch (action.type) {
     case CHANGE_SELECTED_CONCERT:
       return {
-        id: action.payload.id,
-        name: action.payload.name,
+        ...state,
+        id: action.payload,
       };
     case SELECT_SCHEDULE:
       return {
