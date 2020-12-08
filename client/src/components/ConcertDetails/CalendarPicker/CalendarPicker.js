@@ -113,7 +113,7 @@ const isSameDay = (a, b) => {
 
 const GET_SCHGEDULE = gql`
   query GetItem($id: ID) {
-    scheduleListByMonth(itemId: $id, startDate: "2020-12-1", endDate: "2021-02-01") {
+    scheduleListByMonth(itemId: $id) {
       _id
       date
     }
