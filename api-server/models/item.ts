@@ -10,6 +10,9 @@ const itemSchema = new mongoose.Schema({
   classes: Array,
   minBookingCount: Number,
   maxBookingCount: Number,
+  genre: String,
+  ageLimit: String,
+  runningTime: String,
 });
 
 const itemModel = mongoose.model("Item", itemSchema);

@@ -21,6 +21,7 @@
   "rules": {
     "prettier/prettier": "error",
     "import/no-unresolved": "off",
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "no-restricted-syntax": "off"
   }
 }

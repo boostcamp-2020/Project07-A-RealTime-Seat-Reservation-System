@@ -5,10 +5,11 @@ const typeDefs = gql`
   scalar Date
 
   type Query {
-    items: [Item]
+    items(genre: String): [Item]
     itemDetail(itemId: ID): Item
     scheduleListByMonth(itemId: ID, startDate: String, endDate: String): [Schedule]
     bookingListByUserId(userId: ID): [Booking]
+    genres: [Genre]
   }
 
   type Mutation {
@@ -28,6 +29,9 @@ const typeDefs = gql`
     maxBookingCount: Int
     prices: [Price]
     classes: [Class]
+    genre: String
+    runningTime: String
+    ageLimit: String
   }
 
   type Price {
@@ -38,6 +42,10 @@ const typeDefs = gql`
   type Place {
     name: String
     location: String
+  }
+
+  type Genre {
+    name: String
   }
 
   type Schedule {
@@ -65,7 +73,7 @@ const typeDefs = gql`
     _id: ID
     item: Item
     schedule: Schedule
-    seats: [Seat]
+    seats: [BookingSeat]
   }
 
   type Seat {
@@ -74,6 +82,15 @@ const typeDefs = gql`
     status: String
     color: String
     class: String
+  }
+
+  type BookingSeat {
+    _id: ID
+    name: String
+    class: String
+    status: String
+    color: String
+    price: Int
   }
 
   input ItemInput {
@@ -96,6 +113,9 @@ const typeDefs = gql`
     _id: ID
     name: String
     class: String
+    status: String
+    color: String
+    price: Int
   }
 `;
 
