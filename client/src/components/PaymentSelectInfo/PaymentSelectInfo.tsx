@@ -40,6 +40,7 @@ const useStyles = makeStyles(() => ({
     borderRadius: "3px",
     color: colors.naverWhite,
     lineHeight: "28px",
+    cursor: "pointer",
   },
   seatInfo: {
     padding: "6px 0 15px",
