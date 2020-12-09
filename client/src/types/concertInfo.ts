@@ -11,3 +11,7 @@ export interface SelectedConcertInfo {
   time: string;
   price: Prices[];
 }
+
+export interface Props {
+  concertId: string;
+}

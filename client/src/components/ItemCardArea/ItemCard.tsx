@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -37,18 +37,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ItemCard({ item }: ItemCardPropsInterface) {
   const cardStyles = useStyles();
-  const history = useHistory();
   const dispatch = useDispatch();
 
   const handleClick = () => {
-    dispatch(changeSelectedConcert(item._id, item.name));
-    const path = "/schedule";
-    history.push({
-      pathname: path,
-      state: {
-        itemId: item._id,
-      },
-    });
+    dispatch(changeSelectedConcert(item._id));
   };
 
   const getDuration = (start: string, end: string) => {
@@ -59,19 +51,21 @@ export default function ItemCard({ item }: ItemCardPropsInterface) {
   };
 
   return (
-    <Card className={cardStyles.root} onClick={handleClick}>
-      <CardMedia className={cardStyles.media} image={item.img}></CardMedia>
-      <CardContent>
-        <Typography variant="subtitle1" component="p" classes={{ subtitle1: cardStyles.title }}>
-          {item.name}
-        </Typography>
-        <Typography variant="body2" component="p" classes={{ body2: cardStyles.place }}>
-          {item.place.name}
-        </Typography>
-        <Typography variant="body2" component="p" classes={{ body2: cardStyles.duration }}>
-          {getDuration(item.startDate, item.endDate)}
-        </Typography>
-      </CardContent>
-    </Card>
+    <Link to={`/schedule/${item._id}`}>
+      <Card className={cardStyles.root} onClick={handleClick}>
+        <CardMedia className={cardStyles.media} image={item.img}></CardMedia>
+          <CardContent>
+            <Typography variant="subtitle1" component="p" classes={{ subtitle1: cardStyles.title }}>
+              {item.name}
+            </Typography>
+            <Typography variant="body2" component="p" classes={{ body2: cardStyles.place }}>
+              {item.place.name}
+            </Typography>
+            <Typography variant="body2" component="p" classes={{ body2: cardStyles.duration }}>
+              {getDuration(item.startDate, item.endDate)}
+            </Typography>
+          </CardContent>
+      </Card>
+    </Link>
   );
 }

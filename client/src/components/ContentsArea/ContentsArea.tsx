@@ -1,6 +1,6 @@
 import { Box, CardMedia } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, PropsWithRef } from "react";
 import { colors } from "../../styles/variables";
 import tmp from "../../imgs/tmp.jpg";
 import DateRangeOutlinedIcon from "@material-ui/icons/DateRangeOutlined";
@@ -9,6 +9,7 @@ import { useQuery, gql } from "@apollo/client";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useLocation } from "react-router-dom";
+import { Props } from "../../types/concertInfo";
 interface Price {
   price: number;
 }
@@ -69,7 +70,7 @@ const Poster = styled(CardMedia)((props) => ({
   backgroundSize: "cover",
   backgroundPosition: "50% 50%",
 }));
-export default function ContentsArea() {
+export default function ContentsArea({ concertId }: Props) {
   const classes = useStyles();
   const location: any = useLocation();
   const [itemId, setItemId] = useState<any>("");
@@ -88,13 +89,11 @@ export default function ContentsArea() {
     }
   `;
   useEffect(() => {
-    if (location.state) {
-      setItemId(location.state.itemId);
-    }
+    setItemId(concertId);
   }, []);
 
   const { loading, error, data } = useQuery(GET_ITEMS, {
-    variables: { id: itemId },
+    variables: { id: concertId },
   });
 
   if (loading) return <>"Loading..."</>;

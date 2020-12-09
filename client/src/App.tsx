@@ -9,8 +9,8 @@ function App() {
         <Route path="/" exact component={ItemList} />
         <Route path="/seat" component={SeatSelection} />
         <Route path="/payment" component={Payment} />
-        <Route path="/schedule" component={SelectTime} />
         <Route path="/login" component={Login} />
+        <Route path="/schedule/:concertId" component={SelectTime} />
       </Switch>
     </BrowserRouter>
   );
