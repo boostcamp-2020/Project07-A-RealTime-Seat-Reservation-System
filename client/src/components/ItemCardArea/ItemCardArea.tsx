@@ -4,7 +4,13 @@ import Box from "@material-ui/core/Box";
 import { useQuery, gql } from "@apollo/client";
 import ItemCard from "./ItemCard";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  box: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+}));
 
 interface ItemCardAreaPropsInterface {
   genre: string;
@@ -48,5 +54,5 @@ export default function ItemCardArea({ genre }: ItemCardAreaPropsInterface) {
   if (loading) return <p>loding...</p>;
   if (error) return <p>error...</p>;
 
-  return <Box>{itemMap}</Box>;
+  return <Box className={boxStyles.box}>{itemMap}</Box>;
 }

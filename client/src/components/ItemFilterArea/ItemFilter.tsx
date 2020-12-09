@@ -9,10 +9,27 @@ interface ItemFilterPropsInterface {
   genres: Array<string>;
 }
 const useStyles = makeStyles(() => ({
-  root: {},
-
   tabList: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#89bb6d",
+  },
+
+  indicator: {
+    backgroundColor: "transparent",
+    "& > span": {
+      backgroundColor: "transparent",
+    },
+  },
+
+  tab: {
+    minWidth: "6rem",
+    maxWidth: "6rem",
+    color: "#fff",
+    opacity: 0.5,
+
+    "&$selected": {
+      color: "#fff",
+      opacity: 1,
+    },
   },
 }));
 
@@ -24,22 +41,22 @@ function ItemFilter({ genre, setGenre, genres }: ItemFilterPropsInterface) {
   };
 
   const tabList = genres.map((genreName: string) => {
-    return <Tab key={genreName} label={genreName} value={genreName}></Tab>;
+    return <Tab key={genreName} label={genreName} value={genreName} className={tabStyle.tab}></Tab>;
   });
 
   return (
-    <div className={tabStyle.root}>
+    <>
       <TabContext value={genre}>
         <TabList
           className={tabStyle.tabList}
           onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
+          centered
+          classes={{ indicator: tabStyle.indicator }}
         >
           {tabList}
         </TabList>
       </TabContext>
-    </div>
+    </>
   );
 }
 

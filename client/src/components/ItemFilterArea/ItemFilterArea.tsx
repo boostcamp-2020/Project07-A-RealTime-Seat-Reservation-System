@@ -4,10 +4,9 @@ import { useQuery, gql } from "@apollo/client";
 import ItemFilter from "./ItemFilter";
 
 const useStyles = makeStyles(() => ({
-  root: {},
-
-  tabList: {
-    backgroundColor: "#FFFFFF",
+  root: {
+    marginTop: "1rem",
+    marginBottom: "1rem",
   },
 }));
 
@@ -26,6 +25,7 @@ const GET_GENRES = gql`
 
 function ItemFilterArea({ genre, setGenre }: ItemFilterAreaPropsInterface) {
   const [genres, setGenres] = useState(["전체"]);
+  const itemFilterAreaStyles = useStyles();
 
   const { loading, error, data } = useQuery(GET_GENRES);
 
@@ -38,9 +38,9 @@ function ItemFilterArea({ genre, setGenre }: ItemFilterAreaPropsInterface) {
   }, [data]);
 
   return (
-    <>
+    <div className={itemFilterAreaStyles.root}>
       <ItemFilter genre={genre} setGenre={setGenre} genres={genres}></ItemFilter>
-    </>
+    </div>
   );
 }
 

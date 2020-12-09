@@ -5,7 +5,7 @@ import controller from "../controllers";
 const getClientNamespace = (io: socketIO.Server) => {
   const clientNamespace = io.of("/client");
 
-  clientNamespace.on("connection", async (socket: any) => {
+  clientNamespace.on("connection", async (socket: socketIO.Socket) => {
     socket.on("disconnecting", async () => {
       const scheduleId = await controller.deleteUserData(socket.id);
       if (scheduleId) {
@@ -56,24 +56,27 @@ const getClientNamespace = (io: socketIO.Server) => {
       socket.leave(`${scheduleId}-count`);
     });
 
-    socket.on("willCancelBooking", async (scheduleId: string, seatData: any) => {
-      await controller.setCancelingSeats(socket.id, scheduleId, seatData);
+    socket.on("willCancelBooking", async (scheduleId: string, seatIdArray: [string]) => {
+      await controller.setCancelingSeats(socket.id, scheduleId, seatIdArray);
       const seats = await controller.getSeatDataByScheduleId(scheduleId);
 
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
     });
 
-    socket.on("notCancelBooking", async (scheduleId: string, seatData: any) => {
-      await controller.setSoldSeats(socket.id, scheduleId, seatData);
+    socket.on("notCancelBooking", async (scheduleId: string, seatIdArray: [string]) => {
+      await controller.setSoldSeats(socket.id, scheduleId, seatIdArray);
       const seats = await controller.getSeatDataByScheduleId(scheduleId);
 
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
     });
 
-    socket.on("clickSeat", async (scheduleId: string, seatData: any) => {
-      await controller.clickSeat(socket.id, scheduleId, seatData);
+    socket.on("clickSeat", async (scheduleId: string, seatId: string) => {
+      await controller.clickSeat(socket.id, scheduleId, seatId);
       const seats = await controller.getSeatDataByScheduleId(scheduleId);
       const counts = await controller.getAllClassCount(scheduleId);
+
+      console.log(seats);
+      console.log(counts);
 
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
