@@ -3,6 +3,7 @@ const INCREASE_SEAT = "seats/INCREASE_SEAT" as const;
 const DECREASE_SEAT = "seats/DECREASE_SEAT" as const;
 const SELECT_SEAT = "seats/SELECT_SEAT" as const;
 const CANCEL_SEAT = "seats/CANCEL_SEAT" as const;
+const INIT_SEAT = "seats/INIT_SEAT" as const;
 // TODO: 해당 회차 공연 정보 가져오는 action추가?
 interface SeatCount {
   name: string;
@@ -27,12 +28,16 @@ export const cancelSeat = (id: string) => ({
   type: CANCEL_SEAT,
   payload: id,
 });
+export const initSeat = () => ({
+  type: INIT_SEAT,
+});
 
 type SeatsAction =
   | ReturnType<typeof increaseSeat>
   | ReturnType<typeof decreaseSeat>
   | ReturnType<typeof selectSeat>
-  | ReturnType<typeof cancelSeat>;
+  | ReturnType<typeof cancelSeat>
+  | ReturnType<typeof initSeat>;
 
 export interface Seat {
   selectedSeat: Array<SeatInfo>;
@@ -73,6 +78,11 @@ const seatsReducer = (state: SeatState = initialState, action: SeatsAction): Sea
       return {
         selectedSeat: state.selectedSeat.filter((seat) => seat.id !== action.payload),
         seatCount: state.seatCount.map((seatGrade) => seatGrade),
+      };
+    case INIT_SEAT:
+      return {
+        selectedSeat: [],
+        seatCount: [...state.seatCount],
       };
     default:
       return state;
