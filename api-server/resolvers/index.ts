@@ -13,6 +13,7 @@ const resolverMap: IResolvers = {
     scheduleListByMonth: scheduleResolvers.getScheduleListByItemId,
     bookingListByUserId: bookingResolvers.getBookingItem,
     genres: genreResolvers.getGenres,
+    seats: scheduleResolvers.getSeatsByScheduleId,
   },
 
   Mutation: {
