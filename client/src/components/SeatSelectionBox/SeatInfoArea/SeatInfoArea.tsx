@@ -10,10 +10,8 @@ import { useHistory } from "react-router-dom";
 import { useQuery, gql } from "@apollo/client";
 import { SeatContext } from "../../../stores/SeatStore";
 import useConcertInfo from "../../../hooks/useConcertInfo";
+import { StepButton, Badge } from "../../common";
 
-interface styleProps {
-  color: string;
-}
 interface SeatInfo {
   color: string;
   price: number;
@@ -99,39 +97,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   cancel: {
     cursor: "pointer",
   },
-  stepBtn: {
-    padding: "6px",
-    backgroundColor: "#efefef",
-    borderTop: "1px solid #dbdbdb",
-  },
-  beforeBtn: {
-    width: "39%",
-    height: "51px",
-    marginRight: "1%",
-    backgroundColor: `${colors.naverWhite}`,
-    borderRadius: "0",
-    border: `1px solid rgba(0,0,0,0.15)`,
-    fontWeight: "bold",
-  },
-  nextBtn: {
-    width: "59%",
-    height: "51px",
-    marginLeft: "1%",
-    backgroundColor: `${colors.naverGreen}`,
-    borderRadius: "0",
-    fontWeight: "bold",
-    fontColor: `${colors.naverWhite}`,
-  },
-}));
-
-const Badge = styled(Box)((props: styleProps) => ({
-  display: "inline-block",
-  marginTop: "4px",
-  width: "13px",
-  height: "13px",
-  top: "3px",
-  marginRight: "0.5rem",
-  backgroundColor: props.color,
 }));
 
 const unsold = "#01DF3A";
@@ -163,18 +128,6 @@ export default function SeatInfoArea() {
     cancelSeat(seat.id);
     socket.emit("clickSeat", "A", seat);
   };
-
-  const handleClickPre = () => {
-    history.goBack();
-  };
-
-  const handleClickNext = () => {
-    const paymentLink = "/payment";
-    history.push({
-      pathname: paymentLink,
-    });
-  };
-
   useEffect(() => {
     socket.emit("joinBookingRoom", "A");
     setSeatsCount({ ...serverSeats.counts });
@@ -238,24 +191,7 @@ export default function SeatInfoArea() {
           </Box>
         </Box>
       </Paper>
-      <Box className={classes.stepBtn}>
-        <Button
-          size="large"
-          variant="contained"
-          onClick={handleClickPre}
-          className={classes.beforeBtn}
-        >
-          이전단계
-        </Button>
-        <Button
-          size="large"
-          variant="contained"
-          onClick={handleClickNext}
-          className={classes.nextBtn}
-        >
-          다음단계
-        </Button>
-      </Box>
+      <StepButton link="/payment" next="다음단계" />
     </>
   );
 }

@@ -1,22 +1,30 @@
+import { Prices } from "../types/concertInfo";
+
 const CHANGE_SELECTED_CONCERT = "concertInfo/CHANGE_SELECTED_CONCERT" as const;
 const SELECT_SCHEDULE = "concertInfo/SELECT_SCHEDULE" as const;
+const SET_PRICE = "concertInfo/SET_PRICE" as const;
 
 export const changeSelectedConcert = (id: string) => ({
   type: CHANGE_SELECTED_CONCERT,
   payload: id,
 });
 
-export const selectSchedule = (id: string) => ({
+export const selectSchedule = (id: string, dateDetail: string) => ({
   type: SELECT_SCHEDULE,
-  payload: id,
+  payload: { id, dateDetail },
+});
+
+export const setPrice = (prices: Prices[]) => ({
+  type: SET_PRICE,
+  payload: prices,
 });
 
 export interface ConcertInfo {
   id: string;
   name: string;
   scheduleId?: string;
-  date?: string;
-  price?: string;
+  dateDetail: string;
+  price?: Prices[];
   startDate?: string;
   endDate?: string;
   runningTime?: string;
@@ -25,7 +33,8 @@ export interface ConcertInfo {
 
 type ConcertInfoAction =
   | ReturnType<typeof changeSelectedConcert>
-  | ReturnType<typeof selectSchedule>;
+  | ReturnType<typeof selectSchedule>
+  | ReturnType<typeof setPrice>;
 
 type ConcertInfoState = ConcertInfo;
 
@@ -33,6 +42,7 @@ const initialState: ConcertInfoState = {
   id: "",
   name: "",
   scheduleId: undefined,
+  dateDetail: "",
   price: undefined,
   startDate: undefined,
   endDate: undefined,
@@ -53,7 +63,13 @@ const concertInfoReducer = (
     case SELECT_SCHEDULE:
       return {
         ...state,
-        scheduleId: action.payload,
+        scheduleId: action.payload.id,
+        dateDetail: action.payload.dateDetail,
+      };
+    case SET_PRICE:
+      return {
+        ...state,
+        price: action.payload,
       };
     default:
       return state;

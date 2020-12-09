@@ -7,7 +7,7 @@ import { colors } from "../../../styles/variables";
 import { Box, Button } from "@material-ui/core";
 import DateRangeIcon from "@material-ui/icons/DateRange";
 import { EmptySeatsCount } from "../../common";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
 import { DnsTwoTone } from "@material-ui/icons";
@@ -16,9 +16,6 @@ import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
 
-// const muiTheme = createMuiTheme({
-//   palette: { primary: colors.naverWhite, secondary: colors.naverBlue },
-// });
 const useStyles = makeStyles(() => ({
   calendar: {
     width: "100%",
@@ -209,9 +206,16 @@ export default function CalendarPicker({ setTimeDetail }) {
     setValue(value);
   };
   // TODO: 해당 시간 클릭하면 그 box만 색칠하기.(다른 시간이 선택되어있었으면 그 box 다시 흰색으로 바꾸기)
-  const handleOnClick = (e) => {
-    setSelectedConcertId(e.target.id);
-    dispatch(selectSchedule(e.target.id));
+  const handleOnClick = (concert) => {
+    const dateDetail = format(
+      new Date(concert.year, concert.month, concert.date, concert.hour, concert.minute),
+      "yyyy. M. d. (ccc), a h:mm",
+      {
+        locale: ko,
+      },
+    );
+    setSelectedConcertId(concert.id);
+    dispatch(selectSchedule(concert.id, dateDetail));
     //socket.emit("leaveCountRoom", scheduleID);
     socket.emit("joinCountRoom", "A");
   };
@@ -252,7 +256,7 @@ export default function CalendarPicker({ setTimeDetail }) {
               <TimeBox
                 key={concert.id}
                 id={concert.id}
-                onClick={handleOnClick}
+                onClick={() => handleOnClick(concert)}
                 color={concert.id === selectedConcertId ? colors.naverBlue : colors.naverWhite}
                 fontcolor={
                   concert.id === selectedConcertId ? colors.naverWhite : colors.naverFontBlack
@@ -261,7 +265,11 @@ export default function CalendarPicker({ setTimeDetail }) {
                   concert.id === selectedConcertId ? colors.naverWhite : colors.naverBlue
                 }
               >
-                <span className={classes.timeItemTitle} id={concert.id} onClick={handleOnClick}>
+                <span
+                  className={classes.timeItemTitle}
+                  id={concert.id}
+                  onClick={() => handleOnClick(concert)}
+                >
                   {format(new Date(0, 0, 0, concert.hour, concert.minute), "a h:mm", {
                     locale: ko,
                   })}

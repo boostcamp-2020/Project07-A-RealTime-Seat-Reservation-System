@@ -3,6 +3,7 @@ export const colors = {
   naverWhite: "#fff",
   naverRed: "#ff5658",
   naverFontBlack: "#242424",
+  naverFontDarkGray: "#424242",
   naverFontSub: "#666",
   naverBlue: "#3787ff",
   naverBtnGreen: "#00d780",
