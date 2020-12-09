@@ -101,16 +101,12 @@ const typeDefs = gql`
 
   input ScheduleInput {
     _id: ID
-    date: ISODate
+    date: String
   }
 
   input SeatInput {
-    _id: ID
     name: String
     class: String
-    status: String
-    color: String
-    price: Int
   }
 `;
 
