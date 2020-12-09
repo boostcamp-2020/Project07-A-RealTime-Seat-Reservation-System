@@ -21,7 +21,7 @@ const getClientNamespace = (io: socketIO.Server) => {
     });
 
     socket.on("joinBookingRoom", async (userId: string, scheduleId: string) => {
-      clientNamespace.sockets.set(socket.id, socket);
+      clientNamespace.sockets.set(userId, socket);
 
       await userController.setUserIdOfSocket(socket.id, userId);
       await userController.setScheduleIdOfUser(userId, scheduleId);
@@ -90,15 +90,29 @@ const getClientNamespace = (io: socketIO.Server) => {
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveCount", counts);
       clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     });
+
+    socket.on(
+      "unSetExpireSeat",
+      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+        await itemController.unSetExpireSeat(userId, scheduleId, seatIdArray);
+      },
+    );
+
+    socket.on(
+      "setExpireSeat",
+      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+        await itemController.setExpireSeat(userId, scheduleId, seatIdArray);
+      },
+    );
   });
 
   subRedis.psubscribe("__key*__:*");
   subRedis.on("pmessage", async (pattern: any, channel: any, message: string) => {
-    const [socketId, scheduleId, seatData] = message.split(`"Delimiter"`);
-    const privateSocket = clientNamespace.sockets.get(socketId) as socketIO.Socket;
+    const [userId, scheduleId, seatId] = message.split(":");
+    const privateSocket = clientNamespace.sockets.get(userId) as socketIO.Socket;
 
     if (privateSocket) {
-      const expiredSeatId = await itemController.expireSeat(scheduleId, JSON.parse(seatData));
+      const expiredSeatId = await itemController.expireSeat(scheduleId, seatId);
       const seats = await itemController.getSeatDataByScheduleId(scheduleId);
       const counts = await itemController.getAllClassCount(scheduleId);
 

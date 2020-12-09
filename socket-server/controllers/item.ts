@@ -1,8 +1,26 @@
-import { itemRedis } from "../db/redis";
+import { itemRedis, userRedis } from "../db/redis";
 import userController from "./user";
-import { getKey } from "../utils";
+import { getExpireKey, getKey } from "../utils";
 import { SeatDataInterface, ClassInterface, ColorInterface } from "../types";
 import { Status, Key, Class, Color } from "../constants";
+
+const setExpireSeat = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+  await Promise.all(
+    seatIdArray.map((id) => {
+      const newExpireKey = getExpireKey(userId, scheduleId, id);
+      return userRedis.setex(newExpireKey, 5, "expire");
+    }),
+  );
+};
+
+const unSetExpireSeat = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+  await Promise.all(
+    seatIdArray.map((id) => {
+      const newExpireKey = getExpireKey(userId, scheduleId, id);
+      return userRedis.del(newExpireKey);
+    }),
+  );
+};
 
 const setClassCount = async (scheduleId: string, className: string, count: number) => {
   const countDataJSON = await itemRedis.hget(getKey(scheduleId, Key.COUNTS), className);
@@ -32,12 +50,8 @@ const getSeatDataByScheduleId = async (scheduleId: string) => {
   return { seats: seats.map((seat) => JSON.parse(seat)) };
 };
 
-const clickSeat = async (socketId: string, scheduleId: string, seatId: string) => {
-  if (
-    typeof socketId !== "string" ||
-    typeof scheduleId !== "string" ||
-    typeof seatId !== "string"
-  ) {
+const clickSeat = async (userId: string, scheduleId: string, seatId: string) => {
+  if (typeof userId !== "string" || typeof scheduleId !== "string" || typeof seatId !== "string") {
     throw Error;
   }
 
@@ -57,7 +71,8 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
       JSON.stringify(newSeatData),
     );
     await setClassCount(scheduleId, newSeatData.class, -1);
-    await userController.setUserSeatData(socketId, newSeatData);
+    await userController.setUserSeatData(userId, newSeatData);
+    await setExpireSeat(userId, scheduleId, [seatId]);
   }
 
   if (seatData.status === Status.CLICKED) {
@@ -74,16 +89,11 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
         JSON.stringify(newSeatData),
       );
       await setClassCount(scheduleId, newSeatData.class, 1);
-      await userController.setUserSeatData(socketId, newSeatData);
+      await userController.setUserSeatData(userId, newSeatData);
     }
 
     if (!newKey) throw Error;
   }
-
-  // const newExpireKey = `${socketId}"Delimiter"${scheduleId}"Delimiter"${JSON.stringify(
-  //   newSeatData,
-  // )}`;
-  // userRedis.setex(newExpireKey, 5, "expire");
 };
 
 const setCancelingSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
@@ -170,7 +180,7 @@ const setUnSoldSeats = async (userId: string, scheduleId: string, seatIdArray: [
   );
 };
 
-const setSoldSeats = async (socketId: string, scheduleId: string, seatIdArray: [string]) => {
+const setSoldSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
   const seatDataJSONArray = await Promise.all(
     seatIdArray.map((_id: string) => {
       return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
@@ -196,7 +206,7 @@ const setSoldSeats = async (socketId: string, scheduleId: string, seatIdArray: [
 
   await Promise.all(
     newSeatArray.map((seat) => {
-      return setUserSeatData(socketId, seat);
+      return userController.setUserSeatData(userId, seat);
     }),
   );
 };
@@ -224,6 +234,8 @@ const expireSeat = async (scheduleId: string, seatId: string) => {
 };
 
 export default {
+  setExpireSeat,
+  unSetExpireSeat,
   getSeatDataByScheduleId,
   clickSeat,
   getAllClassCount,
