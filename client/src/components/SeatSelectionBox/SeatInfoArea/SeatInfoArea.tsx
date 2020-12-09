@@ -191,7 +191,7 @@ export default function SeatInfoArea() {
           </Box>
         </Box>
       </Paper>
-      <StepButton link="/payment" next="다음단계" />
+      <StepButton click={undefined} link="/payment" next="다음단계" />
     </>
   );
 }
