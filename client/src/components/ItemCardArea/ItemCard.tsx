@@ -54,17 +54,17 @@ export default function ItemCard({ item }: ItemCardPropsInterface) {
     <Link to={`/schedule/${item._id}`}>
       <Card className={cardStyles.root} onClick={handleClick}>
         <CardMedia className={cardStyles.media} image={item.img}></CardMedia>
-          <CardContent>
-            <Typography variant="subtitle1" component="p" classes={{ subtitle1: cardStyles.title }}>
-              {item.name}
-            </Typography>
-            <Typography variant="body2" component="p" classes={{ body2: cardStyles.place }}>
-              {item.place.name}
-            </Typography>
-            <Typography variant="body2" component="p" classes={{ body2: cardStyles.duration }}>
-              {getDuration(item.startDate, item.endDate)}
-            </Typography>
-          </CardContent>
+        <CardContent>
+          <Typography variant="subtitle1" component="p" classes={{ subtitle1: cardStyles.title }}>
+            {item.name}
+          </Typography>
+          <Typography variant="body2" component="p" classes={{ body2: cardStyles.place }}>
+            {item.place.name}
+          </Typography>
+          <Typography variant="body2" component="p" classes={{ body2: cardStyles.duration }}>
+            {getDuration(item.startDate, item.endDate)}
+          </Typography>
+        </CardContent>
       </Card>
     </Link>
   );
