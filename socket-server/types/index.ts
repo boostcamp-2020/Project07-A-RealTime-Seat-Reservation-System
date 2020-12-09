@@ -1,5 +1,5 @@
 export interface SeatDataInterface {
-  id: any;
+  _id: any;
   class: string;
   name: string;
   point: object;

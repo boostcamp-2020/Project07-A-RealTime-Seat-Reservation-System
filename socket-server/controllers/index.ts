@@ -3,15 +3,15 @@ import { Status, Color, Class, Key } from "../constants";
 import { SeatDataInterface, ColorInterface, ClassInterface } from "../types";
 
 const getKey = (id: string, key: string) => {
-  return `${id}-${key}`;
+  return `${id}:${key}`;
 };
 
 const setUserSeatData = async (socketId: string, seatData: SeatDataInterface) => {
   if (seatData.status === Status.UNSOLD || seatData.status === Status.SOLD) {
-    await userRedis.hdel(getKey(socketId, Key.USER_SEATS), seatData.id);
+    await userRedis.hdel(getKey(socketId, Key.USER_SEATS), seatData._id);
   }
   if (seatData.status === Status.CLICKED || seatData.status === Status.CANCELING) {
-    await userRedis.hset(getKey(socketId, Key.USER_SEATS), seatData.id, JSON.stringify(seatData));
+    await userRedis.hset(getKey(socketId, Key.USER_SEATS), seatData._id, JSON.stringify(seatData));
   }
 };
 
@@ -64,7 +64,7 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
     newSeatData = { ...seatData, color: Color.CLICKED_SEAT, status: Status.CLICKED };
     await itemRedis.hset(
       getKey(scheduleId, Key.SEATS),
-      newSeatData.id,
+      newSeatData._id,
       JSON.stringify(newSeatData),
     );
     await setClassCount(scheduleId, newSeatData.class, -1);
@@ -81,7 +81,7 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
       newSeatData = { ...seatData, color: newColor, status: Status.UNSOLD };
       await itemRedis.hset(
         getKey(scheduleId, Key.SEATS),
-        newSeatData.id,
+        newSeatData._id,
         JSON.stringify(newSeatData),
       );
       await setClassCount(scheduleId, newSeatData.class, 1);
@@ -99,8 +99,8 @@ const clickSeat = async (socketId: string, scheduleId: string, seatId: string) =
 
 const setCancelingSeats = async (socketId: string, scheduleId: string, seatIdArray: [string]) => {
   const seatDataJSONArray = await Promise.all(
-    seatIdArray.map((id: string) => {
-      return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
+    seatIdArray.map((_id: string) => {
+      return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
     }),
   );
   const seatArray = seatDataJSONArray.map((seat) => JSON.parse(seat as string));
@@ -117,7 +117,7 @@ const setCancelingSeats = async (socketId: string, scheduleId: string, seatIdArr
 
   await Promise.all(
     newSeatArray.map((seat) => {
-      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat.id, JSON.stringify(seat));
+      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(seat));
     }),
   );
 
@@ -130,8 +130,8 @@ const setCancelingSeats = async (socketId: string, scheduleId: string, seatIdArr
 
 const setUnSoldSeats = async (socketId: string, scheduleId: string, seatIdArray: [string]) => {
   const seatDataJSONArray = await Promise.all(
-    seatIdArray.map((id: string) => {
-      return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
+    seatIdArray.map((_id: string) => {
+      return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
     }),
   );
   const seatArray = seatDataJSONArray.map((seat) => JSON.parse(seat as string));
@@ -155,7 +155,7 @@ const setUnSoldSeats = async (socketId: string, scheduleId: string, seatIdArray:
 
   await Promise.all(
     newSeatArray.map((seat) => {
-      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat.id, JSON.stringify(seat));
+      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(seat));
     }),
   );
 
@@ -183,8 +183,8 @@ const setUnSoldSeats = async (socketId: string, scheduleId: string, seatIdArray:
 
 const setSoldSeats = async (socketId: string, scheduleId: string, seatIdArray: [string]) => {
   const seatDataJSONArray = await Promise.all(
-    seatIdArray.map((id: string) => {
-      return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
+    seatIdArray.map((_id: string) => {
+      return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
     }),
   );
 
@@ -201,7 +201,7 @@ const setSoldSeats = async (socketId: string, scheduleId: string, seatIdArray: [
 
   await Promise.all(
     newSeatArray.map((seat) => {
-      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat.id, JSON.stringify(seat));
+      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(seat));
     }),
   );
 
@@ -231,7 +231,7 @@ const expireSeat = async (scheduleId: string, seatId: string) => {
   await itemRedis.hset(getKey(scheduleId, Key.SEATS), seatData.id, JSON.stringify(expiredSeat));
   await setClassCount(scheduleId, expiredSeat.class, 1);
 
-  return seatData.id;
+  return seatData._id;
 };
 
 const setScheduleIdOfSocketId = async (socketId: string, scheduleId: string) => {
