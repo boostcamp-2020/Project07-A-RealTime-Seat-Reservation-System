@@ -22,7 +22,6 @@ const getClientNamespace = (io: socketIO.Server) => {
 
     socket.on("joinBookingRoom", async (userId: string, scheduleId: string) => {
       clientNamespace.sockets.set(userId, socket);
-
       await userController.setUserIdOfSocket(socket.id, userId);
       await userController.setScheduleIdOfUser(userId, scheduleId);
 
@@ -38,8 +37,8 @@ const getClientNamespace = (io: socketIO.Server) => {
 
     socket.on("leaveBookingRoom", async (userId: string, scheduleId: string) => {
       socket.leave(`${scheduleId}-booking`);
-
       const sId = await userController.deleteUserData(userId);
+
       if (sId) {
         const seats = await itemController.getSeatDataByScheduleId(scheduleId);
         const counts = await itemController.getAllClassCount(scheduleId);
