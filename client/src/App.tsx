@@ -1,6 +1,14 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { SeatSelection, SelectTime, Payment, ItemList, Login, MyPage } from "./pages";
+import {
+  SeatSelection,
+  SelectTime,
+  Payment,
+  ItemList,
+  Login,
+  MyPage,
+  BookingCancel,
+} from "./pages";
 
 function App() {
   return (
@@ -12,6 +20,7 @@ function App() {
         <Route path="/login" component={Login} />
         <Route path="/schedule/:concertId" component={SelectTime} />
         <Route path="/mypage" component={MyPage} />
+        <Route path="/cancel" component={BookingCancel} />
       </Switch>
     </BrowserRouter>
   );
