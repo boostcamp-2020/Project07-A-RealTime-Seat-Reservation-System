@@ -1,5 +1,5 @@
 export interface SeatInfo {
-  id: string;
+  _id: string;
   color: string;
   name: string;
   class: string;
