@@ -151,7 +151,7 @@ export default function SeatSelectionArea() {
         },
         {},
       );
-      console.log(serverSeats.seats)
+      console.log(serverSeats.seats);
       console.log(serverData);
       componentSeats = componentSeats.map((seat: SeatInfo) => {
         if (serverData[seat._id]) {

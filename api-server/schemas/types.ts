@@ -51,7 +51,7 @@ const typeDefs = gql`
 
   type Schedule {
     _id: ID
-    date: ISODate
+    date: String
     seatGroups: [Class]
   }
 

@@ -107,7 +107,7 @@ export default function PaymentSelectionBox() {
     }
   `;
   const [bookItem, { data: bookData, error: mutationError }] = useMutation(BOOK_ITEM);
-  console.log(mutationError);
+
   const GET_INFO = gql`
     query GetInfo($id: ID) {
       itemDetail(itemId: $id) {
