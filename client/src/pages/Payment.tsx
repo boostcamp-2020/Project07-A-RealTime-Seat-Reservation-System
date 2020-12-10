@@ -19,6 +19,9 @@ export default function Payment() {
     } else if (concertInfo.id === "") {
       alert("공연을 선택해주세요.");
       history.replace("/");
+    } else if (concertInfo.dateDetail === "") {
+      alert("회차를 선택해주세요");
+      history.replace("/schedule/" + concertInfo.id);
     }
     return () => {
       dispatch(initSeat());
