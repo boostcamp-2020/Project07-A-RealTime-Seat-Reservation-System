@@ -76,6 +76,7 @@ export default function EmptySeatsCount() {
   const { serverSeats } = useContext(SeatContext);
   const concertInfo = useConcertInfo();
   const dispatch = useDispatch();
+  const intl = new Intl.NumberFormat("ko-KR");
   let seatInfo: Prices[] = [];
 
   const GET_ITEMS = gql`
@@ -131,9 +132,7 @@ export default function EmptySeatsCount() {
                     <span>{element}</span>
                   </td>
                   <td className={classes.seatCount}>잔여 {seatsCount[element]}석</td>
-                  <td className={classes.price}>
-                    {new Intl.NumberFormat("ko-KR").format(seatInfo[idx].price)}원
-                  </td>
+                  <td className={classes.price}>{intl.format(seatInfo[idx].price)}원</td>
                 </tr>
               );
             })}

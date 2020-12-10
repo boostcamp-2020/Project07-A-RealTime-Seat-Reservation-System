@@ -3,7 +3,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { styled, makeStyles, Theme } from "@material-ui/core/styles";
 import React from "react";
 import { colors } from "../../styles/variables";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 
 interface props {
   title: string;
@@ -21,6 +21,7 @@ const Box = styled(Toolbar)({
 const MyButton = styled(Button)({
   fontSize: "1.4rem",
   fontWeight: 100,
+  color: colors.naverWhite,
 });
 const useStyles = makeStyles((theme: Theme) => ({
   title: {
@@ -46,7 +47,9 @@ export default function MainHeader({ title }: props) {
           <Typography variant="h6" className={classes.title}>
             {title.length <= 18 ? title : title.substring(0, 17) + "..."}
           </Typography>
-          <MyButton color="inherit">MY</MyButton>
+          <Link to="/mypage">
+            <MyButton>MY</MyButton>
+          </Link>
         </Box>
       </Header>
     </>

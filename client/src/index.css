@@ -17,6 +17,10 @@ body {
     word-break: break-word;
 }
 
+a {
+    text-decoration: none;
+}
+
 #root {
     position: relative;
     height: 100%;

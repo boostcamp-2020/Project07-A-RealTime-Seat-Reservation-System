@@ -37,6 +37,8 @@ export default function LoginArea() {
     if (data) {
       const { _id, userName } = data.data.loginUser;
       dispatch(setUser({ _id, userName }));
+      localStorage.setItem("userid", _id);
+      localStorage.setItem("userName", userName);
       history.push("/");
     }
   };

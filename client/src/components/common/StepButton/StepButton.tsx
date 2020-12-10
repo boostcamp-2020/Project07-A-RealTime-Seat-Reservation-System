@@ -8,6 +8,7 @@ import { socket } from "../../../socket";
 interface Props {
   link: string;
   next: string;
+  click?: Function;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -39,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-export default function StepButton({ link, next }: Props) {
+export default function StepButton({ link, next, click }: Props) {
   const history = useHistory();
   const classes = useStyles();
 
@@ -48,9 +49,11 @@ export default function StepButton({ link, next }: Props) {
   };
 
   const handleClickNext = () => {
+    if (click) click();
+
     if (next === "결제완료") {
     }
-    history.replace({
+    history.push({
       pathname: link,
     });
   };
