@@ -61,6 +61,7 @@ const useStyles = makeStyles(() => ({
   },
   seatText: {
     display: "table-cell",
+    width: "40%",
     paddingRight: "16px",
     fontSize: "16px",
   },
@@ -112,10 +113,6 @@ export default function PaymentSelectionBox() {
     query GetInfo($id: ID) {
       itemDetail(itemId: $id) {
         name
-        prices {
-          class
-          price
-        }
       }
     }
   `;
@@ -127,28 +124,17 @@ export default function PaymentSelectionBox() {
     history.replace(`/schedule/${concertInfo.id}`);
   };
 
-  useEffect(() => {
-    if (concertInfo.id === "") history.goBack();
-    if (!concertInfo.scheduleId || concertInfo.dateDetail === "")
-      history.replace("/schedule/" + concertInfo.id);
-    if (!localStorage.getItem("userid")) history.replace("/login");
-  }, []);
-
   if (loading) return <p> loading.... </p>;
   if (error) return <>`Error! ${error.message}`</>;
-  const { name, prices } = data.itemDetail;
-  const price = prices.reduce((acc: any, value: any, idx: any, arr: any) => {
-    acc[value.class] = value.price;
-    return acc;
-  }, {});
+  const { name } = data.itemDetail;
 
   const sum = seats.selectedSeat.reduce((acc, cur, i) => {
-    return acc + price[cur.class];
+    return acc + concertInfo.prices[cur.class];
   }, 0);
 
   const clickPay = () => {
     const seatsData = seats.selectedSeat.map((seat: any) => {
-      return { name: seat.name, class: seat.class };
+      return { _id: seat._id, name: seat.name, class: seat.class };
     });
     bookItem({
       variables: {
@@ -183,11 +169,13 @@ export default function PaymentSelectionBox() {
             return (
               <Box key={idx} className={classes.grade}>
                 <Box className={classes.gradeText}>
-                  <Badge component="span" color={seat.color} />
+                  <Badge component="span" color={concertInfo.colors[seat.class]} />
                   <span>{seat.class}</span>
                 </Box>
                 <Box className={classes.seatText}>{seat.name}</Box>
-                <Box className={classes.priceText}>{intl.format(price[seat.class])}원</Box>
+                <Box className={classes.priceText}>
+                  {intl.format(concertInfo.prices[seat.class])}원
+                </Box>
               </Box>
             );
           })}
