@@ -76,7 +76,7 @@ const seatsReducer = (state: SeatState = initialState, action: SeatsAction): Sea
       };
     case CANCEL_SEAT:
       return {
-        selectedSeat: state.selectedSeat.filter((seat) => seat.id !== action.payload),
+        selectedSeat: state.selectedSeat.filter((seat) => seat._id !== action.payload),
         seatCount: state.seatCount.map((seatGrade) => seatGrade),
       };
     case INIT_SEAT:

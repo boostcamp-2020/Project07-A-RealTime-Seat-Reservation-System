@@ -10,14 +10,13 @@ import { socket } from "../../../socket";
 import { SEAT_STATUS } from "../../../constants/seatStatus";
 import { SEAT_COLOR } from "../../../styles/seatColor";
 import { SeatInfo } from "../../../types/seatInfo";
-import { classicNameResolver } from 'typescript';
-
+import useConcertInfo from "../../../hooks/useConcertInfo";
+import { classicNameResolver } from "typescript";
 const Box = styled(Toolbar)({
   minHeight: "22rem",
   justifyContent: "flex-start",
   padding: "0 1rem",
 });
-
 let componentSelectedSeats: { [index: string]: SeatInfo } = {};
 let componentSeats: SeatInfo[] = [];
 let scale: number = 1;
@@ -26,7 +25,6 @@ let yDiff: number = 0;
 let isDragged: boolean = false;
 let xOffset: number = 0;
 let yOffset: number = 0;
-
 export default function SeatSelectionArea() {
   const canvasRef: any = useRef(null);
   const ctx: any = useRef(null);
@@ -34,22 +32,19 @@ export default function SeatSelectionArea() {
   const seats = useSeats().selectedSeat;
   const selectSeat = useSelectSeat();
   const cancelSeat = useCancelSeat();
-
+  const concertInfo = useConcertInfo();
   const draw = () => {
     const canvas = canvasRef.current;
-    ctx.current.clearRect(0, 0, canvas.width, canvas.height);
-
+    ctx.current.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
     componentSeats = componentSeats.map((seat: SeatInfo) => {
-      if (componentSelectedSeats[seat.id]) seat.color = SEAT_COLOR.MYSEAT;
+      if (componentSelectedSeats[seat._id]) seat.color = SEAT_COLOR.MYSEAT;
       return seat;
     });
-
     componentSeats.forEach((seat: SeatInfo) => {
       ctx.current.fillStyle = seat.color;
       ctx.current.fillRect(seat.point.x - xOffset, seat.point.y - yOffset, 10, 10);
     });
   };
-
   const zoomIn = () => {
     ctx.current.scale(2, 2);
     scale *= 2;
@@ -57,7 +52,6 @@ export default function SeatSelectionArea() {
     yOffset = 0;
     draw();
   };
-
   const zoomOut = () => {
     ctx.current.scale(0.5, 0.5);
     scale *= 0.5;
@@ -65,15 +59,13 @@ export default function SeatSelectionArea() {
     yOffset = 0;
     draw();
   };
-
-  const mouseDown = (e:any) => {
+  const mouseDown = (e: any) => {
     e.stopPropagation();
     isDragged = false;
     xDiff = e.offsetX;
     yDiff = e.offsetY;
   };
-
-  const dragging = (e:any) => {
+  const dragging = (e: any) => {
     e.stopPropagation();
     isDragged = true;
     if (xDiff || yDiff) {
@@ -82,8 +74,7 @@ export default function SeatSelectionArea() {
       draw();
     }
   };
-
-  const mouseUp = (e:any) => {
+  const mouseUp = (e: any) => {
     e.stopPropagation();
     xDiff = 0;
     yDiff = 0;
@@ -103,11 +94,21 @@ export default function SeatSelectionArea() {
         ) {
           if (seat.status === SEAT_STATUS.UNSOLD) {
             selectSeat(seat);
-            socket.emit("clickSeat", "A", seat.id);
+            socket.emit(
+              "clickSeat",
+              localStorage.getItem("userid"),
+              concertInfo.scheduleId,
+              seat._id,
+            );
             return seat;
-          } else if (seat.status === SEAT_STATUS.CLICKED && componentSelectedSeats[seat.id]) {
-            cancelSeat(seat.id);
-            socket.emit("clickSeat", "A", seat.id);
+          } else if (seat.status === SEAT_STATUS.CLICKED && componentSelectedSeats[seat._id]) {
+            cancelSeat(seat._id);
+            socket.emit(
+              "clickSeat",
+              localStorage.getItem("userid"),
+              concertInfo.scheduleId,
+              seat._id,
+            );
             return seat;
           }
         }
@@ -117,42 +118,45 @@ export default function SeatSelectionArea() {
       draw();
     }
   };
-
   useEffect(() => {
     const canvas = canvasRef.current;
     ctx.current = canvas.getContext("2d");
-    canvas.style.width="100%";
-    canvas.style.height="100%";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
     canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight
+    canvas.height = canvas.offsetHeight;
     canvas.addEventListener("mousedown", mouseDown);
     canvas.addEventListener("mouseup", mouseUp);
     canvas.addEventListener("mousemove", dragging);
-    socket.emit("joinBookingRoom", "A");
+    socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
+    // console.log(concertInfo.scheduleId);
     return () => {
-      socket.emit("leaveBookingRoom", "A");
+      socket.emit("leaveBookingRoom", concertInfo.scheduleId);
     };
   }, []);
-
   useEffect(() => {
     if (seats.length)
       componentSelectedSeats = seats.reduce((map: { [index: string]: SeatInfo }, seat) => {
-        map[seat.id] = seat;
+        map[seat._id] = seat;
         return map;
       }, {});
     else componentSelectedSeats = {};
   }, [seats]);
-
   useEffect(() => {
     if (componentSeats.length) {
-      const serverData = serverSeats.seats.reduce((map: { [index: string]: SeatInfo }, seat: SeatInfo) => {
-        map[seat.id] = seat;
-        return map;
-      }, {});
+      const serverData = serverSeats.seats.reduce(
+        (map: { [index: string]: SeatInfo }, seat: SeatInfo) => {
+          map[seat._id] = seat;
+          return map;
+        },
+        {},
+      );
+      console.log(serverSeats.seats)
+      console.log(serverData);
       componentSeats = componentSeats.map((seat: SeatInfo) => {
-        if (serverData[seat.id]) {
-          seat.status = serverData[seat.id].status;
-          seat.color = serverData[seat.id].color;
+        if (serverData[seat._id]) {
+          seat.status = serverData[seat._id].status;
+          seat.color = serverData[seat._id].color;
         }
         return seat;
       });
@@ -161,11 +165,10 @@ export default function SeatSelectionArea() {
     }
     draw();
   }, [serverSeats.seats]);
-
   return (
     <>
-      <Button onClick={()=>zoomIn()}>+</Button>
-      <Button onClick={()=>zoomOut()}>-</Button>
+      <Button onClick={() => zoomIn()}>+</Button>
+      <Button onClick={() => zoomOut()}>-</Button>
       <Box>
         <canvas ref={canvasRef} />
       </Box>
