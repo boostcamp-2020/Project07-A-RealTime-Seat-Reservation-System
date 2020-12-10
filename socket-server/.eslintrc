@@ -22,6 +22,7 @@
     "prettier/prettier": "error",
     "import/no-unresolved": "off",
     "import/extensions": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "no-underscore-dangle": "off"
   }
 }

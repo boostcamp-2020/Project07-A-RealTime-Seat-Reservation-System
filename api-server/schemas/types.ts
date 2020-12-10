@@ -10,6 +10,7 @@ const typeDefs = gql`
     scheduleListByMonth(itemId: ID): [Schedule]
     bookingListByUserId(userId: ID): [Booking]
     genres: [Genre]
+    seats(scheduleId: ID): [Seat]
   }
 
   type Mutation {
@@ -77,6 +78,12 @@ const typeDefs = gql`
     status: String
     color: String
     class: String
+    point: Point
+  }
+
+  type Point {
+    x: Int
+    y: Int
   }
 
   type BookingSeat {

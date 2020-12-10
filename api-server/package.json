@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@types/socket.io-client": "^1.4.34",
     "apollo-server-express": "^2.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -14,6 +15,7 @@
     "graphql-iso-date": "^3.6.1",
     "graphql-tools": "^7.0.1",
     "mongoose": "^5.10.15",
+    "socket.io-client": "^3.0.4",
     "typescript": "^4.0.5"
   },
   "devDependencies": {
