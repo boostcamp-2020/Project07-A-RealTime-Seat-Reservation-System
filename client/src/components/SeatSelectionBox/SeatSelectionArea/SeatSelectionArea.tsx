@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { styled } from "@material-ui/core/styles";
-import { Toolbar, Button } from "@material-ui/core";
+import { Toolbar, Button, Box } from "@material-ui/core";
 import React, { useRef, useEffect } from "react";
 import { SeatContext } from "../../../stores/SeatStore";
 import useSelectSeat from "../../../hooks/useSelectSeat";
@@ -12,11 +12,28 @@ import { SEAT_COLOR } from "../../../styles/seatColor";
 import { SeatInfo } from "../../../types/seatInfo";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { classicNameResolver } from "typescript";
-const Box = styled(Toolbar)({
+const CanvasContainer = styled(Toolbar)({
   minHeight: "22rem",
   justifyContent: "flex-start",
   padding: "0 1rem",
 });
+
+const ZoomButton = styled(Button)({
+  width: "45px",
+  height: "45px",
+  display: "block",
+  backgroundColor: "#fff",
+  border: "1px solid #8b8b8b",
+  borderRadius: "0px",
+});
+
+const ButtonBox = styled(Box)({
+  position: "absolute",
+  top: "20px",
+  right: "20px",
+  zIndex:101
+});
+
 let componentSelectedSeats: { [index: string]: SeatInfo } = {};
 let componentSeats: SeatInfo[] = [];
 let scale: number = 1;
@@ -36,6 +53,8 @@ export default function SeatSelectionArea() {
   const draw = () => {
     const canvas = canvasRef.current;
     ctx.current.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
+    ctx.current.fillStyle = "white";
+    ctx.current.fillRect(0,0,canvas.width / scale, canvas.height / scale);
     componentSeats = componentSeats.map((seat: SeatInfo) => {
       if (componentSelectedSeats[seat._id]) seat.color = SEAT_COLOR.MYSEAT;
       return seat;
@@ -129,7 +148,6 @@ export default function SeatSelectionArea() {
     canvas.addEventListener("mouseup", mouseUp);
     canvas.addEventListener("mousemove", dragging);
     socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
-    // console.log(concertInfo.scheduleId);
     return () => {
       socket.emit("leaveBookingRoom", concertInfo.scheduleId);
     };
@@ -151,8 +169,6 @@ export default function SeatSelectionArea() {
         },
         {},
       );
-      console.log(serverSeats.seats);
-      console.log(serverData);
       componentSeats = componentSeats.map((seat: SeatInfo) => {
         if (serverData[seat._id]) {
           seat.status = serverData[seat._id].status;
@@ -167,11 +183,14 @@ export default function SeatSelectionArea() {
   }, [serverSeats.seats]);
   return (
     <>
-      <Button onClick={() => zoomIn()}>+</Button>
-      <Button onClick={() => zoomOut()}>-</Button>
-      <Box>
-        <canvas ref={canvasRef} />
-      </Box>
+
+      <CanvasContainer>
+        <ButtonBox>
+          <ZoomButton onClick={() => zoomIn()}>+</ZoomButton>
+          <ZoomButton onClick={() => zoomOut()}>-</ZoomButton>
+        </ButtonBox>
+        <canvas ref={canvasRef} />   
+      </CanvasContainer>
     </>
   );
 }
