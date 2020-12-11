@@ -125,8 +125,13 @@ export default function SeatInfoArea() {
 
   const handleClickCancel = (seat: any) => {
     seat.status = "clicked";
-    cancelSeat(seat.id);
-    socket.emit("clickSeat", "A", seat.id);
+    cancelSeat(seat._id);
+    socket.emit(
+      "clickSeat",
+      localStorage.getItem("userid"),
+      concertInfo.scheduleId,
+      seat._id,
+    );
   };
   useEffect(() => {
     socket.emit("joinBookingRoom", "A");
