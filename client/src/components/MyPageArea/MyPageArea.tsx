@@ -101,18 +101,24 @@ export default function MyPageArea() {
       }
     }
   `;
-  const { loading, error, data } = useQuery(GET_BOOKING_LIST, {
+  const { loading, error, data, refetch } = useQuery(GET_BOOKING_LIST, {
     variables: { userId: localStorage.getItem("userid") },
   });
 
+  // useEffect(() => {
+  //   console.log(1);
+  //   if (data) {
+  //     setBookingList([...data.bookingListByUserId]);
+  //     console.log(bookingList);
+  //     console.log(2);
+  //   }
+  // }, [data]);
+
   useEffect(() => {
-    console.log(1);
-    if (data) {
-      setBookingList([...data.bookingListByUserId]);
-      console.log(bookingList);
-      console.log(2);
-    }
-  }, [data]);
+    refetch();
+    setBookingList([...data.bookingListByUserId]);
+    console.log(bookingList);
+  }, []);
 
   const handleClickCancel = (e: any) => {
     history.push({
@@ -124,7 +130,7 @@ export default function MyPageArea() {
   };
   if (loading) return <>"Loading..."</>;
   if (error) return <>`Error! ${error.message}`</>;
-  console.log(data.bookingListByUserId);
+
   return (
     <>
       <Box className={classes.userInfoArea}>
