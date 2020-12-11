@@ -13,4 +13,7 @@ export const colors = {
   borderGray2: "#bbb",
   borderLightGray: "#e2e2e2",
   borderLightGray2: "#e7e7e7",
+
+  myPageBlack: "#111",
+  myPagePurple: "#836ad8",
 };

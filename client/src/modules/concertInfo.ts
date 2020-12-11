@@ -1,8 +1,6 @@
-import { Prices } from "../types/concertInfo";
-
 const CHANGE_SELECTED_CONCERT = "concertInfo/CHANGE_SELECTED_CONCERT" as const;
 const SELECT_SCHEDULE = "concertInfo/SELECT_SCHEDULE" as const;
-const SET_PRICE = "concertInfo/SET_PRICE" as const;
+const SET_CLASS_INFO = "concertInfo/SET_CLASS_INFO" as const;
 
 export const changeSelectedConcert = (id: string) => ({
   type: CHANGE_SELECTED_CONCERT,
@@ -14,9 +12,9 @@ export const selectSchedule = (id: string, dateDetail: string) => ({
   payload: { id, dateDetail },
 });
 
-export const setPrice = (prices: Prices[]) => ({
-  type: SET_PRICE,
-  payload: prices,
+export const setClassInfo = (prices: Object, colors: Object) => ({
+  type: SET_CLASS_INFO,
+  payload: { prices, colors },
 });
 
 export interface ConcertInfo {
@@ -24,7 +22,8 @@ export interface ConcertInfo {
   name: string;
   scheduleId?: string;
   dateDetail: string;
-  price?: Prices[];
+  prices: any;
+  colors?: any;
   startDate?: string;
   endDate?: string;
   runningTime?: string;
@@ -34,7 +33,7 @@ export interface ConcertInfo {
 type ConcertInfoAction =
   | ReturnType<typeof changeSelectedConcert>
   | ReturnType<typeof selectSchedule>
-  | ReturnType<typeof setPrice>;
+  | ReturnType<typeof setClassInfo>;
 
 type ConcertInfoState = ConcertInfo;
 
@@ -43,7 +42,8 @@ const initialState: ConcertInfoState = {
   name: "",
   scheduleId: undefined,
   dateDetail: "",
-  price: undefined,
+  prices: {},
+  colors: undefined,
   startDate: undefined,
   endDate: undefined,
   runningTime: "2시간 45분",
@@ -66,10 +66,11 @@ const concertInfoReducer = (
         scheduleId: action.payload.id,
         dateDetail: action.payload.dateDetail,
       };
-    case SET_PRICE:
+    case SET_CLASS_INFO:
       return {
         ...state,
-        price: action.payload,
+        prices: { ...action.payload.prices },
+        colors: { ...action.payload.colors },
       };
     default:
       return state;
