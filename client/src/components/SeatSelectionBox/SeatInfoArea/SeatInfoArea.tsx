@@ -18,6 +18,9 @@ interface SeatInfo {
 }
 const useStyles = makeStyles((theme: Theme) => ({
   seatInfoArea: {
+    position: "fixed",
+    bottom: "30px",
+    width: "414px",
     height: "15rem",
     fontWeight: "bold",
     borderRadius: "0.5rem 0.5rem 0 0",
@@ -109,6 +112,7 @@ export default function SeatInfoArea() {
   const history = useHistory();
   const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
+
   const GET_ITEMS = gql`
     query ItemDetail($id: ID) {
       itemDetail(itemId: $id) {
@@ -126,24 +130,22 @@ export default function SeatInfoArea() {
   const handleClickCancel = (seat: any) => {
     seat.status = "clicked";
     cancelSeat(seat._id);
-    socket.emit(
-      "clickSeat",
-      localStorage.getItem("userid"),
-      concertInfo.scheduleId,
-      seat._id,
-    );
+    socket.emit("clickSeat", localStorage.getItem("userid"), concertInfo.scheduleId, seat._id);
   };
   useEffect(() => {
-    socket.emit("joinBookingRoom", "A");
     setSeatsCount({ ...serverSeats.counts });
   }, []);
   useEffect(() => {
     setSeatsCount({ ...serverSeats.counts });
   }, [serverSeats.counts]);
+
   if (loading) return <>Loading...</>;
   if (error) return <>`Error! ${error.message}`</>;
-  if (data) {
-  }
+  const { classes: colorInfo } = data.itemDetail;
+  const colors = colorInfo.reduce((acc: any, value: any, idx: any, arr: any) => {
+    acc[value.class] = value.color;
+    return acc;
+  }, {});
 
   return (
     <>
@@ -164,7 +166,7 @@ export default function SeatInfoArea() {
                 return (
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.title}>
-                      <Badge component="span" color={data.itemDetail.classes[idx].color}></Badge>
+                      <Badge component="span" color={colors[element]}></Badge>
                       <span>{element}</span>
                     </Box>
                     <Box className={classes.seatCount}>{seatsCount[element]}석</Box>
@@ -180,7 +182,7 @@ export default function SeatInfoArea() {
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.seatLoca}>
                       <span>
-                        <Badge component="span" color={element.color}></Badge>
+                        <Badge component="span" color={colors[element.class]}></Badge>
                         <span>{element.name}</span>
                       </span>
                       <CloseIcon

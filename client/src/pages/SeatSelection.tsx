@@ -8,7 +8,13 @@ export default function SeatSelection() {
   const history = useHistory();
 
   useEffect(() => {
-    if (concertInfo.id === "") history.goBack();
+    if (concertInfo.id === "") {
+      alert("공연을 선택해주세요.");
+      history.replace("/");
+    } else if (!concertInfo.scheduleId) {
+      alert("회차를 선택해주세요.");
+      history.replace("/schedule/" + concertInfo.id);
+    }
   }, []);
   return (
     <>

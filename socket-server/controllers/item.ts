@@ -51,10 +51,6 @@ const getSeatDataByScheduleId = async (scheduleId: string) => {
 };
 
 const clickSeat = async (userId: string, scheduleId: string, seatId: string) => {
-  if (typeof userId !== "string" || typeof scheduleId !== "string" || typeof seatId !== "string") {
-    throw Error;
-  }
-
   const seatDataJSON = await itemRedis.hget(getKey(scheduleId, Key.SEATS), seatId);
   if (!seatDataJSON) {
     throw Error;
@@ -72,7 +68,7 @@ const clickSeat = async (userId: string, scheduleId: string, seatId: string) => 
     );
     await setClassCount(scheduleId, newSeatData.class, -1);
     await userController.setUserSeatData(userId, newSeatData);
-    await setExpireSeat(userId, scheduleId, [seatId]);
+    // await setExpireSeat(userId, scheduleId, [seatId]);
   }
 
   if (seatData.status === Status.CLICKED) {
@@ -234,6 +230,7 @@ const expireSeat = async (scheduleId: string, seatId: string) => {
 };
 
 export default {
+  setClassCount,
   setExpireSeat,
   unSetExpireSeat,
   getSeatDataByScheduleId,

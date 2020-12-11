@@ -68,7 +68,7 @@ const typeDefs = gql`
   type Booking {
     _id: ID
     item: Item
-    schedule: Schedule
+    schedule: BookedSchedule
     seats: [BookingSeat]
   }
 
@@ -95,6 +95,11 @@ const typeDefs = gql`
     price: Int
   }
 
+  type BookedSchedule {
+    _id: ID
+    date: String
+  }
+
   input ItemInput {
     _id: ID
     name: String
@@ -112,6 +117,7 @@ const typeDefs = gql`
   }
 
   input SeatInput {
+    _id: ID
     name: String
     class: String
   }
