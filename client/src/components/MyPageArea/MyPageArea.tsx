@@ -116,7 +116,7 @@ export default function MyPageArea() {
 
   useEffect(() => {
     refetch();
-    setBookingList([...data.bookingListByUserId]);
+    if (data) setBookingList([...data.bookingListByUserId]);
     console.log(bookingList);
   }, []);
 

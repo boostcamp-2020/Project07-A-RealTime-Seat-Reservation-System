@@ -16,6 +16,7 @@ import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
 import { setClassInfo } from "../../../modules/concertInfo";
+import { SeatContext } from "../../../stores/SeatStore";
 
 const useStyles = makeStyles(() => ({
   calendar: {
@@ -142,6 +143,11 @@ export default function CalendarPicker({ setTimeDetail }) {
   const concertInfo = useConcertInfo();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    return () => {
+      socket.emit("leaveCountRoom", selectedConcertId);
+    };
+  });
   //스케쥴 관련 API 호출
   const { loading, error, data } = useQuery(GET_SCHGEDULE, {
     variables: { id: concertInfo.id },
@@ -203,6 +209,9 @@ export default function CalendarPicker({ setTimeDetail }) {
     }
   };
 
+  const handleOnClickDay = () => {
+    setSelectedConcertId(undefined);
+  };
   const handleOnChange = (value) => {
     if (value) {
       setTimeDetail({
@@ -225,14 +234,16 @@ export default function CalendarPicker({ setTimeDetail }) {
 
   const handleOnClick = (concert) => {
     const dateDetail = format(
-      new Date(concert.year, concert.month, concert.date, concert.hour, concert.minute),
+      new Date(concert.year, concert.month - 1, concert.date, concert.hour, concert.minute),
       "yyyy. M. d. (ccc), a h:mm",
       {
         locale: ko,
       },
     );
+    socket.emit("leaveCountRoom", selectedConcertId);
     setSelectedConcertId(concert.id);
     dispatch(selectSchedule(concert.id, dateDetail));
+    socket.emit("joinCountRoom", concert.id);
   };
 
   const handleOnClickBtn = () => {
@@ -255,6 +266,7 @@ export default function CalendarPicker({ setTimeDetail }) {
         <h3 className={classes.selectTitle}>일정을 선택하세요</h3>
       </Box>
       <Calendar
+        onClickDay={handleOnClickDay}
         onChange={handleOnChange}
         className={classes.calendar}
         value={value}
