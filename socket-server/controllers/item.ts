@@ -50,8 +50,13 @@ const getSeatDataByScheduleId = async (scheduleId: string) => {
   return { seats: seats.map((seat) => JSON.parse(seat)) };
 };
 
+<<<<<<< HEAD
 const clickSeat = async (userId: string, scheduleId: string, seat: SeatDataInterface) => {
   const seatDataJSON = await itemRedis.hget(getKey(scheduleId, Key.SEATS), seat._id);
+=======
+const clickSeat = async (userId: string, scheduleId: string, seatId: string) => {
+  const seatDataJSON = await itemRedis.hget(getKey(scheduleId, Key.SEATS), seatId);
+>>>>>>> 52815ae704275048f0dbee552d24559a8455b79a
   if (!seatDataJSON) {
     const newSeatData: SeatDataInterface = {
       ...seat,
@@ -63,7 +68,22 @@ const clickSeat = async (userId: string, scheduleId: string, seat: SeatDataInter
     // await setClassCount(scheduleId, newSeatData.class, -1);
     await setExpireSeat(userId, scheduleId, [newSeatData._id]);
 
+<<<<<<< HEAD
     return { seats: [newSeatData] };
+=======
+  let newSeatData: SeatDataInterface;
+
+  if (seatData.status === Status.UNSOLD) {
+    newSeatData = { ...seatData, color: Color.CLICKED_SEAT, status: Status.CLICKED };
+    await itemRedis.hset(
+      getKey(scheduleId, Key.SEATS),
+      newSeatData._id,
+      JSON.stringify(newSeatData),
+    );
+    await setClassCount(scheduleId, newSeatData.class, -1);
+    await userController.setUserSeatData(userId, newSeatData);
+    // await setExpireSeat(userId, scheduleId, [seatId]);
+>>>>>>> 52815ae704275048f0dbee552d24559a8455b79a
   }
 
   await itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
@@ -179,6 +199,7 @@ const expireSeat = async (scheduleId: string, seatId: string) => {
 };
 
 export default {
+  setClassCount,
   setExpireSeat,
   unSetExpireSeat,
   getSeatDataByScheduleId,

@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
     color: "#fff",
     opacity: 0.5,
 
-    "&$selected": {
+    "& $selected": {
       color: "#fff",
       opacity: 1,
     },

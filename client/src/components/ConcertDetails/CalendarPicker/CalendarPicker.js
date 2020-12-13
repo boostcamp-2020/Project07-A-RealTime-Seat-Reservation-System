@@ -15,6 +15,7 @@ import { socket } from "../../../socket";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
+import { setClassInfo } from "../../../modules/concertInfo";
 
 const useStyles = makeStyles(() => ({
   calendar: {
@@ -118,6 +119,14 @@ const GET_SCHGEDULE = gql`
     itemDetail(itemId: $id) {
       startDate
       endDate
+      prices {
+        class
+        price
+      }
+      classes {
+        class
+        color
+      }
     }
   }
 `;
@@ -140,9 +149,17 @@ export default function CalendarPicker({ setTimeDetail }) {
 
   if (loading) return <p> loading.... </p>;
   if (error) return <>`Error! ${error.message}`</>;
-
-  const startDate = new Date(data.itemDetail.startDate);
-  const endDate = new Date(data.itemDetail.endDate);
+  const { startDate: start, endDate: end, prices, classes: classColors } = data.itemDetail;
+  const price = prices.reduce((acc, value, idx, arr) => {
+    acc[value.class] = value.price;
+    return acc;
+  }, {});
+  const color = classColors.reduce((acc, value, idx, arr) => {
+    acc[value.class] = value.color;
+    return acc;
+  }, {});
+  const startDate = new Date(start);
+  const endDate = new Date(end);
 
   //서버에서 날라온 데이터를 오브젝트에 형식에 맞게 변경
   const scheduleList = data.scheduleListByMonth.map((concert) => {
@@ -205,7 +222,7 @@ export default function CalendarPicker({ setTimeDetail }) {
     }
     setValue(value);
   };
-  // TODO: 해당 시간 클릭하면 그 box만 색칠하기.(다른 시간이 선택되어있었으면 그 box 다시 흰색으로 바꾸기)
+
   const handleOnClick = (concert) => {
     const dateDetail = format(
       new Date(concert.year, concert.month, concert.date, concert.hour, concert.minute),
@@ -216,11 +233,10 @@ export default function CalendarPicker({ setTimeDetail }) {
     );
     setSelectedConcertId(concert.id);
     dispatch(selectSchedule(concert.id, dateDetail));
-    //socket.emit("leaveCountRoom", scheduleID);
-    socket.emit("joinCountRoom", "A");
   };
 
   const handleOnClickBtn = () => {
+    dispatch(setClassInfo(price, color));
     const selectSeatLink = "/seat";
     history.push({
       pathname: selectSeatLink,
@@ -277,7 +293,7 @@ export default function CalendarPicker({ setTimeDetail }) {
               </TimeBox>
             ))}
           </Box>
-          {selectedConcertId ? <EmptySeatsCount /> : null}
+          {selectedConcertId ? <EmptySeatsCount color={color} price={price} /> : null}
         </Box>
       ) : null}
       <Box className={classes.btnArea}>
