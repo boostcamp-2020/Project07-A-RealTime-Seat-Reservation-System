@@ -3,12 +3,20 @@ import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import { useQuery, gql } from "@apollo/client";
 import ItemCard from "./ItemCard";
+import { Loading } from "../common";
 
 const useStyles = makeStyles((theme) => ({
   box: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+  loading: {
+    width: "100%",
+    padding: "100px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 }));
 
@@ -51,7 +59,12 @@ export default function ItemCardArea({ genre }: ItemCardAreaPropsInterface) {
     }
   }, [data]);
 
-  if (loading) return <p>loding...</p>;
+  if (loading)
+    return (
+      <Box className={boxStyles.loading}>
+        <Loading />
+      </Box>
+    );
   if (error) return <p>error...</p>;
 
   return <Box className={boxStyles.box}>{itemMap}</Box>;

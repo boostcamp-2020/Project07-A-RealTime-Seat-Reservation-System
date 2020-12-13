@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useLocation } from "react-router-dom";
 import { Props } from "../../types/concertInfo";
+import { Loading } from "../common";
 interface Price {
   price: number;
 }
@@ -56,6 +57,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     alignItems: "center",
   },
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 const Poster = styled(CardMedia)((props) => ({
@@ -92,7 +100,14 @@ export default function ContentsArea({ concertId }: Props) {
     variables: { id: concertId },
   });
 
-  if (loading) return <>"Loading..."</>;
+  if (loading)
+    return (
+      <Box className={classes.contents}>
+        <Box className={classes.loading}>
+          <Loading />
+        </Box>
+      </Box>
+    );
   if (error) return <>`Error! ${error.message}`</>;
   const { name, startDate, endDate, prices, img, runningTime, ageLimit } = data.itemDetail;
   const pricesArr = prices.map((price: Price) => price.price);

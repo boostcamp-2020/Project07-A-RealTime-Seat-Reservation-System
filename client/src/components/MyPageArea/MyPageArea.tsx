@@ -5,6 +5,7 @@ import { useQuery, gql } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { colors } from "../../styles/variables";
+import { Loading } from "../common";
 
 const useStyles = makeStyles(() => ({
   userInfoArea: {
@@ -71,6 +72,13 @@ const useStyles = makeStyles(() => ({
     lineHeight: "28px",
     cursor: "pointer",
   },
+  loading: {
+    width: "100%",
+    padding: "100px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 export default function MyPageArea() {
@@ -105,20 +113,11 @@ export default function MyPageArea() {
     variables: { userId: localStorage.getItem("userid") },
   });
 
-  // useEffect(() => {
-  //   console.log(1);
-  //   if (data) {
-  //     setBookingList([...data.bookingListByUserId]);
-  //     console.log(bookingList);
-  //     console.log(2);
-  //   }
-  // }, [data]);
-
   useEffect(() => {
     refetch();
     if (data) setBookingList([...data.bookingListByUserId]);
     console.log(bookingList);
-  }, []);
+  }, [data]);
 
   const handleClickCancel = (e: any) => {
     history.push({
@@ -128,7 +127,12 @@ export default function MyPageArea() {
       },
     });
   };
-  if (loading) return <>"Loading..."</>;
+  if (loading)
+    return (
+      <Box className={classes.loading}>
+        <Loading />
+      </Box>
+    );
   if (error) return <>`Error! ${error.message}`</>;
 
   return (

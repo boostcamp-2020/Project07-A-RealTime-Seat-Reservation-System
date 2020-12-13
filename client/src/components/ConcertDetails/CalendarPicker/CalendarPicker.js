@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { makeStyles, styled } from "@material-ui/core/styles";
@@ -10,13 +10,12 @@ import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
-import { DnsTwoTone } from "@material-ui/icons";
 import { socket } from "../../../socket";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
 import { setClassInfo } from "../../../modules/concertInfo";
-import { SeatContext } from "../../../stores/SeatStore";
+import { Loading } from "../../common";
 
 const useStyles = makeStyles(() => ({
   calendar: {
@@ -67,6 +66,13 @@ const useStyles = makeStyles(() => ({
   },
   btnArea: {
     padding: "0 12px",
+  },
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 }));
 
@@ -153,8 +159,13 @@ export default function CalendarPicker({ setTimeDetail }) {
     variables: { id: concertInfo.id },
   });
 
-  if (loading) return <p> loading.... </p>;
-  if (error) return <>`Error! ${error.message}`</>;
+  if (loading)
+    return (
+      <Box className={classes.loading}>
+        <Loading />
+      </Box>
+    );
+  if (error) return <>Error! ${error.message}</>;
   const { startDate: start, endDate: end, prices, classes: classColors } = data.itemDetail;
   const price = prices.reduce((acc, value, idx, arr) => {
     acc[value.class] = value.price;
