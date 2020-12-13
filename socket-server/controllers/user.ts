@@ -1,14 +1,24 @@
-import { itemRedis, userRedis } from "../db/redis";
+import { userRedis } from "../db/redis";
 import { getKey } from "../utils";
-import { SeatDataInterface, ClassInterface, ColorInterface } from "../types";
-import { Status, Key, Class, Color } from "../constants";
+import { SeatDataInterface } from "../types";
+import { Status, Key } from "../constants";
+import { itemController } from ".";
 
-const setUserSeatData = async (userId: string, seatData: SeatDataInterface) => {
-  if (seatData.status === Status.UNSOLD || seatData.status === Status.SOLD) {
-    await userRedis.hdel(getKey(userId, Key.USER_SEATS), seatData._id);
+const setUserSeatData = async (userId: string, seat: SeatDataInterface) => {
+  if (seat.status === Status.CLICKED)
+    await userRedis.hset(getKey(userId, Key.USER_CLICKED_SEATS), seat._id, JSON.stringify(seat));
+
+  if (seat.status === Status.CANCELING) {
+    await userRedis.hset(getKey(userId, Key.USER_CANCELING_SEATS), seat._id, JSON.stringify(seat));
   }
-  if (seatData.status === Status.CLICKED || seatData.status === Status.CANCELING) {
-    await userRedis.hset(getKey(userId, Key.USER_SEATS), seatData._id, JSON.stringify(seatData));
+};
+
+const deleteUserSeatData = async (userId: string, seat: SeatDataInterface) => {
+  if (seat.status === Status.CLICKED)
+    await userRedis.hdel(getKey(userId, Key.USER_CLICKED_SEATS), seat._id);
+
+  if (seat.status === Status.CANCELING) {
+    await userRedis.hdel(getKey(userId, Key.USER_CANCELING_SEATS), seat._id);
   }
 };
 
@@ -27,49 +37,21 @@ const getUserIdOfSocket = async (userId: string) => {
 };
 
 const deleteUserData = async (userId: string) => {
-  const scheduleId = await userRedis.get(getKey(userId, Key.USER_SCHEDULE));
-  const userSeatData = await userRedis.hgetall(getKey(userId, Key.USER_SEATS));
-  const userSeats = Object.values(userSeatData).map((seat) => JSON.parse(seat));
+  const scheduleId = (await userRedis.get(getKey(userId, Key.USER_SCHEDULE))) as string;
+  const userClickedSeatData = await userRedis.hgetall(getKey(userId, Key.USER_CLICKED_SEATS));
+  const userCancelingSeatData = await userRedis.hgetall(getKey(userId, Key.USER_CANCELING_SEATS));
+  const userClickedSeats = Object.values(userClickedSeatData).map((seat) => JSON.parse(seat)) as [
+    SeatDataInterface,
+  ];
+  const userCancelingSeats = Object.values(userCancelingSeatData).map((seat) =>
+    JSON.parse(seat),
+  ) as [SeatDataInterface];
 
-  let newCountObj: { [key: string]: number } = {};
+  await itemController.setUnSoldSeats(userId, scheduleId, userClickedSeats);
+  await itemController.setSoldSeats(userId, scheduleId, userCancelingSeats);
 
-  const newSeatArray = userSeats.map((seat: SeatDataInterface) => {
-    if (seat.status === Status.CLICKED) {
-      const classObj: ClassInterface = Class;
-      const colorObj: ColorInterface = Color;
-
-      const newKey = Object.keys(classObj).find((key) => classObj[key] === seat.class);
-      if (!newKey) throw Error;
-      const newColor = colorObj[newKey];
-
-      newCountObj = {
-        ...newCountObj,
-        [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
-      };
-
-      return { ...seat, status: Status.UNSOLD, color: newColor };
-    }
-
-    if (seat.status === Status.CANCELING) {
-      return { ...seat, status: Status.SOLD, color: Color.SOLD_SEAT };
-    }
-
-    return seat;
-  });
-
-  await Promise.all(
-    newSeatArray.map((seat) =>
-      itemRedis.hset(getKey(scheduleId as string, Key.SEATS), seat._id, JSON.stringify(seat)),
-    ),
-  );
-
-  await Promise.all(
-    Object.entries(newCountObj).map((data) => {
-      return itemRedis.hset(getKey(scheduleId as string, Key.COUNTS), data[0], data[1].toString());
-    }),
-  );
-
-  await userRedis.del(getKey(userId, Key.USER_SEATS));
+  await userRedis.del(getKey(userId, Key.USER_CLICKED_SEATS));
+  await userRedis.del(getKey(userId, Key.USER_CANCELING_SEATS));
   await userRedis.del(getKey(userId, Key.USER_SCHEDULE));
 
   return scheduleId;
@@ -77,6 +59,7 @@ const deleteUserData = async (userId: string) => {
 
 export default {
   deleteUserData,
+  deleteUserSeatData,
   setUserSeatData,
   setScheduleIdOfUser,
   setUserIdOfSocket,

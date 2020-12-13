@@ -11,14 +11,14 @@ const seatSchema = new mongoose.Schema({
 const placeSchema = new mongoose.Schema({
   name: String,
   location: String,
-  seatGroups: [
+  seatInfo: [
     {
       class: String,
       count: Number,
       color: String,
-      seats: [seatSchema],
     },
   ],
+  seats: [seatSchema],
 });
 
 const placeModel = mongoose.model("Place", placeSchema);

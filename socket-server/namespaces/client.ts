@@ -1,6 +1,7 @@
 import socketIO from "socket.io";
 import { subRedis } from "../db/redis";
 import { userController, itemController } from "../controllers";
+import { SeatDataInterface } from "../types/index";
 
 const getClientNamespace = (io: socketIO.Server) => {
   const clientNamespace = io.of("/client");
@@ -63,9 +64,8 @@ const getClientNamespace = (io: socketIO.Server) => {
 
     socket.on(
       "willCancelBooking",
-      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-        await itemController.setCancelingSeats(userId, scheduleId, seatIdArray);
-        const seats = await itemController.getSeatDataByScheduleId(scheduleId);
+      async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+        const seats = await itemController.setCancelingSeats(userId, scheduleId, seatArray);
 
         clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
       },
@@ -73,17 +73,15 @@ const getClientNamespace = (io: socketIO.Server) => {
 
     socket.on(
       "notCancelBooking",
-      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-        await itemController.setSoldSeats(userId, scheduleId, seatIdArray);
-        const seats = await itemController.getSeatDataByScheduleId(scheduleId);
+      async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+        const seats = await itemController.setSoldSeats(userId, scheduleId, seatArray);
 
         clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
       },
     );
 
-    socket.on("clickSeat", async (userId: string, scheduleId: string, seatId: string) => {
-      await itemController.clickSeat(userId, scheduleId, seatId);
-      const seats = await itemController.getSeatDataByScheduleId(scheduleId);
+    socket.on("clickSeat", async (userId: string, scheduleId: string, seat: SeatDataInterface) => {
+      const seats = await itemController.clickSeat(userId, scheduleId, seat);
       const counts = await itemController.getAllClassCount(scheduleId);
 
       clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
@@ -91,19 +89,19 @@ const getClientNamespace = (io: socketIO.Server) => {
       clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     });
 
-    socket.on(
-      "unSetExpireSeat",
-      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-        await itemController.unSetExpireSeat(userId, scheduleId, seatIdArray);
-      },
-    );
+    // socket.on(
+    //   "unSetExpireSeat",
+    //   async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+    //     await itemController.unSetExpireSeat(userId, scheduleId, seatArray);
+    //   },
+    // );
 
-    socket.on(
-      "setExpireSeat",
-      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-        await itemController.setExpireSeat(userId, scheduleId, seatIdArray);
-      },
-    );
+    // socket.on(
+    //   "setExpireSeat",
+    //   async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+    //     await itemController.setExpireSeat(userId, scheduleId, seatArray);
+    //   },
+    // );
   });
 
   subRedis.psubscribe("__key*__:*");
@@ -112,12 +110,11 @@ const getClientNamespace = (io: socketIO.Server) => {
     const privateSocket = clientNamespace.sockets.get(userId) as socketIO.Socket;
 
     if (privateSocket) {
-      const expiredSeatId = await itemController.expireSeat(scheduleId, seatId);
-      const seats = await itemController.getSeatDataByScheduleId(scheduleId);
+      const expiredSeats = await itemController.expireSeat(scheduleId, seatId);
       const counts = await itemController.getAllClassCount(scheduleId);
 
-      privateSocket.emit("expireSeat", expiredSeatId);
-      clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+      privateSocket.emit("expireSeat", seatId);
+      clientNamespace.to(`${scheduleId}-booking`).emit("receiveSeat", expiredSeats);
       clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     }
   });

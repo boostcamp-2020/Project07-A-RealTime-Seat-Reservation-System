@@ -5,6 +5,7 @@ import scheduleResolvers from "./schedule";
 import userResolvers from "./user";
 import bookingResolvers from "./booking";
 import genreResolvers from "./genre";
+import { pubsub } from "../socket";
 
 const resolverMap: IResolvers = {
   Query: {
@@ -20,6 +21,11 @@ const resolverMap: IResolvers = {
     loginUser: userResolvers.loginUser,
     bookItem: bookingResolvers.bookItem,
     cancelItem: bookingResolvers.cancelItem,
+  },
+
+  Subscription: {
+    unSoldSeats: () => pubsub.asyncIterator("unSoldSeats"),
+    soldSeats: () => pubsub.asyncIterator("soldSeats"),
   },
 
   ISODate: GraphQLDateTime,

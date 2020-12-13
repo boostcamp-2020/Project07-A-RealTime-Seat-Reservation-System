@@ -6,7 +6,7 @@ const connectMongoDB = () => {
     : process.env.MONGO_LOCAL_HOST) as string;
   mongoose.connect(
     mongoHost,
-    { dbName: "project7", useUnifiedTopology: true, useNewUrlParser: true },
+    { dbName: "qwer", useUnifiedTopology: true, useNewUrlParser: true },
     (err: any) => {
       console.log(err);
     },
