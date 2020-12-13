@@ -6,7 +6,7 @@ import { SeatContext } from "../../../stores/SeatStore";
 import { EmptySeatCount } from "../../../types/seatInfo";
 import { socket } from "../../../socket";
 import useConcertInfo from "../../../hooks/useConcertInfo";
-
+import { Badge } from "../index";
 interface styleProps {
   color: string;
 }
@@ -49,16 +49,6 @@ const useStyles = makeStyles(() => ({
   table: {
     width: "100%",
   },
-}));
-
-const Badge = styled(Box)((props: styleProps) => ({
-  display: "inline-block",
-  marginTop: "4px",
-  width: "13px",
-  height: "13px",
-  top: "3px",
-  marginRight: "0.5rem",
-  backgroundColor: props.color,
 }));
 
 export default function EmptySeatsCount({ color, price }: any) {

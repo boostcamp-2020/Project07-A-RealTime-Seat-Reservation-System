@@ -2,9 +2,9 @@ const CHANGE_SELECTED_CONCERT = "concertInfo/CHANGE_SELECTED_CONCERT" as const;
 const SELECT_SCHEDULE = "concertInfo/SELECT_SCHEDULE" as const;
 const SET_CLASS_INFO = "concertInfo/SET_CLASS_INFO" as const;
 
-export const changeSelectedConcert = (id: string) => ({
+export const changeSelectedConcert = (id: string, name: string) => ({
   type: CHANGE_SELECTED_CONCERT,
-  payload: id,
+  payload: { id, name },
 });
 
 export const selectSchedule = (id: string, dateDetail: string) => ({
@@ -58,7 +58,8 @@ const concertInfoReducer = (
     case CHANGE_SELECTED_CONCERT:
       return {
         ...state,
-        id: action.payload,
+        id: action.payload.id,
+        name: action.payload.name,
       };
     case SELECT_SCHEDULE:
       return {

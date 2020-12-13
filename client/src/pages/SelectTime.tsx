@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useQuery, gql } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { changeSelectedConcert } from "../modules/concertInfo";
+import useConcertInfo from "../hooks/useConcertInfo";
 
 interface Params {
   concertId: string;
@@ -11,6 +12,7 @@ interface Params {
 
 export default function SelectTime() {
   const dispatch = useDispatch();
+  const concertInfo = useConcertInfo();
   const { concertId } = useParams<Params>();
   const GET_TITLE = gql`
     query GetItem($id: ID) {
@@ -19,19 +21,18 @@ export default function SelectTime() {
       }
     }
   `;
-  useEffect(() => {
-    dispatch(changeSelectedConcert(concertId));
-  }, []);
+
   const { loading, error, data } = useQuery(GET_TITLE, {
     variables: { id: concertId },
   });
+  useEffect(() => {
+    if (data) dispatch(changeSelectedConcert(concertId, data.itemDetail.name));
+  }, [data]);
 
-  if (loading) return <p> loading.... </p>;
   if (error) return <>`Error! ${error.message}`</>;
-  const { name } = data.itemDetail;
   return (
     <>
-      <MainHeader title={name} />
+      <MainHeader title={concertInfo.name} />
       <ContentsArea concertId={concertId} />
       <ConcertDetails />
     </>
