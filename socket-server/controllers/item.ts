@@ -1,8 +1,8 @@
 import { itemRedis, userRedis } from "../db/redis";
 import userController from "./user";
 import { getExpireKey, getKey } from "../utils";
-import { SeatDataInterface, ClassInterface, ColorInterface } from "../types";
-import { Status, Key, Class, Color } from "../constants";
+import { SeatDataInterface, ColorInterface } from "../types";
+import { Status, Key, Color } from "../constants";
 
 const setExpireSeat = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
   await Promise.all(
@@ -50,13 +50,27 @@ const getSeatDataByScheduleId = async (scheduleId: string) => {
   return { seats: seats.map((seat) => JSON.parse(seat)) };
 };
 
+<<<<<<< HEAD
+const clickSeat = async (userId: string, scheduleId: string, seat: SeatDataInterface) => {
+  const seatDataJSON = await itemRedis.hget(getKey(scheduleId, Key.SEATS), seat._id);
+=======
 const clickSeat = async (userId: string, scheduleId: string, seatId: string) => {
   const seatDataJSON = await itemRedis.hget(getKey(scheduleId, Key.SEATS), seatId);
+>>>>>>> 52815ae704275048f0dbee552d24559a8455b79a
   if (!seatDataJSON) {
-    throw Error;
-  }
-  const seatData = JSON.parse(seatDataJSON);
+    const newSeatData: SeatDataInterface = {
+      ...seat,
+      color: Color.CLICKED_SEAT,
+      status: Status.CLICKED,
+    };
+    await itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(newSeatData));
+    // await userController.setUserSeatData(userId, newSeatData);
+    // await setClassCount(scheduleId, newSeatData.class, -1);
+    await setExpireSeat(userId, scheduleId, [newSeatData._id]);
 
+<<<<<<< HEAD
+    return { seats: [newSeatData] };
+=======
   let newSeatData: SeatDataInterface;
 
   if (seatData.status === Status.UNSOLD) {
@@ -69,38 +83,25 @@ const clickSeat = async (userId: string, scheduleId: string, seatId: string) => 
     await setClassCount(scheduleId, newSeatData.class, -1);
     await userController.setUserSeatData(userId, newSeatData);
     // await setExpireSeat(userId, scheduleId, [seatId]);
+>>>>>>> 52815ae704275048f0dbee552d24559a8455b79a
   }
 
-  if (seatData.status === Status.CLICKED) {
-    const classObj: ClassInterface = Class;
-    const colorObj: ColorInterface = Color;
+  await itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
+  // await setClassCount(scheduleId, seat.class, 1);
+  // await userController.setUserSeatData(userId, seat);
+  const colorObj: ColorInterface = Color;
+  const newColor = colorObj[seat.class];
+  const newSeatData = [{ ...seat, color: newColor, status: Status.UNSOLD }];
 
-    const newKey = Object.keys(classObj).find((key) => classObj[key] === seatData.class);
-    if (newKey) {
-      const newColor = colorObj[newKey];
-      newSeatData = { ...seatData, color: newColor, status: Status.UNSOLD };
-      await itemRedis.hset(
-        getKey(scheduleId, Key.SEATS),
-        newSeatData._id,
-        JSON.stringify(newSeatData),
-      );
-      await setClassCount(scheduleId, newSeatData.class, 1);
-      await userController.setUserSeatData(userId, newSeatData);
-    }
-
-    if (!newKey) throw Error;
-  }
+  return { seats: newSeatData };
 };
 
-const setCancelingSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-  const seatDataJSONArray = await Promise.all(
-    seatIdArray.map((_id: string) => {
-      return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
-    }),
-  );
-  const seatArray = seatDataJSONArray.map((seat) => JSON.parse(seat as string));
-
-  const newSeatArray = seatArray.map((seat) => {
+const setCancelingSeats = async (
+  userId: string,
+  scheduleId: string,
+  seats: [SeatDataInterface],
+) => {
+  const newSeatArray = seats.map((seat) => {
     const newSeatData = {
       ...seat,
       color: Color.CANCELING_SEAT,
@@ -121,42 +122,20 @@ const setCancelingSeats = async (userId: string, scheduleId: string, seatIdArray
       return userController.setUserSeatData(userId, seat);
     }),
   );
+
+  return { seats: newSeatArray };
 };
 
-const setUnSoldSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-  const seatDataJSONArray = await Promise.all(
-    seatIdArray.map((_id: string) => {
-      return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
-    }),
-  );
-  const seatArray = seatDataJSONArray.map((seat) => JSON.parse(seat as string));
-
-  const newSeatArray = seatArray.map((seat) => {
-    const classObj: ClassInterface = Class;
-    const colorObj: ColorInterface = Color;
-
-    const newKey = Object.keys(classObj).find((key) => classObj[key] === seat.class);
-    if (!newKey) throw Error;
-
-    const newColor = colorObj[newKey];
-    const newSeatData: SeatDataInterface = {
-      ...seat,
-      color: newColor,
-      status: Status.UNSOLD,
-    };
-
-    return newSeatData;
-  });
-
+const setUnSoldSeats = async (userId: string, scheduleId: string, seats: [SeatDataInterface]) => {
   await Promise.all(
-    newSeatArray.map((seat) => {
-      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(seat));
+    seats.map((seat: SeatDataInterface) => {
+      return itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
     }),
   );
 
   let newCountObj: { [key: string]: number } = {};
 
-  newSeatArray.forEach((seat: SeatDataInterface) => {
+  seats.forEach((seat) => {
     newCountObj = {
       ...newCountObj,
       [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
@@ -170,41 +149,35 @@ const setUnSoldSeats = async (userId: string, scheduleId: string, seatIdArray: [
   );
 
   await Promise.all(
-    newSeatArray.map((seat) => {
-      return userController.setUserSeatData(userId, seat);
-    }),
-  );
-};
-
-const setSoldSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-  const seatDataJSONArray = await Promise.all(
-    seatIdArray.map((_id: string) => {
-      return itemRedis.hget(getKey(scheduleId, Key.SEATS), _id);
+    seats.map((seat) => {
+      return userController.deleteUserSeatData(userId, seat);
     }),
   );
 
-  const seatArray = seatDataJSONArray.map((seat) => JSON.parse(seat as string));
-  const newSeatArray = seatArray.map((seat) => {
-    const newSeatData = {
-      ...seat,
-      color: Color.SOLD_SEAT,
-      status: Status.SOLD,
-    };
+  const colorObj: ColorInterface = Color;
+  const newSeats = seats.map((seat) => {
+    const newColor = colorObj[seat.class];
 
-    return newSeatData;
+    return { ...seat, color: newColor, status: Status.SOLD };
   });
 
+  return { seats: newSeats };
+};
+
+const setSoldSeats = async (userId: string, scheduleId: string, seats: [SeatDataInterface]) => {
   await Promise.all(
-    newSeatArray.map((seat) => {
-      return itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(seat));
+    seats.map((seat: SeatDataInterface) => {
+      return itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
     }),
   );
 
   await Promise.all(
-    newSeatArray.map((seat) => {
+    seats.map((seat) => {
       return userController.setUserSeatData(userId, seat);
     }),
   );
+
+  return { seats: seats.map((seat) => ({ ...seat, color: Color.SOLD_SEAT, status: Status.SOLD })) };
 };
 
 const expireSeat = async (scheduleId: string, seatId: string) => {
@@ -215,18 +188,14 @@ const expireSeat = async (scheduleId: string, seatId: string) => {
 
   const seatData = JSON.parse(seatDataJSON);
 
-  const classObj: ClassInterface = Class;
   const colorObj: ColorInterface = Color;
-
-  const newKey = Object.keys(classObj).find((key) => classObj[key] === seatData.class);
-  if (!newKey) throw Error;
-  const newColor = colorObj[newKey];
+  const newColor = colorObj[seatData.class];
   const expiredSeat = { ...seatData, status: Status.UNSOLD, color: newColor };
 
-  await itemRedis.hset(getKey(scheduleId, Key.SEATS), seatData.id, JSON.stringify(expiredSeat));
-  await setClassCount(scheduleId, expiredSeat.class, 1);
+  await itemRedis.hdel(getKey(scheduleId, Key.SEATS), seatData.id);
+  // await setClassCount(scheduleId, expiredSeat.class, 1);
 
-  return seatData._id;
+  return { seats: [expiredSeat] };
 };
 
 export default {
