@@ -197,7 +197,7 @@ export default function SeatSelectionArea() {
 
   useEffect(() => {
     componentSelectedSeats = {};
-    componentSeats = [];
+    componentSeats = {};
     scale = 1;
     xDiff = 0;
     yDiff = 0;
