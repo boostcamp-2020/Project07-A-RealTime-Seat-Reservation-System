@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { makeStyles, styled } from "@material-ui/core/styles";
@@ -10,12 +10,12 @@ import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
-import { DnsTwoTone } from "@material-ui/icons";
 import { socket } from "../../../socket";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
 import { setClassInfo } from "../../../modules/concertInfo";
+import { Loading } from "../../common";
 
 const useStyles = makeStyles(() => ({
   calendar: {
@@ -66,6 +66,13 @@ const useStyles = makeStyles(() => ({
   },
   btnArea: {
     padding: "0 12px",
+  },
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 }));
 
@@ -142,13 +149,23 @@ export default function CalendarPicker({ setTimeDetail }) {
   const concertInfo = useConcertInfo();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    return () => {
+      socket.emit("leaveCountRoom", selectedConcertId);
+    };
+  });
   //스케쥴 관련 API 호출
   const { loading, error, data } = useQuery(GET_SCHGEDULE, {
     variables: { id: concertInfo.id },
   });
 
-  if (loading) return <p> loading.... </p>;
-  if (error) return <>`Error! ${error.message}`</>;
+  if (loading)
+    return (
+      <Box className={classes.loading}>
+        <Loading />
+      </Box>
+    );
+  if (error) return <>Error! ${error.message}</>;
   const { startDate: start, endDate: end, prices, classes: classColors } = data.itemDetail;
   const price = prices.reduce((acc, value, idx, arr) => {
     acc[value.class] = value.price;
@@ -203,6 +220,9 @@ export default function CalendarPicker({ setTimeDetail }) {
     }
   };
 
+  const handleOnClickDay = () => {
+    setSelectedConcertId(undefined);
+  };
   const handleOnChange = (value) => {
     if (value) {
       setTimeDetail({
@@ -225,14 +245,16 @@ export default function CalendarPicker({ setTimeDetail }) {
 
   const handleOnClick = (concert) => {
     const dateDetail = format(
-      new Date(concert.year, concert.month, concert.date, concert.hour, concert.minute),
+      new Date(concert.year, concert.month - 1, concert.date, concert.hour, concert.minute),
       "yyyy. M. d. (ccc), a h:mm",
       {
         locale: ko,
       },
     );
+    socket.emit("leaveCountRoom", selectedConcertId);
     setSelectedConcertId(concert.id);
     dispatch(selectSchedule(concert.id, dateDetail));
+    socket.emit("joinCountRoom", concert.id);
   };
 
   const handleOnClickBtn = () => {
@@ -255,6 +277,7 @@ export default function CalendarPicker({ setTimeDetail }) {
         <h3 className={classes.selectTitle}>일정을 선택하세요</h3>
       </Box>
       <Calendar
+        onClickDay={handleOnClickDay}
         onChange={handleOnChange}
         className={classes.calendar}
         value={value}

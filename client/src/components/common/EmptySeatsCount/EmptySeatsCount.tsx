@@ -6,7 +6,7 @@ import { SeatContext } from "../../../stores/SeatStore";
 import { EmptySeatCount } from "../../../types/seatInfo";
 import { socket } from "../../../socket";
 import useConcertInfo from "../../../hooks/useConcertInfo";
-
+import { Badge } from "../index";
 interface styleProps {
   color: string;
 }
@@ -51,48 +51,24 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Badge = styled(Box)((props: styleProps) => ({
-  display: "inline-block",
-  marginTop: "4px",
-  width: "13px",
-  height: "13px",
-  top: "3px",
-  marginRight: "0.5rem",
-  backgroundColor: props.color,
-}));
-
 export default function EmptySeatsCount({ color, price }: any) {
   const classes = useStyles();
-  const [seatsCount, setSeatsCount] = useState<any>({});
   const { serverSeats } = useContext(SeatContext);
-  const concertInfo = useConcertInfo();
   const intl = new Intl.NumberFormat("ko-KR");
-
-  useEffect(() => {
-    socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
-    setSeatsCount({ ...serverSeats.counts });
-    return () => {
-      socket.emit("leaveBookingRoom", concertInfo.scheduleId);
-    };
-  }, []);
-
-  useEffect(() => {
-    setSeatsCount({ ...serverSeats.counts });
-  }, [serverSeats.counts]);
 
   return (
     <>
       <Box className={classes.info}>
         <table className={classes.table}>
           <tbody>
-            {Object.keys(seatsCount).map((element, idx) => {
+            {Object.keys(serverSeats.counts).map((element, idx) => {
               return (
                 <tr key={idx} className={classes.item}>
                   <td className={classes.title}>
                     <Badge component="span" color={color[element]}></Badge>
                     <span>{element}</span>
                   </td>
-                  <td className={classes.seatCount}>잔여 {seatsCount[element]}석</td>
+                  <td className={classes.seatCount}>잔여 {serverSeats.counts[element]}석</td>
                   <td className={classes.price}>{intl.format(price[element])}원</td>
                 </tr>
               );

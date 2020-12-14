@@ -31,7 +31,7 @@ const ButtonBox = styled(Box)({
   position: "absolute",
   top: "20px",
   right: "20px",
-  zIndex:101
+  zIndex: 101,
 });
 
 let componentSelectedSeats: { [index: string]: SeatInfo } = {};
@@ -54,7 +54,7 @@ export default function SeatSelectionArea() {
     const canvas = canvasRef.current;
     ctx.current.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
     ctx.current.fillStyle = "white";
-    ctx.current.fillRect(0,0,canvas.width / scale, canvas.height / scale);
+    ctx.current.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
     componentSeats = componentSeats.map((seat: SeatInfo) => {
       if (componentSelectedSeats[seat._id]) seat.color = SEAT_COLOR.MYSEAT;
       return seat;
@@ -138,6 +138,14 @@ export default function SeatSelectionArea() {
     }
   };
   useEffect(() => {
+    componentSelectedSeats = {};
+    componentSeats = [];
+    scale = 1;
+    xDiff = 0;
+    yDiff = 0;
+    isDragged = false;
+    xOffset = 0;
+    yOffset = 0;
     const canvas = canvasRef.current;
     ctx.current = canvas.getContext("2d");
     canvas.style.width = "100%";
@@ -183,13 +191,12 @@ export default function SeatSelectionArea() {
   }, [serverSeats.seats]);
   return (
     <>
-
       <CanvasContainer>
         <ButtonBox>
           <ZoomButton onClick={() => zoomIn()}>+</ZoomButton>
           <ZoomButton onClick={() => zoomOut()}>-</ZoomButton>
         </ButtonBox>
-        <canvas ref={canvasRef} />   
+        <canvas ref={canvasRef} />
       </CanvasContainer>
     </>
   );

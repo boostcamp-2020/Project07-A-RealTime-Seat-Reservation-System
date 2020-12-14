@@ -40,7 +40,7 @@ export default function ItemCard({ item }: ItemCardPropsInterface) {
   const dispatch = useDispatch();
 
   const handleClick = () => {
-    dispatch(changeSelectedConcert(item._id));
+    dispatch(changeSelectedConcert(item._id, item.name));
   };
 
   const getDuration = (start: string, end: string) => {
