@@ -38,6 +38,7 @@ const typeDefs = gql`
     genre: String
     runningTime: String
     ageLimit: String
+    detailInfoImg: String
   }
 
   type Price {
