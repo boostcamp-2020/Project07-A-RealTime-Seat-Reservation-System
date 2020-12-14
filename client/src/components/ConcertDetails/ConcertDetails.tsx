@@ -7,6 +7,7 @@ import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
 import { colors } from "../../styles/variables";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
+import InfoArea from "./InfoArea/InfoArea";
 import { useQuery, gql } from "@apollo/client";
 
 interface TabPanelProps {
@@ -57,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     backgroundColor: "#f4f3f3",
   },
   tabBtn: {
-    minWidth: "33%",
+    minWidth: "50%",
     fontWeight: "bold",
     color: `${colors.naverFontBlack}`,
   },
@@ -90,7 +91,6 @@ export default function ConcertDetails() {
         <CustomTabs value={value} onChange={handleChange}>
           <Tab className={classes.tabBtn} label="예매하기" {...a11yProps(0)} />
           <Tab className={classes.tabBtn} label="상세정보" {...a11yProps(1)} />
-          <Tab className={classes.tabBtn} label="리뷰(구현X)" {...a11yProps(2)} />
         </CustomTabs>
       </AppBar>
       <SwipeableViews
@@ -102,10 +102,7 @@ export default function ConcertDetails() {
           <CalendarPicker {...{ setTimeDetail }} />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
-          Item Two
-        </TabPanel>
-        <TabPanel value={value} index={2} dir={theme.direction}>
-          Item Three
+          <InfoArea />
         </TabPanel>
       </SwipeableViews>
     </div>

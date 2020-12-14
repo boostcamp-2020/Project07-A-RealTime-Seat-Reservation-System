@@ -11,14 +11,14 @@ const slotSeatSchema = new mongoose.Schema({
 const scheduleSchema = new mongoose.Schema({
   itemId: mongoose.Schema.Types.ObjectId,
   date: Date,
-  seatGroups: [
+  seatInfo: [
     {
       class: String,
       count: Number,
       color: String,
-      seats: [slotSeatSchema],
     },
   ],
+  seats: [slotSeatSchema],
 });
 
 const scheduleModel = mongoose.model("Schedule", scheduleSchema);

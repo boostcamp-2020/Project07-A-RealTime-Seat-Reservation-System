@@ -196,6 +196,14 @@ export default function SeatSelectionArea() {
   };
 
   useEffect(() => {
+    componentSelectedSeats = {};
+    componentSeats = [];
+    scale = 1;
+    xDiff = 0;
+    yDiff = 0;
+    isDragged = false;
+    xOffset = 0;
+    yOffset = 0;
     const canvas = canvasRef.current;
     ctx.current = canvas.getContext("2d");
     canvas.style.width = "100%";

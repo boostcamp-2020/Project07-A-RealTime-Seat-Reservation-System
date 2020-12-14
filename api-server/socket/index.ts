@@ -1,4 +1,5 @@
 import io from "socket.io-client";
+import { PubSub } from "apollo-server-express";
 
 const socketHost = (process.env.NODE_ENV === "production"
   ? process.env.SOCKET_PRODUCTION_HOST
@@ -9,4 +10,6 @@ const socket = io(socketHost, {
   upgrade: false,
 });
 
-export default socket;
+const pubsub = new PubSub();
+
+export { pubsub, socket };

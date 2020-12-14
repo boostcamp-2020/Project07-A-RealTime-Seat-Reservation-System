@@ -1,8 +1,6 @@
 export interface SeatDataInterface {
   _id: any;
   class: string;
-  name: string;
-  point: object;
   status: string;
   color: string;
 }

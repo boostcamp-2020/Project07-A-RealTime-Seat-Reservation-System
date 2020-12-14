@@ -1,5 +1,6 @@
 import socketIO from "socket.io";
 import { itemController } from "../controllers";
+import { SeatDataInterface } from "../types/index";
 
 const getApiServerNamespace = (io: socketIO.Server) => {
   const apiServerNamespace = io.of("/api-server");
@@ -9,8 +10,8 @@ const getApiServerNamespace = (io: socketIO.Server) => {
 
     socket.on(
       "cancelBooking",
-      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-        await itemController.setUnSoldSeats(userId, scheduleId, seatIdArray);
+      async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+        await itemController.setUnSoldSeats(userId, scheduleId, seatArray);
 
         const seats = await itemController.getSeatDataByScheduleId(scheduleId);
         const counts = await itemController.getAllClassCount(scheduleId);
@@ -21,13 +22,16 @@ const getApiServerNamespace = (io: socketIO.Server) => {
       },
     );
 
-    socket.on("bookSeat", async (userId: string, scheduleId: string, seatIdArray: [string]) => {
-      await itemController.setSoldSeats(userId, scheduleId, seatIdArray);
+    socket.on(
+      "bookSeat",
+      async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+        await itemController.setSoldSeats(userId, scheduleId, seatArray);
 
-      const seats = await itemController.getSeatDataByScheduleId(scheduleId);
+        const seats = await itemController.getSeatDataByScheduleId(scheduleId);
 
-      io.of("/client").to(`${scheduleId}-booking`).emit("receiveSeat", seats);
-    });
+        io.of("/client").to(`${scheduleId}-booking`).emit("receiveSeat", seats);
+      },
+    );
   });
 };
 

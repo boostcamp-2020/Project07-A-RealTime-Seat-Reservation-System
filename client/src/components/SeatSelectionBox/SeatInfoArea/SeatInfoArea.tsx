@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Paper, Box, List, ListItem, Button } from "@material-ui/core";
-import { makeStyles, Theme, styled } from "@material-ui/core/styles";
+import { Paper, Box, List, ListItem } from "@material-ui/core";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { colors } from "../../../styles/variables";
 import useSeats from "../../../hooks/useSeats";
@@ -11,6 +11,7 @@ import { useQuery, gql } from "@apollo/client";
 import { SeatContext } from "../../../stores/SeatStore";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { StepButton, Badge } from "../../common";
+import { Loading } from "../../common";
 
 interface SeatInfo {
   color: string;
@@ -101,6 +102,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   cancel: {
     cursor: "pointer",
   },
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 const unsold = "#01DF3A";
@@ -142,7 +150,14 @@ export default function SeatInfoArea() {
     setSeatsCount({ ...serverSeats.counts });
   }, [serverSeats.counts]);
 
-  if (loading) return <>Loading...</>;
+  if (loading)
+    return (
+      <Box className={classes.seatInfoArea}>
+        <Box className={classes.loading}>
+          <Loading />
+        </Box>
+      </Box>
+    );
   if (error) return <>`Error! ${error.message}`</>;
   const { classes: colorInfo } = data.itemDetail;
   const colors = colorInfo.reduce((acc: any, value: any, idx: any, arr: any) => {
