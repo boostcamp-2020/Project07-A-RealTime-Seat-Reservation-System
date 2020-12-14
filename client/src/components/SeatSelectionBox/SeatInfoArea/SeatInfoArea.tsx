@@ -17,6 +17,7 @@ interface SeatInfo {
   color: string;
   price: number;
 }
+
 const useStyles = makeStyles((theme: Theme) => ({
   seatInfoArea: {
     position: "fixed",
@@ -136,13 +137,15 @@ export default function SeatInfoArea() {
   });
 
   const handleClickCancel = (seat: any) => {
-    seat.status = "clicked";
-    cancelSeat(seat._id);
-    socket.emit("clickSeat", localStorage.getItem("userid"), concertInfo.scheduleId, seat._id);
+    const newSeat: any = { ...seat, status: "clicked" };
+    cancelSeat(newSeat._id);
+    socket.emit("clickSeat", localStorage.getItem("userid"), concertInfo.scheduleId, newSeat);
   };
+
   useEffect(() => {
     setSeatsCount({ ...serverSeats.counts });
   }, []);
+
   useEffect(() => {
     setSeatsCount({ ...serverSeats.counts });
   }, [serverSeats.counts]);

@@ -18,6 +18,7 @@ export function SeatStore({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let seats: any[] = [];
     let counts = {};
+
     socket.on("receiveSeat", (seatData: { seats: SeatInfo[] }) => {
       seats = [...seatData.seats];
       setServerSeats({ counts: { ...counts }, seats: seatData.seats });
