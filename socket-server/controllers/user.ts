@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import { userRedis } from "../db/redis";
-=======
-import { userRedis, itemRedis } from "../db/redis";
-import itemController from "../controllers/item";
->>>>>>> 52815ae704275048f0dbee552d24559a8455b79a
 import { getKey } from "../utils";
 import { SeatDataInterface } from "../types";
 import { Status, Key } from "../constants";
@@ -42,7 +37,6 @@ const getUserIdOfSocket = async (userId: string) => {
 };
 
 const deleteUserData = async (userId: string) => {
-<<<<<<< HEAD
   const scheduleId = (await userRedis.get(getKey(userId, Key.USER_SCHEDULE))) as string;
   const userClickedSeatData = await userRedis.hgetall(getKey(userId, Key.USER_CLICKED_SEATS));
   const userCancelingSeatData = await userRedis.hgetall(getKey(userId, Key.USER_CANCELING_SEATS));
@@ -58,44 +52,6 @@ const deleteUserData = async (userId: string) => {
 
   await userRedis.del(getKey(userId, Key.USER_CLICKED_SEATS));
   await userRedis.del(getKey(userId, Key.USER_CANCELING_SEATS));
-=======
-  const scheduleId = await userRedis.get(getKey(userId, Key.USER_SCHEDULE));
-  if (scheduleId === null) {
-    return null;
-  }
-  const userSeatData = await userRedis.hgetall(getKey(userId, Key.USER_SEATS));
-  const userSeats = Object.values(userSeatData).map((seat) => JSON.parse(seat));
-  let newCountObj: { [key: string]: number } = {};
-  const newSeatArray = userSeats.map((seat: SeatDataInterface) => {
-    if (seat.status === Status.CLICKED) {
-      const classObj: ClassInterface = Class;
-      const colorObj: ColorInterface = Color;
-      const newKey = Object.keys(classObj).find((key) => classObj[key] === seat.class);
-      if (!newKey) throw Error;
-      const newColor = colorObj[newKey];
-      newCountObj = {
-        ...newCountObj,
-        [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
-      };
-      return { ...seat, status: Status.UNSOLD, color: newColor };
-    }
-    if (seat.status === Status.CANCELING) {
-      return { ...seat, status: Status.SOLD, color: Color.SOLD_SEAT };
-    }
-    return seat;
-  });
-  await Promise.all(
-    newSeatArray.map((seat) =>
-      itemRedis.hset(getKey(scheduleId as string, Key.SEATS), seat._id, JSON.stringify(seat)),
-    ),
-  );
-  await Promise.all(
-    Object.entries(newCountObj).map((data) => {
-      return itemController.setClassCount(scheduleId as string, data[0], data[1]);
-    }),
-  );
-  await userRedis.del(getKey(userId, Key.USER_SEATS));
->>>>>>> 52815ae704275048f0dbee552d24559a8455b79a
   await userRedis.del(getKey(userId, Key.USER_SCHEDULE));
   return scheduleId;
 };
