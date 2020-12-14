@@ -30,6 +30,7 @@ const useStyles = makeStyles(() => ({
   },
   mainSubText: {
     fontWeight: "bold",
+    marginTop: "16px",
     marginBottom: "8px",
   },
 }));
@@ -49,7 +50,7 @@ export default function InfoArea() {
       <Box className={classes.infoArea}>
         <Box className={classes.infoMain}>
           <strong className={classes.mainTitle}>예매 유의사항</strong>
-          <p className={classes.mainText}>
+          <span className={classes.mainText}>
             <Box className={classes.mainSubText}>💎예매시 좌석도의 색💎</Box>
             1️⃣ 판매 완료된 좌석: <Badge component="span" color={SEAT_COLOR.SOLD} /> <br />
             2️⃣ 다른 사용자가 선택한 좌석: <Badge component="span" color={SEAT_COLOR.CLICKED} />{" "}
@@ -59,7 +60,7 @@ export default function InfoArea() {
             <br />
             4️⃣ 내가 선택한 좌석: <Badge component="span" color={SEAT_COLOR.MYSEAT} /> <br />
             5️⃣ 선택 가능한 좌석: 각 등급별 색
-          </p>
+          </span>
         </Box>
       </Box>
     </>
