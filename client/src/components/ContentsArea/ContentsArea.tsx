@@ -7,7 +7,6 @@ import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFill
 import { useQuery, gql } from "@apollo/client";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useLocation } from "react-router-dom";
 import { Props } from "../../types/concertInfo";
 import { Loading } from "../common";
 interface Price {
@@ -66,15 +65,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const Poster = styled(CardMedia)((props) => ({
+const Poster = styled(CardMedia)(() => ({
   minHeight: "210px",
   backgroundSize: "cover",
   backgroundPosition: "50% 50%",
 }));
 export default function ContentsArea({ concertId }: Props) {
   const classes = useStyles();
-  const location: any = useLocation();
-  const [itemId, setItemId] = useState<any>("");
   const intl = new Intl.NumberFormat("ko-KR");
 
   const GET_ITEMS = gql`
@@ -92,9 +89,6 @@ export default function ContentsArea({ concertId }: Props) {
       }
     }
   `;
-  useEffect(() => {
-    setItemId(concertId);
-  }, []);
 
   const { loading, error, data } = useQuery(GET_ITEMS, {
     variables: { id: concertId },
