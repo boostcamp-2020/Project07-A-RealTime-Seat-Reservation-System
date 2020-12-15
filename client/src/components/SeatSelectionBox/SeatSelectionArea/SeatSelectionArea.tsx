@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { styled } from "@material-ui/core/styles";
+import { styled, makeStyles } from "@material-ui/core/styles";
 import { Toolbar, Button, Box } from "@material-ui/core";
 import React, { useRef, useEffect } from "react";
 import { SeatContext } from "../../../stores/SeatStore";
@@ -12,6 +12,7 @@ import { SEAT_COLOR } from "../../../styles/seatColor";
 import { SeatInfo } from "../../../types/seatInfo";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useQuery, gql } from "@apollo/client";
+import { Loading } from "../../common";
 
 const GET_SEATS = gql`
   query seats($scheduleId: ID) {
@@ -28,6 +29,16 @@ const GET_SEATS = gql`
     }
   }
 `;
+
+const useStyles = makeStyles(() => ({
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+}));
 
 const CanvasContainer = styled(Toolbar)({
   minHeight: "22rem",
@@ -69,6 +80,7 @@ export default function SeatSelectionArea() {
   const selectSeat = useSelectSeat();
   const cancelSeat = useCancelSeat();
   const concertInfo = useConcertInfo();
+  const classes = useStyles();
 
   const { loading, error, data } = useQuery(GET_SEATS, {
     variables: { scheduleId: concertInfo.scheduleId },
@@ -250,6 +262,13 @@ export default function SeatSelectionArea() {
     cancelSeat(seatId);
   });
 
+  if (loading)
+    return (
+      <Box className={classes.loading}>
+        <Loading />
+      </Box>
+    );
+  if (error) return <>Error! ${error.message}</>;
   return (
     <>
       <CanvasContainer>

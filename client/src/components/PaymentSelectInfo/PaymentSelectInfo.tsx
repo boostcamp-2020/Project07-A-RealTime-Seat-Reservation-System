@@ -96,13 +96,8 @@ export default function PaymentSelectionBox() {
   const dispatch = useDispatch();
   const intl = new Intl.NumberFormat("ko-KR");
   const BOOK_ITEM = gql`
-    mutation BookItem(
-      $userId: ID
-      $item: ItemInput
-      $schedule: ScheduleInput
-      $seats: [SeatInput]
-    ) {
-      bookItem(userId: $userId, item: $item, schedule: $schedule, seats: $seats) {
+    mutation BookItem($userId: ID, $itemId: ID, $scheduleId: ID, $seats: [ID]) {
+      bookItem(userId: $userId, itemId: $itemId, scheduleId: $scheduleId, seats: $seats) {
         _id
       }
     }
@@ -134,19 +129,13 @@ export default function PaymentSelectionBox() {
 
   const clickPay = () => {
     const seatsData = seats.selectedSeat.map((seat: any) => {
-      return { _id: seat._id, name: seat.name, class: seat.class };
+      return seat._id;
     });
     bookItem({
       variables: {
         userId: localStorage.getItem("userid"),
-        item: {
-          _id: concertInfo.id,
-          name: name,
-        },
-        schedule: {
-          _id: concertInfo.scheduleId,
-          date: concertInfo.dateDetail,
-        },
+        itemId: concertInfo.id,
+        scheduleId: concertInfo.scheduleId,
         seats: seatsData,
       },
     });

@@ -47,7 +47,7 @@ const initialState: ConcertInfoState = {
   startDate: undefined,
   endDate: undefined,
   runningTime: "2시간 45분",
-  class: "8세이상 관람가",
+  class: "",
 };
 
 const concertInfoReducer = (
