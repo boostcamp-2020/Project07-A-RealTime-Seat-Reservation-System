@@ -262,13 +262,6 @@ export default function SeatSelectionArea() {
     cancelSeat(seatId);
   });
 
-  if (loading)
-    return (
-      <Box className={classes.loading}>
-        <Loading />
-      </Box>
-    );
-  if (error) return <>Error! ${error.message}</>;
   return (
     <>
       <CanvasContainer>

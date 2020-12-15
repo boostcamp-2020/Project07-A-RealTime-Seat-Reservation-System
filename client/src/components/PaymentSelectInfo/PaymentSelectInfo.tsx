@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { colors } from "../../styles/variables";
 import { useQuery, gql, useMutation } from "@apollo/client";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import useSeats from "../../hooks/useSeats";
 import useConcertInfo from "../../hooks/useConcertInfo";
 import { Badge, StepButton } from "../common";
-import { initSeat } from "../../modules/seats";
-import { useDispatch } from "react-redux";
+import { Loading } from "../common";
 
 const useStyles = makeStyles(() => ({
   selectInfo: {
@@ -86,6 +85,13 @@ const useStyles = makeStyles(() => ({
     letterSpacing: "-0.3px",
     color: "#ff5658",
   },
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 export default function PaymentSelectionBox() {
@@ -93,7 +99,6 @@ export default function PaymentSelectionBox() {
   const concertInfo = useConcertInfo();
   const seats = useSeats();
   const history = useHistory();
-  const dispatch = useDispatch();
   const intl = new Intl.NumberFormat("ko-KR");
   const BOOK_ITEM = gql`
     mutation BookItem($userId: ID, $itemId: ID, $scheduleId: ID, $seats: [ID]) {
@@ -102,7 +107,7 @@ export default function PaymentSelectionBox() {
       }
     }
   `;
-  const [bookItem, { data: bookData, error: mutationError }] = useMutation(BOOK_ITEM);
+  const [bookItem] = useMutation(BOOK_ITEM);
 
   const GET_INFO = gql`
     query GetInfo($id: ID) {
@@ -119,7 +124,12 @@ export default function PaymentSelectionBox() {
     history.replace(`/schedule/${concertInfo.id}`);
   };
 
-  if (loading) return <p> loading.... </p>;
+  if (loading)
+    return (
+      <Box className={classes.loading}>
+        <Loading />
+      </Box>
+    );
   if (error) return <>`Error! ${error.message}`</>;
   const { name } = data.itemDetail;
 

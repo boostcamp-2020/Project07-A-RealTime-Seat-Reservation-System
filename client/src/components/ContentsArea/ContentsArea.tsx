@@ -1,6 +1,6 @@
 import { Box, CardMedia } from "@material-ui/core";
 import { makeStyles, Theme, styled } from "@material-ui/core/styles";
-import React, { useState, useEffect, PropsWithRef } from "react";
+import React, { useState, useEffect } from "react";
 import { colors } from "../../styles/variables";
 import DateRangeOutlinedIcon from "@material-ui/icons/DateRangeOutlined";
 import PlayCircleFilledWhiteOutlinedIcon from "@material-ui/icons/PlayCircleFilledWhiteOutlined";

@@ -13,11 +13,6 @@ import useConcertInfo from "../../../hooks/useConcertInfo";
 import { StepButton, Badge } from "../../common";
 import { Loading } from "../../common";
 
-interface SeatInfo {
-  color: string;
-  price: number;
-}
-
 const useStyles = makeStyles((theme: Theme) => ({
   seatInfoArea: {
     position: "fixed",
@@ -110,8 +105,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: "center",
   },
 }));
-
-const unsold = "#01DF3A";
 
 export default function SeatInfoArea() {
   const concertInfo = useConcertInfo();
