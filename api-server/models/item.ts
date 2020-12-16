@@ -13,6 +13,7 @@ const itemSchema = new mongoose.Schema({
   genre: String,
   ageLimit: String,
   runningTime: String,
+  detailInfoImg: String,
 });
 
 const itemModel = mongoose.model("Item", itemSchema);

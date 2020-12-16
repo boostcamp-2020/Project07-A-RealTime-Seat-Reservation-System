@@ -111,7 +111,6 @@ export default function ContentsArea({ concertId }: Props) {
   if (error) return <>`Error! ${error.message}`</>;
   const { name, startDate, endDate, prices, img, runningTime, ageLimit } = data.itemDetail;
   const pricesArr = prices.map((price: Price) => price.price);
-
   return (
     <>
       <Poster image={img}></Poster>

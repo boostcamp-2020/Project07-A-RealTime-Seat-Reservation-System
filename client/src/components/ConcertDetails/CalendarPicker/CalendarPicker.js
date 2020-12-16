@@ -113,10 +113,6 @@ const SelectSeatBtn = styled(Button)((props) => ({
   },
 }));
 
-const isSameDay = (a, b) => {
-  return differenceInCalendarDays(a, b) === 0;
-};
-
 const GET_SCHGEDULE = gql`
   query GetItem($id: ID) {
     scheduleListByMonth(itemId: $id) {
@@ -138,8 +134,6 @@ const GET_SCHGEDULE = gql`
     }
   }
 `;
-
-const MILESCONT_PER_DAY = 1000 * 60 * 60 * 24;
 
 export default function CalendarPicker({ setTimeDetail }) {
   const [value, setValue] = useState();
@@ -183,6 +177,7 @@ export default function CalendarPicker({ setTimeDetail }) {
     );
 
   if (error) return <>Error! ${error.message}</>;
+
   const { startDate: start, endDate: end, prices, classes: classColors } = data.itemDetail;
   const price = prices.reduce((acc, value, idx, arr) => {
     acc[value.class] = value.price;
@@ -194,47 +189,25 @@ export default function CalendarPicker({ setTimeDetail }) {
   }, {});
   const startDate = new Date(start);
   const endDate = new Date(end);
-
-  //서버에서 날라온 데이터를 오브젝트에 형식에 맞게 변경
-  const scheduleList = data.scheduleListByMonth.map((concert) => {
-    const date = new Date(concert.date);
-    return {
-      id: concert._id,
-      year: date.getFullYear(),
-      month: date.getMonth() + 1,
-      date: date.getDate(),
-      hour: date.getHours(),
-      minute: date.getMinutes(),
-    };
+  const scheduleList = data.scheduleListByMonth.map((element) => {
+    return { id: element._id, date: new Date(element.date) };
   });
 
-  //비활성화 해야하는 날짜들을 선별
-  const getDisableList = () => {
-    const scheduleMap = scheduleList.reduce((map, concert) => {
-      map[new Date(`${concert.year}-${concert.month}-${concert.date} 0:0:0`).getTime()] = concert;
-      return map;
-    }, {});
-    const startMilesecond = new Date(
-      `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`,
-    ).getTime();
-    const endMilesecond = new Date(
-      `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`,
-    ).getTime();
-    let disableList = [];
-    for (let i = startMilesecond; i <= endMilesecond; i += MILESCONT_PER_DAY) {
-      if (!scheduleMap[i]) {
-        disableList.push(new Date(i));
+  const tileDisabled = ({ date }) => {
+    let disable = true;
+    for (let i = 0; i < data.scheduleListByMonth.length; i++) {
+      const d1 = new Date(data.scheduleListByMonth[i].date);
+      const d2 = new Date(date);
+      if (
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate()
+      ) {
+        disable = false;
+        break;
       }
     }
-    return disableList;
-  };
-
-  const disalbeList = getDisableList();
-
-  const tileDisabled = ({ date, view }) => {
-    if (view === "month") {
-      return disalbeList.find((dDate) => isSameDay(dDate, date));
-    }
+    return disable;
   };
 
   const handleOnClickDay = () => {
@@ -257,9 +230,9 @@ export default function CalendarPicker({ setTimeDetail }) {
       setConcertList(
         scheduleList.filter((concert) => {
           return (
-            concert.year === value.getFullYear() &&
-            concert.month === value.getMonth() + 1 &&
-            concert.date === value.getDate()
+            concert.date.getFullYear() === value.getFullYear() &&
+            concert.date.getMonth() === value.getMonth() &&
+            concert.date.getDate() === value.getDate()
           );
         }),
       );
@@ -268,6 +241,7 @@ export default function CalendarPicker({ setTimeDetail }) {
   };
 
   const handleOnClick = (concert) => {
+<<<<<<< HEAD
     const dateDetail = format(
       new Date(concert.year, concert.month - 1, concert.date, concert.hour, concert.minute),
       "yyyy. M. d. (ccc), a h:mm",
@@ -284,6 +258,12 @@ export default function CalendarPicker({ setTimeDetail }) {
       setIsJoin(false);
     }
 
+=======
+    const dateDetail = format(concert.date, "yyyy. M. d. (ccc), a h:mm", {
+      locale: ko,
+    });
+    socket.emit("leaveCountRoom", selectedConcertId);
+>>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
     setSelectedConcertId(concert.id);
     dispatch(selectSchedule(concert.id, dateDetail));
   };
@@ -298,7 +278,6 @@ export default function CalendarPicker({ setTimeDetail }) {
       },
     });
   };
-
   //minDate는 최소 날짜 maxDate는 최고 날짜가 보이는 듯
   //tileDisabled는 비활성화 되어야 하는 날짜가 배열로 들어가야함
   return (
@@ -340,7 +319,7 @@ export default function CalendarPicker({ setTimeDetail }) {
                   id={concert.id}
                   onClick={() => handleOnClick(concert)}
                 >
-                  {format(new Date(0, 0, 0, concert.hour, concert.minute), "a h:mm", {
+                  {format(concert.date, "a h:mm", {
                     locale: ko,
                   })}
                 </span>

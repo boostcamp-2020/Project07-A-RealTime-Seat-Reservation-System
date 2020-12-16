@@ -96,13 +96,8 @@ export default function PaymentSelectionBox() {
   const socketWorker = WebSharedWorker;
 
   const BOOK_ITEM = gql`
-    mutation BookItem(
-      $userId: ID
-      $item: ItemInput
-      $schedule: ScheduleInput
-      $seats: [SeatInput]
-    ) {
-      bookItem(userId: $userId, item: $item, schedule: $schedule, seats: $seats) {
+    mutation BookItem($userId: ID, $itemId: ID, $scheduleId: ID, $seats: [ID]) {
+      bookItem(userId: $userId, itemId: $itemId, scheduleId: $scheduleId, seats: $seats) {
         _id
       }
     }
@@ -141,23 +136,23 @@ export default function PaymentSelectionBox() {
   //   return acc + concertInfo.prices[cur.class];
   // }, 0);
 
+<<<<<<< HEAD
   const clickPay = async () => {
     const bookingSeats = JSON.parse(localStorage.getItem("bookingSeats") as string);
     const seatsData = bookingSeats.map((seat: any) => {
       return { _id: seat._id, name: seat.name, class: seat.class };
+=======
+  const clickPay = () => {
+    const seatsData = seats.selectedSeat.map((seat: any) => {
+      return seat._id;
+>>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
     });
 
     const bookingResult = await bookItem({
       variables: {
         userId: localStorage.getItem("userid"),
-        item: {
-          _id: concertInfo.id,
-          name: name,
-        },
-        schedule: {
-          _id: concertInfo.scheduleId,
-          date: concertInfo.dateDetail,
-        },
+        itemId: concertInfo.id,
+        scheduleId: concertInfo.scheduleId,
         seats: seatsData,
       },
     });

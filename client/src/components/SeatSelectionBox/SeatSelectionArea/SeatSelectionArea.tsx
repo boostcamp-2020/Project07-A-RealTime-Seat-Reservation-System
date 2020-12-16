@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { styled } from "@material-ui/core/styles";
+import { styled, makeStyles } from "@material-ui/core/styles";
 import { Toolbar, Button, Box } from "@material-ui/core";
 import React, { useRef, useEffect } from "react";
 import WebSharedWorker from "../../../worker/WebWorker";
@@ -8,7 +8,11 @@ import { SEAT_COLOR } from "../../../styles/seatColor";
 import { SeatInfo } from "../../../types/seatInfo";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useQuery, gql } from "@apollo/client";
+<<<<<<< HEAD
 import { SocketContext } from "../../../stores/SocketStore";
+=======
+import { Loading } from "../../common";
+>>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
 
 const GET_SEATS = gql`
   query seats($scheduleId: ID) {
@@ -25,6 +29,16 @@ const GET_SEATS = gql`
     }
   }
 `;
+
+const useStyles = makeStyles(() => ({
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+}));
 
 const CanvasContainer = styled(Toolbar)({
   minHeight: "22rem",
@@ -67,6 +81,7 @@ export default function SeatSelectionArea() {
   );
 
   const concertInfo = useConcertInfo();
+  const classes = useStyles();
 
   const { loading, error, data } = useQuery(GET_SEATS, {
     variables: { scheduleId: concertInfo.scheduleId },
@@ -120,19 +135,57 @@ export default function SeatSelectionArea() {
   };
 
   const zoomIn = () => {
-    ctx.current.scale(2, 2);
-    scale *= 2;
     xOffset = 0;
     yOffset = 0;
-    drawSeats();
+
+    let currentFrame: number = 0;
+    const totalAnimationFrame = 20;
+    let animationScale: number = 1;
+    ctx.current.save();
+
+    const zoomInAnimation = setInterval(function () {
+      if (currentFrame <= totalAnimationFrame) {
+        ctx.current.restore();
+        ctx.current.save();
+        scale *= animationScale;
+        ctx.current.scale(animationScale, animationScale);
+        drawSeats();
+        scale /= animationScale;
+        currentFrame++;
+        animationScale += 0.05;
+      } else {
+        clearTimeout(zoomInAnimation);
+        scale *= 2;
+        return;
+      }
+    }, 10);
   };
 
   const zoomOut = () => {
-    ctx.current.scale(0.5, 0.5);
-    scale *= 0.5;
     xOffset = 0;
     yOffset = 0;
-    drawSeats();
+
+    let currentFrame: number = 0;
+    const totalAnimationFrame = 20;
+    let animationScale: number = 1;
+    ctx.current.save();
+
+    const zoomOutAnimation = setInterval(function () {
+      if (currentFrame <= totalAnimationFrame) {
+        ctx.current.restore();
+        ctx.current.save();
+        scale *= animationScale;
+        ctx.current.scale(animationScale, animationScale);
+        drawSeats();
+        scale /= animationScale;
+        currentFrame++;
+        animationScale -= 0.025;
+      } else {
+        clearTimeout(zoomOutAnimation);
+        scale *= 0.5;
+        return;
+      }
+    }, 10);
   };
 
   const mouseDown = (e: any) => {
@@ -225,7 +278,11 @@ export default function SeatSelectionArea() {
     canvas.addEventListener("mousedown", mouseDown);
     canvas.addEventListener("mouseup", mouseUp);
     canvas.addEventListener("mousemove", dragging);
+<<<<<<< HEAD
 
+=======
+    socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
+>>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
     return () => {
       socketWorker.postMessage({
         type: "leaveSelectionRoom",
