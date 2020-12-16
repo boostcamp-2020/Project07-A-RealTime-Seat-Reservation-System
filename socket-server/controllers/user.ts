@@ -1,6 +1,7 @@
 import { userRedis } from "../db/redis";
-import { getKey } from "../utils";
+import { getKey, getExpireKey } from "../utils";
 import { Key } from "../constants";
+
 import { itemController } from ".";
 
 const setUserSeatData = async (userId: string, seatIdArray: [string]) => {
@@ -47,6 +48,12 @@ const deleteUserData = async (userId: string) => {
 
   await userRedis.del(getKey(userId, Key.USER_SEATS));
   await userRedis.del(getKey(userId, Key.USER_SCHEDULE));
+  await Promise.all(
+    userSeatIdArray.map((id) => {
+      const newExpireKey = getExpireKey(userId, scheduleId, id);
+      return userRedis.del(newExpireKey);
+    }),
+  );
   const seatData = await itemController.deleteSeatData(scheduleId, userSeatIdArray);
 
   return { scheduleId, seats: seatData };

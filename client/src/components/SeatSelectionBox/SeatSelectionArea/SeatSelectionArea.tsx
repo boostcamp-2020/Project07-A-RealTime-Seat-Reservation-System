@@ -80,7 +80,7 @@ export default function SeatSelectionArea() {
   const concertInfo = useConcertInfo();
   const classes = useStyles();
 
-  const { loading, error, data } = useQuery(GET_SEATS, {
+  const { loading, error, data, refetch } = useQuery(GET_SEATS, {
     variables: { scheduleId: concertInfo.scheduleId },
   });
 
@@ -285,6 +285,7 @@ export default function SeatSelectionArea() {
   }, []);
 
   useEffect(() => {
+    refetch();
     if (data) {
       componentSeats = data.seats.reduce((acc: any, val: any) => {
         return { ...acc, [val._id]: val };

@@ -5,8 +5,6 @@ const getApiServerNamespace = (io: socketIO.Server) => {
   const apiServerNamespace = io.of("/api-server");
 
   apiServerNamespace.on("connection", async (socket: socketIO.Socket) => {
-    socket.on("disconnecting", async () => {});
-
     socket.on(
       "cancelBooking",
       async (userId: string, scheduleId: string, seatIdArray: [string]) => {

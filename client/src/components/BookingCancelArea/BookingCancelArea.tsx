@@ -82,20 +82,13 @@ export default function BookingCancelArea() {
   const CANCEL_ITEM = gql`
     mutation CancelItem($userId: ID, $bookingId: ID) {
       cancelItem(userId: $userId, bookingId: $bookingId) {
-        _id
+        result
       }
     }
   `;
   const [cancelItem] = useMutation(CANCEL_ITEM);
 
   const handleOnClick = () => {
-    socketWorker.postMessage({
-      type: "willCancelBooking",
-      userId: localStorage.getItem("userid"),
-      scheduleId: schedule._id,
-      seatArray: seats,
-    });
-
     const answer = confirm("취소하시겠습니까?");
     if (answer) {
       cancelItem({

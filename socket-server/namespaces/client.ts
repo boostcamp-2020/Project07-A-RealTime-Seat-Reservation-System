@@ -100,7 +100,7 @@ const getClientNamespace = (io: socketIO.Server) => {
     const [userId, scheduleId, seatId] = message.split(":");
     const privateSocket = clientNamespace.sockets.get(userId);
     const expiredSeats = await itemController.expireSeat(scheduleId, seatId);
-    if (!expiredSeats) {
+    if (expiredSeats !== null) {
       const counts = await itemController.getAllClassCount(scheduleId);
 
       clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", expiredSeats);

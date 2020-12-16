@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { colors } from "../../styles/variables";
@@ -8,7 +8,7 @@ import useConcertInfo from "../../hooks/useConcertInfo";
 import { Badge, StepButton } from "../common";
 import { useDispatch } from "react-redux";
 import WebSharedWorker from "../../worker/WebWorker";
-import SocketWorker from "../../worker/SocketWorker";
+import { SocketContext } from "../../stores/SocketStore";
 
 const useStyles = makeStyles(() => ({
   selectInfo: {
@@ -94,26 +94,28 @@ export default function PaymentSelectionBox() {
   const history = useHistory();
   const intl = new Intl.NumberFormat("ko-KR");
   const socketWorker = WebSharedWorker;
+  const { socketData } = useContext(SocketContext);
 
   const BOOK_ITEM = gql`
-    mutation BookItem($userId: ID, $itemId: ID, $scheduleId: ID, $seats: [ID]) {
-      bookItem(userId: $userId, itemId: $itemId, scheduleId: $scheduleId, seats: $seats) {
-        _id
+    mutation book($userId: String, $itemId: String, $schedule: ScheduleInput, $seats: [SeatInput]) {
+      bookItem(userId: $userId, itemId: $itemId, schedule: $schedule, seats: $seats) {
+        result
       }
     }
   `;
-  const [bookItem, { data: bookData, error: mutationError }] = useMutation(BOOK_ITEM);
 
-  const GET_INFO = gql`
-    query GetInfo($id: ID) {
-      itemDetail(itemId: $id) {
-        name
-      }
-    }
-  `;
-  const { loading, error, data } = useQuery(GET_INFO, {
-    variables: { id: concertInfo.id },
-  });
+  // const GET_INFO = gql`
+  //   query GetInfo($id: ID) {
+  //     itemDetail(itemId: $id) {
+  //       name
+  //     }
+  //   }
+  // `;
+  const [bookItem] = useMutation(BOOK_ITEM);
+
+  // const { loading, error, data } = useQuery(GET_INFO, {
+  //   variables: { id: concertInfo.id },
+  // });
 
   useEffect(() => {
     return () => {
@@ -128,17 +130,16 @@ export default function PaymentSelectionBox() {
     history.replace(`/schedule/${concertInfo.id}`);
   };
 
-  if (loading) return <p> loading.... </p>;
-  if (error) return <>`Error! ${error.message}`</>;
-  const { name } = data.itemDetail;
+  // if (loading) return <p> loading.... </p>;
+  // if (error) return <>`Error! ${error.message}`</>;
+  // const { name } = data.itemDetail;
 
-  // const sum = seats.selectedSeat.reduce((acc, cur, i) => {
-  //   return acc + concertInfo.prices[cur.class];
-  // }, 0);
+  const sum = socketData.selectedSeats.reduce((acc: any, cur: any) => {
+    return acc + concertInfo.prices[cur.class];
+  }, 0);
 
   const clickPay = async () => {
-    const bookingSeats = JSON.parse(localStorage.getItem("bookingSeats") as string);
-    const seatsData = bookingSeats.map((seat: any) => {
+    const seatsData = socketData.selectedSeats.map((seat: any) => {
       return { _id: seat._id, name: seat.name, class: seat.class };
     });
 
@@ -146,7 +147,10 @@ export default function PaymentSelectionBox() {
       variables: {
         userId: localStorage.getItem("userid"),
         itemId: concertInfo.id,
-        scheduleId: concertInfo.scheduleId,
+        schedule: {
+          _id: concertInfo.scheduleId,
+          date: concertInfo.dateDetail,
+        },
         seats: seatsData,
       },
     });
@@ -161,16 +165,16 @@ export default function PaymentSelectionBox() {
     <>
       <Box className={classes.selectInfo}>
         <Box className={classes.title}>
-          <strong className={classes.text}>{name}</strong>
+          <strong className={classes.text}>TEST</strong>
           <Box className={classes.date}>
-            {/* {concertInfo.dateDetail}, 총 {seats.selectedSeat.length}매 */}
+            {concertInfo.dateDetail}, 총 {socketData.selectedSeats.length}매
           </Box>
           <Box className={classes.changeBtn} onClick={onClickChange}>
             변경
           </Box>
         </Box>
         <Box className={classes.seatInfo}>
-          {/* {seats.selectedSeat.map((seat, idx) => {
+          {socketData.selectedSeats.map((seat: any, idx: any) => {
             return (
               <Box key={idx} className={classes.grade}>
                 <Box className={classes.gradeText}>
@@ -183,11 +187,11 @@ export default function PaymentSelectionBox() {
                 </Box>
               </Box>
             );
-          })} */}
+          })}
         </Box>
         <Box className={classes.total}>
           <span>합계</span>
-          {/* <strong className={classes.price}>{intl.format(sum)}원</strong> */}
+          <strong className={classes.price}>{intl.format(sum)}원</strong>
         </Box>
       </Box>
       <StepButton click={clickPay} link="/" next="결제완료" />
