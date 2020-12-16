@@ -3,6 +3,7 @@ import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { colors } from "../../styles/variables";
 import { useQuery, gql, useMutation } from "@apollo/client";
+import { Loading } from "../common";
 import { useHistory, Link } from "react-router-dom";
 import useConcertInfo from "../../hooks/useConcertInfo";
 import { Badge, StepButton } from "../common";
@@ -86,6 +87,13 @@ const useStyles = makeStyles(() => ({
     letterSpacing: "-0.3px",
     color: "#ff5658",
   },
+  loading: {
+    width: "100%",
+    padding: "50px 0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 export default function PaymentSelectionBox() {
@@ -104,18 +112,19 @@ export default function PaymentSelectionBox() {
     }
   `;
 
-  // const GET_INFO = gql`
-  //   query GetInfo($id: ID) {
-  //     itemDetail(itemId: $id) {
-  //       name
-  //     }
-  //   }
-  // `;
-  const [bookItem] = useMutation(BOOK_ITEM);
+  const GET_INFO = gql`
+    query GetInfo($id: ID) {
+      itemDetail(itemId: $id) {
+        name
+      }
+    }
+  `;
 
-  // const { loading, error, data } = useQuery(GET_INFO, {
-  //   variables: { id: concertInfo.id },
-  // });
+  const { loading, error, data } = useQuery(GET_INFO, {
+    variables: { id: concertInfo.id },
+  });
+
+  const [bookItem] = useMutation(BOOK_ITEM);
 
   useEffect(() => {
     return () => {
@@ -130,9 +139,14 @@ export default function PaymentSelectionBox() {
     history.replace(`/schedule/${concertInfo.id}`);
   };
 
-  // if (loading) return <p> loading.... </p>;
-  // if (error) return <>`Error! ${error.message}`</>;
-  // const { name } = data.itemDetail;
+  if (loading)
+    return (
+      <Box className={classes.loading}>
+        <Loading />
+      </Box>
+    );
+  if (error) return <>`Error! ${error.message}`</>;
+  const { name } = data.itemDetail;
 
   const sum = socketData.selectedSeats.reduce((acc: any, cur: any) => {
     return acc + concertInfo.prices[cur.class];
@@ -154,6 +168,10 @@ export default function PaymentSelectionBox() {
         seats: seatsData,
       },
     });
+
+    if (bookingResult.data.result === 1) {
+      alert("예매가 완료되었습니다.");
+    }
 
     socketWorker.postMessage({
       type: "leaveBookingRoom",

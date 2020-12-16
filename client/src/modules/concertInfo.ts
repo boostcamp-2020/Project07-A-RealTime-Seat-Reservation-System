@@ -46,7 +46,7 @@ const initialState: ConcertInfoState = {
   colors: undefined,
   startDate: undefined,
   endDate: undefined,
-  runningTime: "2시간 45분",
+  runningTime: "",
   class: "",
 };
 
