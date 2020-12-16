@@ -134,19 +134,57 @@ export default function SeatSelectionArea() {
   };
 
   const zoomIn = () => {
-    ctx.current.scale(2, 2);
-    scale *= 2;
     xOffset = 0;
     yOffset = 0;
-    drawSeats();
+
+    let currentFrame: number = 0;
+    const totalAnimationFrame = 20;
+    let animationScale: number = 1;
+    ctx.current.save();
+
+    const zoomInAnimation = setInterval(function () {
+      if (currentFrame <= totalAnimationFrame) {
+        ctx.current.restore();
+        ctx.current.save();
+        scale *= animationScale;
+        ctx.current.scale(animationScale, animationScale);
+        drawSeats();
+        scale /= animationScale;
+        currentFrame++;
+        animationScale += 0.05;
+      } else {
+        clearTimeout(zoomInAnimation);
+        scale *= 2;
+        return;
+      }
+    }, 10);
   };
 
   const zoomOut = () => {
-    ctx.current.scale(0.5, 0.5);
-    scale *= 0.5;
     xOffset = 0;
     yOffset = 0;
-    drawSeats();
+
+    let currentFrame: number = 0;
+    const totalAnimationFrame = 20;
+    let animationScale: number = 1;
+    ctx.current.save();
+
+    const zoomOutAnimation = setInterval(function () {
+      if (currentFrame <= totalAnimationFrame) {
+        ctx.current.restore();
+        ctx.current.save();
+        scale *= animationScale;
+        ctx.current.scale(animationScale, animationScale);
+        drawSeats();
+        scale /= animationScale;
+        currentFrame++;
+        animationScale -= 0.025;
+      } else {
+        clearTimeout(zoomOutAnimation);
+        scale *= 0.5;
+        return;
+      }
+    }, 10);
   };
 
   const mouseDown = (e: any) => {
@@ -224,7 +262,7 @@ export default function SeatSelectionArea() {
     canvas.height = canvas.offsetHeight;
     canvas.addEventListener("mousedown", mouseDown);
     canvas.addEventListener("mouseup", mouseUp);
-    //canvas.addEventListener("mousemove", dragging);
+    canvas.addEventListener("mousemove", dragging);
     socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
     return () => {
       socket.emit("leaveBookingRoom", concertInfo.scheduleId);
@@ -262,19 +300,12 @@ export default function SeatSelectionArea() {
     cancelSeat(seatId);
   });
 
-  if (loading)
-    return (
-      <Box className={classes.loading}>
-        <Loading />
-      </Box>
-    );
-  if (error) return <>Error! ${error.message}</>;
   return (
     <>
       <CanvasContainer>
         <ButtonBox>
-          {/* <ZoomButton onClick={() => zoomIn()}>+</ZoomButton> */}
-          {/* <ZoomButton onClick={() => zoomOut()}>-</ZoomButton> */}
+          <ZoomButton onClick={() => zoomIn()}>+</ZoomButton>
+          <ZoomButton onClick={() => zoomOut()}>-</ZoomButton>
         </ButtonBox>
         <canvas ref={canvasRef} />
       </CanvasContainer>
