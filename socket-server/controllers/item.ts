@@ -34,7 +34,7 @@ const setClassCount = async (scheduleId: string, className: string, count: numbe
 
 const getAllClassCount = async (scheduleId: string) => {
   const countData = await itemRedis.hgetall(getKey(scheduleId, Key.COUNTS));
-  const countArray = [countData];
+  const countArray = countData;
 
   return { counts: countArray };
 };
@@ -59,16 +59,15 @@ const clickSeat = async (userId: string, scheduleId: string, seat: SeatDataInter
       status: Status.CLICKED,
     };
     await itemRedis.hset(getKey(scheduleId, Key.SEATS), seat._id, JSON.stringify(newSeatData));
-    // await userController.setUserSeatData(userId, newSeatData);
-    // await setClassCount(scheduleId, newSeatData.class, -1);
-    await setExpireSeat(userId, scheduleId, [newSeatData._id]);
+    await setClassCount(scheduleId, seat.class, -1);
+    await setExpireSeat(userId, scheduleId, [seat._id]);
 
     return { seats: [newSeatData] };
   }
 
   await itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
-  // await setClassCount(scheduleId, seat.class, 1);
-  // await userController.setUserSeatData(userId, seat);
+  await setClassCount(scheduleId, seat.class, 1);
+  await unSetExpireSeat(userId, scheduleId, [seat._id]);
   const colorObj: ColorInterface = Color;
   const newColor = colorObj[seat.class];
   const newSeatData = [{ ...seat, color: newColor, status: Status.UNSOLD }];
@@ -99,27 +98,51 @@ const setCancelingSeats = async (
 
   await Promise.all(
     newSeatArray.map((seat) => {
-      return userController.setUserSeatData(userId, seat);
+      return userController.setUserSeatData(userId, seat._id);
     }),
   );
 
   return { seats: newSeatArray };
 };
 
-const setUnSoldSeats = async (userId: string, scheduleId: string, seats: [SeatDataInterface]) => {
-  await Promise.all(
-    seats.map((seat: SeatDataInterface) => {
-      return itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
-    }),
-  );
+const setBookingSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+  await unSetExpireSeat(userId, scheduleId, seatIdArray);
+  await userController.setUserSeatData(userId, seatIdArray);
+  await userController.setScheduleIdOfUser(userId, scheduleId);
+};
 
+const completeSeats = async (scheduleId: string, seatIdArray: [string]) => {
+  const seatData = (await Promise.all(
+    seatIdArray.map((id) => {
+      return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
+    }),
+  )) as [string];
+
+  const colorObj: ColorInterface = Color;
   let newCountObj: { [key: string]: number } = {};
 
-  seats.forEach((seat) => {
-    newCountObj = {
-      ...newCountObj,
-      [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
-    };
+  const seats = seatData.map((seat) => JSON.parse(seat));
+
+  const newSeats = seats.map((seat) => {
+    let newSeatData;
+    if (seat.status === Status.CANCELING) {
+      const newColor = colorObj[seat.class];
+      newCountObj = {
+        ...newCountObj,
+        [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
+      };
+      newSeatData = { ...seat, color: newColor, status: Status.UNSOLD };
+    }
+
+    if (seat.status === Status.CLICKED) {
+      newSeatData = {
+        ...seat,
+        color: Color.SOLD_SEAT,
+        status: Status.SOLD,
+      };
+    }
+
+    return newSeatData;
   });
 
   await Promise.all(
@@ -129,41 +152,67 @@ const setUnSoldSeats = async (userId: string, scheduleId: string, seats: [SeatDa
   );
 
   await Promise.all(
-    seats.map((seat) => {
-      return userController.deleteUserSeatData(userId, seat);
+    seatIdArray.map((id) => {
+      return itemRedis.hdel(getKey(scheduleId, Key.SEATS), id);
     }),
   );
-
-  const colorObj: ColorInterface = Color;
-  const newSeats = seats.map((seat) => {
-    const newColor = colorObj[seat.class];
-
-    return { ...seat, color: newColor, status: Status.SOLD };
-  });
 
   return { seats: newSeats };
 };
 
-const setSoldSeats = async (userId: string, scheduleId: string, seats: [SeatDataInterface]) => {
+const deleteSeatData = async (scheduleId: string, seatIdArray: [string]) => {
+  const seatData = (await Promise.all(
+    seatIdArray.map((id) => {
+      return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
+    }),
+  )) as [string];
+
+  const seats = seatData.map((seat) => JSON.parse(seat));
+
+  const colorObj: ColorInterface = Color;
+  let newCountObj: { [key: string]: number } = {};
+
+  const newSeats = seats.map((seat) => {
+    let newSeatData;
+    if (seat.status === Status.CLICKED) {
+      const newColor = colorObj[seat.class];
+      newCountObj = {
+        ...newCountObj,
+        [seat.class]: newCountObj[seat.class] === undefined ? 1 : newCountObj[seat.class] + 1,
+      };
+      newSeatData = { ...seat, color: newColor, status: Status.UNSOLD };
+    }
+
+    if (seat.status === Status.CANCELING) {
+      newSeatData = {
+        ...seat,
+        color: Color.SOLD_SEAT,
+        status: Status.SOLD,
+      };
+    }
+
+    return newSeatData;
+  });
+
   await Promise.all(
-    seats.map((seat: SeatDataInterface) => {
-      return itemRedis.hdel(getKey(scheduleId, Key.SEATS), seat._id);
+    Object.entries(newCountObj).map((data) => {
+      return setClassCount(scheduleId, data[0], data[1]);
     }),
   );
 
   await Promise.all(
-    seats.map((seat) => {
-      return userController.setUserSeatData(userId, seat);
+    seatIdArray.map((id) => {
+      return itemRedis.hdel(getKey(scheduleId, Key.SEATS), id);
     }),
   );
 
-  return { seats: seats.map((seat) => ({ ...seat, color: Color.SOLD_SEAT, status: Status.SOLD })) };
+  return newSeats;
 };
 
 const expireSeat = async (scheduleId: string, seatId: string) => {
   const seatDataJSON = await itemRedis.hget(getKey(scheduleId, Key.SEATS), seatId);
   if (!seatDataJSON) {
-    throw Error;
+    return null;
   }
 
   const seatData = JSON.parse(seatDataJSON);
@@ -171,9 +220,8 @@ const expireSeat = async (scheduleId: string, seatId: string) => {
   const colorObj: ColorInterface = Color;
   const newColor = colorObj[seatData.class];
   const expiredSeat = { ...seatData, status: Status.UNSOLD, color: newColor };
-
-  await itemRedis.hdel(getKey(scheduleId, Key.SEATS), seatData.id);
-  // await setClassCount(scheduleId, expiredSeat.class, 1);
+  await itemRedis.hdel(getKey(scheduleId, Key.SEATS), seatId);
+  await setClassCount(scheduleId, expiredSeat.class, 1);
 
   return { seats: [expiredSeat] };
 };
@@ -187,6 +235,7 @@ export default {
   getAllClassCount,
   expireSeat,
   setCancelingSeats,
-  setUnSoldSeats,
-  setSoldSeats,
+  deleteSeatData,
+  setBookingSeats,
+  completeSeats,
 };
