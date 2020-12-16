@@ -241,7 +241,6 @@ export default function CalendarPicker({ setTimeDetail }) {
   };
 
   const handleOnClick = (concert) => {
-<<<<<<< HEAD
     const dateDetail = format(
       new Date(concert.year, concert.month - 1, concert.date, concert.hour, concert.minute),
       "yyyy. M. d. (ccc), a h:mm",
@@ -258,12 +257,6 @@ export default function CalendarPicker({ setTimeDetail }) {
       setIsJoin(false);
     }
 
-=======
-    const dateDetail = format(concert.date, "yyyy. M. d. (ccc), a h:mm", {
-      locale: ko,
-    });
-    socket.emit("leaveCountRoom", selectedConcertId);
->>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
     setSelectedConcertId(concert.id);
     dispatch(selectSchedule(concert.id, dateDetail));
   };
