@@ -141,6 +141,7 @@ export default function SeatInfoArea() {
     socketWorker.postMessage({
       type: "joinBookingRoom",
       userId: localStorage.getItem("userid"),
+      scheduleId: concertInfo.scheduleId,
       seatIdArray,
     });
   };

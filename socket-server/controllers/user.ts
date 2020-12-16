@@ -45,6 +45,7 @@ const deleteUserData = async (userId: string) => {
 
   const userSeatData = await userRedis.hgetall(getKey(userId, Key.USER_SEATS));
   const userSeatIdArray = Object.values(userSeatData) as [string];
+  const seatData = await itemController.deleteSeatData(scheduleId, userSeatIdArray);
 
   await userRedis.del(getKey(userId, Key.USER_SEATS));
   await userRedis.del(getKey(userId, Key.USER_SCHEDULE));
@@ -54,7 +55,6 @@ const deleteUserData = async (userId: string) => {
       return userRedis.del(newExpireKey);
     }),
   );
-  const seatData = await itemController.deleteSeatData(scheduleId, userSeatIdArray);
 
   return { scheduleId, seats: seatData };
 };
