@@ -1,25 +1,22 @@
 import { userRedis } from "../db/redis";
 import { getKey } from "../utils";
-import { SeatDataInterface } from "../types";
-import { Status, Key } from "../constants";
+import { Key } from "../constants";
 import { itemController } from ".";
 
-const setUserSeatData = async (userId: string, seat: SeatDataInterface) => {
-  if (seat.status === Status.CLICKED)
-    await userRedis.hset(getKey(userId, Key.USER_CLICKED_SEATS), seat._id, JSON.stringify(seat));
-
-  if (seat.status === Status.CANCELING) {
-    await userRedis.hset(getKey(userId, Key.USER_CANCELING_SEATS), seat._id, JSON.stringify(seat));
-  }
+const setUserSeatData = async (userId: string, seatIdArray: [string]) => {
+  await Promise.all(
+    seatIdArray.map((id) => {
+      return userRedis.hset(getKey(userId, Key.USER_SEATS), id, id);
+    }),
+  );
 };
 
-const deleteUserSeatData = async (userId: string, seat: SeatDataInterface) => {
-  if (seat.status === Status.CLICKED)
-    await userRedis.hdel(getKey(userId, Key.USER_CLICKED_SEATS), seat._id);
-
-  if (seat.status === Status.CANCELING) {
-    await userRedis.hdel(getKey(userId, Key.USER_CANCELING_SEATS), seat._id);
-  }
+const deleteUserSeatData = async (userId: string, seatIdArray: [string]) => {
+  await Promise.all(
+    seatIdArray.map((id) => {
+      return userRedis.hdel(getKey(userId, Key.USER_SEATS), id);
+    }),
+  );
 };
 
 const setScheduleIdOfUser = async (userId: string, scheduleId: string) => {
@@ -36,24 +33,23 @@ const getUserIdOfSocket = async (userId: string) => {
   return socketId;
 };
 
-const deleteUserData = async (userId: string) => {
-  const scheduleId = (await userRedis.get(getKey(userId, Key.USER_SCHEDULE))) as string;
-  const userClickedSeatData = await userRedis.hgetall(getKey(userId, Key.USER_CLICKED_SEATS));
-  const userCancelingSeatData = await userRedis.hgetall(getKey(userId, Key.USER_CANCELING_SEATS));
-  const userClickedSeats = Object.values(userClickedSeatData).map((seat) => JSON.parse(seat)) as [
-    SeatDataInterface,
-  ];
-  const userCancelingSeats = Object.values(userCancelingSeatData).map((seat) =>
-    JSON.parse(seat),
-  ) as [SeatDataInterface];
-
-  await itemController.setUnSoldSeats(userId, scheduleId, userClickedSeats);
-  await itemController.setSoldSeats(userId, scheduleId, userCancelingSeats);
-
-  await userRedis.del(getKey(userId, Key.USER_CLICKED_SEATS));
-  await userRedis.del(getKey(userId, Key.USER_CANCELING_SEATS));
+const completeUserData = async (userId: string) => {
+  await userRedis.del(getKey(userId, Key.USER_SEATS));
   await userRedis.del(getKey(userId, Key.USER_SCHEDULE));
-  return scheduleId;
+};
+
+const deleteUserData = async (userId: string) => {
+  const scheduleId = await userRedis.get(getKey(userId, Key.USER_SCHEDULE));
+  if (scheduleId === null) return null;
+
+  const userSeatData = await userRedis.hgetall(getKey(userId, Key.USER_SEATS));
+  const userSeatIdArray = Object.values(userSeatData) as [string];
+
+  await userRedis.del(getKey(userId, Key.USER_SEATS));
+  await userRedis.del(getKey(userId, Key.USER_SCHEDULE));
+  const seatData = await itemController.deleteSeatData(scheduleId, userSeatIdArray);
+
+  return { scheduleId, seats: seatData };
 };
 
 export default {
@@ -63,4 +59,5 @@ export default {
   setScheduleIdOfUser,
   setUserIdOfSocket,
   getUserIdOfSocket,
+  completeUserData,
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { makeStyles, styled } from "@material-ui/core/styles";
@@ -10,12 +10,13 @@ import { EmptySeatsCount } from "../../common";
 import { useHistory } from "react-router-dom";
 import { ko } from "date-fns/locale";
 import { useQuery, gql } from "@apollo/client";
-import { socket } from "../../../socket";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useDispatch } from "react-redux";
 import { selectSchedule } from "../../../modules/concertInfo";
 import { setClassInfo } from "../../../modules/concertInfo";
 import { Loading } from "../../common";
+import { SocketContext } from "../../../stores/SocketStore";
+import WebSharedWorker from "../../../worker/WebWorker";
 
 const useStyles = makeStyles(() => ({
   calendar: {
@@ -137,17 +138,32 @@ const GET_SCHGEDULE = gql`
 export default function CalendarPicker({ setTimeDetail }) {
   const [value, setValue] = useState();
   const [concertList, setConcertList] = useState([]);
+  const { socketData } = useContext(SocketContext);
+  const [isJoin, setIsJoin] = useState(false);
   const [selectedConcertId, setSelectedConcertId] = useState();
   const classes = useStyles();
   const history = useHistory();
   const concertInfo = useConcertInfo();
   const dispatch = useDispatch();
+  const socketWorker = WebSharedWorker;
 
   useEffect(() => {
     return () => {
-      socket.emit("leaveCountRoom", selectedConcertId);
+      socketWorker.postMessage({
+        type: "leaveCountRoom",
+        scheduleId: concertInfo.scheduleId,
+      });
     };
-  });
+  }, []);
+
+  useEffect(() => {
+    socketWorker.postMessage({
+      type: "joinCountRoom",
+      scheduleId: concertInfo.scheduleId,
+    });
+    setIsJoin(true);
+  }, [concertInfo.scheduleId]);
+
   //스케쥴 관련 API 호출
   const { loading, error, data } = useQuery(GET_SCHGEDULE, {
     variables: { id: concertInfo.id },
@@ -159,6 +175,7 @@ export default function CalendarPicker({ setTimeDetail }) {
         <Loading />
       </Box>
     );
+
   if (error) return <>Error! ${error.message}</>;
 
   const { startDate: start, endDate: end, prices, classes: classColors } = data.itemDetail;
@@ -195,6 +212,13 @@ export default function CalendarPicker({ setTimeDetail }) {
 
   const handleOnClickDay = () => {
     setSelectedConcertId(undefined);
+    if (isJoin === true) {
+      socketWorker.postMessage({
+        type: "leaveCountRoom",
+        scheduleId: concertInfo.scheduleId,
+      });
+      setIsJoin(false);
+    }
   };
   const handleOnChange = (value) => {
     if (value) {
@@ -217,13 +241,24 @@ export default function CalendarPicker({ setTimeDetail }) {
   };
 
   const handleOnClick = (concert) => {
-    const dateDetail = format(concert.date, "yyyy. M. d. (ccc), a h:mm", {
-      locale: ko,
-    });
-    socket.emit("leaveCountRoom", selectedConcertId);
+    const dateDetail = format(
+      new Date(concert.year, concert.month - 1, concert.date, concert.hour, concert.minute),
+      "yyyy. M. d. (ccc), a h:mm",
+      {
+        locale: ko,
+      },
+    );
+
+    if (isJoin === true) {
+      socketWorker.postMessage({
+        type: "leaveCountRoom",
+        scheduleId: concertInfo.scheduleId,
+      });
+      setIsJoin(false);
+    }
+
     setSelectedConcertId(concert.id);
     dispatch(selectSchedule(concert.id, dateDetail));
-    socket.emit("joinCountRoom", concert.id);
   };
 
   const handleOnClickBtn = () => {
@@ -284,7 +319,14 @@ export default function CalendarPicker({ setTimeDetail }) {
               </TimeBox>
             ))}
           </Box>
-          {selectedConcertId ? <EmptySeatsCount color={color} price={price} /> : null}
+          {isJoin ? (
+            <EmptySeatsCount
+              color={color}
+              price={price}
+              seatsCount={socketData.realTimeCounts}
+              isJoin={isJoin}
+            />
+          ) : null}
         </Box>
       ) : null}
       <Box className={classes.btnArea}>

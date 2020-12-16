@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { MainHeader, SeatSelectionBox } from "../components";
 import useConcertInfo from "../hooks/useConcertInfo";
 import { useHistory } from "react-router-dom";
+import { SocketStore } from "../stores/SocketStore";
 
 export default function SeatSelection() {
   const concertInfo = useConcertInfo();

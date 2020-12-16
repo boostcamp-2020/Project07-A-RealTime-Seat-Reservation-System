@@ -1,10 +1,8 @@
 import { combineReducers } from "redux";
-import seatsReducer from "./seats";
 import concertInfoReducer from "./concertInfo";
 import userReducer from "./user";
 
 const rootReducer = combineReducers({
-  seatsReducer,
   concertInfoReducer,
   userReducer,
 });

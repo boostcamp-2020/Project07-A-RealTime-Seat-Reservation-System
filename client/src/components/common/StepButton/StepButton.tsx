@@ -3,8 +3,6 @@ import { Box, Button } from "@material-ui/core";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
 import { useHistory } from "react-router-dom";
-import useSeats from "../../../hooks/useSeats";
-import { socket } from "../../../socket";
 
 interface Props {
   link: string;
@@ -44,7 +42,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function StepButton({ link, next, click }: Props) {
   const history = useHistory();
   const classes = useStyles();
-  const seats = useSeats().selectedSeat;
 
   const handleClickPre = () => {
     history.goBack();
@@ -69,7 +66,7 @@ export default function StepButton({ link, next, click }: Props) {
       >
         이전단계
       </Button>
-      {seats.length === 0 ? (
+      {/* {seats.length === 0 ? (
         <Button
           size="large"
           variant="contained"
@@ -88,7 +85,7 @@ export default function StepButton({ link, next, click }: Props) {
         >
           {next}
         </Button>
-      )}
+      )} */}
     </Box>
   );
 }

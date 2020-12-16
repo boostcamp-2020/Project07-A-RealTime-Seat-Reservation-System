@@ -15,13 +15,13 @@ const typeDefs = gql`
 
   type Mutation {
     loginUser(userName: String): User
-    bookItem(userId: ID, itemId: ID, scheduleId: ID, seats: [ID]): [Booking]
-    cancelItem(userId: ID, bookingId: ID): [Booking]
-  }
-
-  type Subscription {
-    unSoldSeats: [Seat]
-    soldSeats: [Seat]
+    bookItem(
+      userId: ID
+      item: ItemInput
+      schedule: ScheduleInput
+      seats: [SeatInput]
+    ): BookingResult
+    cancelItem(userId: ID, bookingId: ID): CancelResult
   }
 
   type Item {
@@ -77,6 +77,14 @@ const typeDefs = gql`
     item: Item
     schedule: BookedSchedule
     seats: [BookingSeat]
+  }
+
+  type BookingResult {
+    result: Int
+  }
+
+  type CancelResult {
+    result: Int
   }
 
   type Seat {

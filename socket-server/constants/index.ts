@@ -25,8 +25,7 @@ const Key = {
   COUNTS: "counts",
   USER_SCHEDULE: "schedule",
   USER_ID: "user",
-  USER_CLICKED_SEATS: "clicked",
-  USER_CANCELING_SEATS: "canceling",
+  USER_SEATS: "seats",
 };
 
 export { Color, Status, Class, Key };

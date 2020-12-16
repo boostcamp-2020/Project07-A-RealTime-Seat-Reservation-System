@@ -3,11 +3,13 @@ import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { colors } from "../../styles/variables";
 import { useQuery, gql, useMutation } from "@apollo/client";
-import { useHistory } from "react-router-dom";
-import useSeats from "../../hooks/useSeats";
+import { Loading } from "../common";
+import { useHistory, Link } from "react-router-dom";
 import useConcertInfo from "../../hooks/useConcertInfo";
 import { Badge, StepButton } from "../common";
-import { Loading } from "../common";
+import { useDispatch } from "react-redux";
+import WebSharedWorker from "../../worker/WebWorker";
+import SocketWorker from "../../worker/SocketWorker";
 
 const useStyles = makeStyles(() => ({
   selectInfo: {
@@ -97,9 +99,10 @@ const useStyles = makeStyles(() => ({
 export default function PaymentSelectionBox() {
   const classes = useStyles();
   const concertInfo = useConcertInfo();
-  const seats = useSeats();
   const history = useHistory();
   const intl = new Intl.NumberFormat("ko-KR");
+  const socketWorker = WebSharedWorker;
+
   const BOOK_ITEM = gql`
     mutation BookItem($userId: ID, $itemId: ID, $scheduleId: ID, $seats: [ID]) {
       bookItem(userId: $userId, itemId: $itemId, scheduleId: $scheduleId, seats: $seats) {
@@ -120,6 +123,15 @@ export default function PaymentSelectionBox() {
     variables: { id: concertInfo.id },
   });
 
+  useEffect(() => {
+    return () => {
+      socketWorker.postMessage({
+        type: "leaveBookingRoom",
+        userId: localStorage.getItem("userid"),
+      });
+    };
+  }, []);
+
   const onClickChange = () => {
     history.replace(`/schedule/${concertInfo.id}`);
   };
@@ -133,21 +145,28 @@ export default function PaymentSelectionBox() {
   if (error) return <>`Error! ${error.message}`</>;
   const { name } = data.itemDetail;
 
-  const sum = seats.selectedSeat.reduce((acc, cur, i) => {
-    return acc + concertInfo.prices[cur.class];
-  }, 0);
+  // const sum = seats.selectedSeat.reduce((acc, cur, i) => {
+  //   return acc + concertInfo.prices[cur.class];
+  // }, 0);
 
-  const clickPay = () => {
-    const seatsData = seats.selectedSeat.map((seat: any) => {
-      return seat._id;
+  const clickPay = async () => {
+    const bookingSeats = JSON.parse(localStorage.getItem("bookingSeats") as string);
+    const seatsData = bookingSeats.map((seat: any) => {
+      return { _id: seat._id, name: seat.name, class: seat.class };
     });
-    bookItem({
+
+    const bookingResult = await bookItem({
       variables: {
         userId: localStorage.getItem("userid"),
         itemId: concertInfo.id,
         scheduleId: concertInfo.scheduleId,
         seats: seatsData,
       },
+    });
+
+    socketWorker.postMessage({
+      type: "leaveBookingRoom",
+      userId: localStorage.getItem("userid"),
     });
   };
 
@@ -157,14 +176,14 @@ export default function PaymentSelectionBox() {
         <Box className={classes.title}>
           <strong className={classes.text}>{name}</strong>
           <Box className={classes.date}>
-            {concertInfo.dateDetail}, 총 {seats.selectedSeat.length}매
+            {/* {concertInfo.dateDetail}, 총 {seats.selectedSeat.length}매 */}
           </Box>
           <Box className={classes.changeBtn} onClick={onClickChange}>
             변경
           </Box>
         </Box>
         <Box className={classes.seatInfo}>
-          {seats.selectedSeat.map((seat, idx) => {
+          {/* {seats.selectedSeat.map((seat, idx) => {
             return (
               <Box key={idx} className={classes.grade}>
                 <Box className={classes.gradeText}>
@@ -177,11 +196,11 @@ export default function PaymentSelectionBox() {
                 </Box>
               </Box>
             );
-          })}
+          })} */}
         </Box>
         <Box className={classes.total}>
           <span>합계</span>
-          <strong className={classes.price}>{intl.format(sum)}원</strong>
+          {/* <strong className={classes.price}>{intl.format(sum)}원</strong> */}
         </Box>
       </Box>
       <StepButton click={clickPay} link="/" next="결제완료" />

@@ -1,6 +1,5 @@
 import socketIO from "socket.io";
-import { itemController } from "../controllers";
-import { SeatDataInterface } from "../types/index";
+import { itemController, userController } from "../controllers";
 
 const getApiServerNamespace = (io: socketIO.Server) => {
   const apiServerNamespace = io.of("/api-server");
@@ -10,28 +9,23 @@ const getApiServerNamespace = (io: socketIO.Server) => {
 
     socket.on(
       "cancelBooking",
-      async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
-        await itemController.setUnSoldSeats(userId, scheduleId, seatArray);
-
-        const seats = await itemController.getSeatDataByScheduleId(scheduleId);
+      async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+        await userController.completeUserData(userId);
+        const seats = await itemController.completeSeats(scheduleId, seatIdArray);
         const counts = await itemController.getAllClassCount(scheduleId);
 
-        io.of("/client").to(`${scheduleId}-booking`).emit("receiveSeat", seats);
-        io.of("/client").to(`${scheduleId}-booking`).emit("receiveCount", counts);
+        io.of("/client").to(`${scheduleId}-selection`).emit("receiveSeat", seats);
+        io.of("/client").to(`${scheduleId}-selection`).emit("receiveCount", counts);
         io.of("/client").to(`${scheduleId}-count`).emit("receiveCount", counts);
       },
     );
 
-    socket.on(
-      "bookSeat",
-      async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
-        await itemController.setSoldSeats(userId, scheduleId, seatArray);
+    socket.on("bookSeat", async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+      await userController.completeUserData(userId);
+      const seats = await itemController.completeSeats(scheduleId, seatIdArray);
 
-        const seats = await itemController.getSeatDataByScheduleId(scheduleId);
-
-        io.of("/client").to(`${scheduleId}-booking`).emit("receiveSeat", seats);
-      },
-    );
+      io.of("/client").to(`${scheduleId}-selection`).emit("receiveSeat", seats);
+    });
   });
 };
 
