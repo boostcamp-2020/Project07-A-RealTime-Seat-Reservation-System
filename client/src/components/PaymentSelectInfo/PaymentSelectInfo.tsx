@@ -136,16 +136,10 @@ export default function PaymentSelectionBox() {
   //   return acc + concertInfo.prices[cur.class];
   // }, 0);
 
-<<<<<<< HEAD
   const clickPay = async () => {
     const bookingSeats = JSON.parse(localStorage.getItem("bookingSeats") as string);
     const seatsData = bookingSeats.map((seat: any) => {
       return { _id: seat._id, name: seat.name, class: seat.class };
-=======
-  const clickPay = () => {
-    const seatsData = seats.selectedSeat.map((seat: any) => {
-      return seat._id;
->>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
     });
 
     const bookingResult = await bookItem({

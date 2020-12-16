@@ -8,11 +8,8 @@ import { SEAT_COLOR } from "../../../styles/seatColor";
 import { SeatInfo } from "../../../types/seatInfo";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useQuery, gql } from "@apollo/client";
-<<<<<<< HEAD
 import { SocketContext } from "../../../stores/SocketStore";
-=======
 import { Loading } from "../../common";
->>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
 
 const GET_SEATS = gql`
   query seats($scheduleId: ID) {
@@ -278,11 +275,6 @@ export default function SeatSelectionArea() {
     canvas.addEventListener("mousedown", mouseDown);
     canvas.addEventListener("mouseup", mouseUp);
     canvas.addEventListener("mousemove", dragging);
-<<<<<<< HEAD
-
-=======
-    socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
->>>>>>> e5acabad497a9e163e2422e61ef22578bd5da0bd
     return () => {
       socketWorker.postMessage({
         type: "leaveSelectionRoom",
