@@ -10,11 +10,6 @@ import { Loading } from "../../common";
 import WebSharedWorker from "../../../worker/WebWorker";
 import { SocketContext } from "../../../stores/SocketStore";
 
-interface SeatInfo {
-  color: string;
-  price: number;
-}
-
 const useStyles = makeStyles((theme: Theme) => ({
   seatInfoArea: {
     position: "fixed",

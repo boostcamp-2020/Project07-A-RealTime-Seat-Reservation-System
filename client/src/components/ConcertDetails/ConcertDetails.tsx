@@ -8,7 +8,6 @@ import Box from "@material-ui/core/Box";
 import { colors } from "../../styles/variables";
 import CalendarPicker from "./CalendarPicker/CalendarPicker";
 import InfoArea from "./InfoArea/InfoArea";
-import { useQuery, gql } from "@apollo/client";
 
 interface TabPanelProps {
   children?: React.ReactNode;
