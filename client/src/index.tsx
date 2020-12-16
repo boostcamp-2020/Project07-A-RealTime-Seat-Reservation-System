@@ -5,8 +5,9 @@ import App from "./App";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import rootReducer from "./modules";
-import { SeatStore } from "./stores/SeatStore";
 import client from "./service";
+import { SocketStore } from "./stores/SocketStore";
+
 import { ApolloProvider } from "@apollo/client";
 
 const store = createStore(rootReducer);
@@ -14,11 +15,11 @@ const store = createStore(rootReducer);
 ReactDOM.render(
   <ApolloProvider client={client}>
     <Provider store={store}>
-      <SeatStore>
+      <SocketStore>
         <React.StrictMode>
           <App />
         </React.StrictMode>
-      </SeatStore>
+      </SocketStore>
     </Provider>
   </ApolloProvider>,
   document.getElementById("root"),

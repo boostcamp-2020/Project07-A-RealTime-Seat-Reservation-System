@@ -1,15 +1,12 @@
 import React, { useEffect } from "react";
 import { MainHeader, PaymentSelectInfo } from "../components";
-import { initSeat } from "../modules/seats";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import useSeats from "../hooks/useSeats";
 import useConcertInfo from "../hooks/useConcertInfo";
 
 export default function Payment() {
   const dispatch = useDispatch();
   const history = useHistory();
-  const seats = useSeats().selectedSeat;
   const concertInfo = useConcertInfo();
 
   useEffect(() => {
@@ -23,9 +20,7 @@ export default function Payment() {
       alert("회차를 선택해주세요");
       history.replace("/schedule/" + concertInfo.id);
     }
-    return () => {
-      dispatch(initSeat());
-    };
+    return () => {};
   }, []);
   return (
     <>

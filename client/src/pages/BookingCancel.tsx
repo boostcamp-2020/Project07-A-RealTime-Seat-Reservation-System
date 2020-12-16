@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { MainHeader, BookingCancelArea } from "../components";
 import { useHistory, useLocation } from "react-router-dom";
 import { StateType } from "../types/booking";
-import { socket } from "../socket";
 
 export default function BookingCancel() {
   const history = useHistory();

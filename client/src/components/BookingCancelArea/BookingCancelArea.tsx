@@ -5,8 +5,8 @@ import { useMutation, gql } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { colors } from "../../styles/variables";
-import { socket } from "../../socket";
 import { StateType } from "../../types/booking";
+import WebSharedWorker from "../../worker/WebWorker";
 
 const useStyles = makeStyles(() => ({
   card: {
@@ -77,6 +77,8 @@ export default function BookingCancelArea() {
   const [booking, setBooking] = useState<any>();
   const location = useLocation<StateType>();
   const { _id, item, schedule, seats } = location.state.booking;
+  const socketWorker = WebSharedWorker;
+
   const CANCEL_ITEM = gql`
     mutation CancelItem($userId: ID, $bookingId: ID) {
       cancelItem(userId: $userId, bookingId: $bookingId) {
@@ -85,7 +87,15 @@ export default function BookingCancelArea() {
     }
   `;
   const [cancelItem] = useMutation(CANCEL_ITEM);
+
   const handleOnClick = () => {
+    socketWorker.postMessage({
+      type: "willCancelBooking",
+      userId: localStorage.getItem("userid"),
+      scheduleId: schedule._id,
+      seatArray: seats,
+    });
+
     const answer = confirm("취소하시겠습니까?");
     if (answer) {
       cancelItem({
@@ -93,6 +103,13 @@ export default function BookingCancelArea() {
           userId: localStorage.getItem("userid"),
           bookingId: _id,
         },
+      });
+      history.replace("/mypage");
+    }
+    if (!answer) {
+      socketWorker.postMessage({
+        type: "notCancelBooking",
+        userId: localStorage.getItem("userid"),
       });
       history.replace("/mypage");
     }

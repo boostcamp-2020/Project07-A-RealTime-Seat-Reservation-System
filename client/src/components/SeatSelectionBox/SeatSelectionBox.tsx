@@ -2,10 +2,7 @@ import React, { useEffect } from "react";
 import SeatSelectedHeader from "./SeatSelectionHeader/SeatSelectionHeader";
 import SeatSelectedArea from "./SeatSelectionArea/SeatSelectionArea";
 import SeatInfoArea from "./SeatInfoArea/SeatInfoArea";
-import { useDispatch } from "react-redux";
 import useConcertInfo from "../../hooks/useConcertInfo";
-import { create } from "../../modules/socket";
-import useSocket from "../../hooks/useSocket";
 
 // TODO: SeatSelectionBox의 props로 공연 회차 정보 받아오기. -> useContext사용 고려
 export default function SeatSelectionBox() {

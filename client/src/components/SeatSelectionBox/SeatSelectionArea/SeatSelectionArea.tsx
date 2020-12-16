@@ -2,16 +2,13 @@ import { useContext } from "react";
 import { styled } from "@material-ui/core/styles";
 import { Toolbar, Button, Box } from "@material-ui/core";
 import React, { useRef, useEffect } from "react";
-import { SeatContext } from "../../../stores/SeatStore";
-import useSelectSeat from "../../../hooks/useSelectSeat";
-import useCancelSeat from "../../../hooks/useCancelSeat";
-import useSeats from "../../../hooks/useSeats";
-import { socket } from "../../../socket";
+import WebSharedWorker from "../../../worker/WebWorker";
 import { SEAT_STATUS } from "../../../constants/seatStatus";
 import { SEAT_COLOR } from "../../../styles/seatColor";
 import { SeatInfo } from "../../../types/seatInfo";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useQuery, gql } from "@apollo/client";
+import { SocketContext } from "../../../stores/SocketStore";
 
 const GET_SEATS = gql`
   query seats($scheduleId: ID) {
@@ -62,12 +59,13 @@ let xOffset: number = 0;
 let yOffset: number = 0;
 
 export default function SeatSelectionArea() {
+  const socketWorker = WebSharedWorker;
   const canvasRef: any = useRef(null);
   const ctx: any = useRef(null);
-  const { serverSeats } = useContext(SeatContext);
-  const seats = useSeats().selectedSeat;
-  const selectSeat = useSelectSeat();
-  const cancelSeat = useCancelSeat();
+  const { socketData, selectSeat, cancelSeat, initRealTimeSeats, initSeats } = useContext(
+    SocketContext,
+  );
+
   const concertInfo = useConcertInfo();
 
   const { loading, error, data } = useQuery(GET_SEATS, {
@@ -86,8 +84,8 @@ export default function SeatSelectionArea() {
     });
   };
 
-  const drawRealTimeSeats = (seats: [SeatInfo]) => {
-    seats.forEach((seat) => {
+  const drawRealTimeSeats = (seats: any) => {
+    seats.forEach((seat: any) => {
       if (componentSelectedSeats[seat._id] === undefined) {
         componentSeats[seat._id] = {
           ...componentSeats[seat._id],
@@ -184,10 +182,22 @@ export default function SeatSelectionArea() {
         ) {
           if (seat.status === SEAT_STATUS.UNSOLD) {
             selectSeat(seat);
-            socket.emit("clickSeat", localStorage.getItem("userid"), concertInfo.scheduleId, seat);
+
+            socketWorker.postMessage({
+              type: "clickSeat",
+              userId: localStorage.getItem("userid"),
+              scheduleId: concertInfo.scheduleId,
+              seat: seat,
+            });
           } else if (seat.status === SEAT_STATUS.CLICKED && componentSelectedSeats[seat._id]) {
             cancelSeat(seat._id);
-            socket.emit("clickSeat", localStorage.getItem("userid"), concertInfo.scheduleId, seat);
+
+            socketWorker.postMessage({
+              type: "clickSeat",
+              userId: localStorage.getItem("userid"),
+              scheduleId: concertInfo.scheduleId,
+              seat: seat,
+            });
           }
           break;
         }
@@ -196,6 +206,8 @@ export default function SeatSelectionArea() {
   };
 
   useEffect(() => {
+    initRealTimeSeats();
+    initSeats();
     componentSelectedSeats = {};
     componentSeats = {};
     scale = 1;
@@ -212,11 +224,14 @@ export default function SeatSelectionArea() {
     canvas.height = canvas.offsetHeight;
     canvas.addEventListener("mousedown", mouseDown);
     canvas.addEventListener("mouseup", mouseUp);
-    //canvas.addEventListener("mousemove", dragging);
-    socket.emit("joinBookingRoom", localStorage.getItem("userid"), concertInfo.scheduleId);
+    canvas.addEventListener("mousemove", dragging);
+
     return () => {
-      socket.emit("leaveBookingRoom", concertInfo.scheduleId);
-      componentSeats = {};
+      socketWorker.postMessage({
+        type: "leaveSelectionRoom",
+        userId: localStorage.getItem("userid"),
+        scheduleId: concertInfo.scheduleId,
+      });
     };
   }, []);
 
@@ -227,12 +242,17 @@ export default function SeatSelectionArea() {
       }, {});
 
       drawSeats();
+      socketWorker.postMessage({
+        type: "joinSelectionRoom",
+        userId: localStorage.getItem("userid"),
+        scheduleId: concertInfo.scheduleId,
+      });
     }
   }, [data]);
 
   useEffect(() => {
-    if (seats.length)
-      componentSelectedSeats = seats.reduce(
+    if (socketData.selectedSeats.length)
+      componentSelectedSeats = socketData.selectedSeats.reduce(
         (map: { [index: string]: SeatInfo }, seat: SeatInfo) => {
           map[seat._id] = seat;
           return map;
@@ -240,22 +260,18 @@ export default function SeatSelectionArea() {
         {},
       );
     else componentSelectedSeats = {};
-  }, [seats]);
+  }, [socketData.selectedSeats]);
 
   useEffect(() => {
-    drawRealTimeSeats(serverSeats.seats);
-  }, [serverSeats.seats]);
-
-  socket.on("expireSeat", (seatId: string) => {
-    cancelSeat(seatId);
-  });
+    drawRealTimeSeats(socketData.realTimeSeats);
+  }, [socketData.realTimeSeats]);
 
   return (
     <>
       <CanvasContainer>
         <ButtonBox>
-          {/* <ZoomButton onClick={() => zoomIn()}>+</ZoomButton> */}
-          {/* <ZoomButton onClick={() => zoomOut()}>-</ZoomButton> */}
+          <ZoomButton onClick={() => zoomIn()}>+</ZoomButton>
+          <ZoomButton onClick={() => zoomOut()}>-</ZoomButton>
         </ButtonBox>
         <canvas ref={canvasRef} />
       </CanvasContainer>

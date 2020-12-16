@@ -1,17 +1,14 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Paper, Box, List, ListItem } from "@material-ui/core";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { colors } from "../../../styles/variables";
-import useSeats from "../../../hooks/useSeats";
-import useCancelSeat from "../../../hooks/useCancelSeat";
-import { socket } from "../../../socket";
-import { useHistory } from "react-router-dom";
 import { useQuery, gql } from "@apollo/client";
-import { SeatContext } from "../../../stores/SeatStore";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { StepButton, Badge } from "../../common";
 import { Loading } from "../../common";
+import WebSharedWorker from "../../../worker/WebWorker";
+import { SocketContext } from "../../../stores/SocketStore";
 
 interface SeatInfo {
   color: string;
@@ -111,16 +108,11 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const unsold = "#01DF3A";
-
 export default function SeatInfoArea() {
+  const socketWorker = WebSharedWorker;
   const concertInfo = useConcertInfo();
   const classes = useStyles();
-  const seats = useSeats();
-  const cancelSeat = useCancelSeat();
-  const history = useHistory();
-  const [seatsCount, setSeatsCount] = useState<any>({});
-  const { serverSeats } = useContext(SeatContext);
+  const { socketData, cancelSeat } = useContext(SocketContext);
 
   const GET_ITEMS = gql`
     query ItemDetail($id: ID) {
@@ -132,23 +124,32 @@ export default function SeatInfoArea() {
       }
     }
   `;
+
   const { loading, error, data } = useQuery(GET_ITEMS, {
     variables: { id: concertInfo.id },
   });
 
   const handleClickCancel = (seat: any) => {
-    const newSeat: any = { ...seat, status: "clicked" };
-    cancelSeat(newSeat._id);
-    socket.emit("clickSeat", localStorage.getItem("userid"), concertInfo.scheduleId, newSeat);
+    cancelSeat(seat._id);
+
+    socketWorker.postMessage({
+      type: "clickSeat",
+      userId: localStorage.getItem("userid"),
+      scheduleId: concertInfo.scheduleId,
+      seat: seat,
+    });
   };
 
-  useEffect(() => {
-    setSeatsCount({ ...serverSeats.counts });
-  }, []);
+  const handleClickPayment = () => {
+    const seatIdArray = socketData.selectedSeats.map((seat: any) => seat._id);
+    localStorage.setItem("bookingSeats", JSON.stringify(socketData.selectedSeats));
 
-  useEffect(() => {
-    setSeatsCount({ ...serverSeats.counts });
-  }, [serverSeats.counts]);
+    socketWorker.postMessage({
+      type: "joinBookingRoom",
+      userId: localStorage.getItem("userid"),
+      seatIdArray,
+    });
+  };
 
   if (loading)
     return (
@@ -159,6 +160,7 @@ export default function SeatInfoArea() {
       </Box>
     );
   if (error) return <>`Error! ${error.message}`</>;
+
   const { classes: colorInfo } = data.itemDetail;
   const colors = colorInfo.reduce((acc: any, value: any, idx: any, arr: any) => {
     acc[value.class] = value.color;
@@ -173,21 +175,21 @@ export default function SeatInfoArea() {
           <Box className={classes.seatTitle}>
             선택좌석
             <Box component="span" className={classes.count}>
-              {seats.selectedSeat.length}석
+              {socketData.selectedSeats.length}석
             </Box>
           </Box>
         </Box>
         <Box className={classes.seatInfo}>
           <Box className={classes.info}>
             <List dense={true}>
-              {Object.keys(seatsCount).map((element, idx) => {
+              {Object.keys(socketData.realTimeCounts).map((element, idx) => {
                 return (
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.title}>
                       <Badge component="span" color={colors[element]}></Badge>
                       <span>{element}</span>
                     </Box>
-                    <Box className={classes.seatCount}>{seatsCount[element]}석</Box>
+                    <Box className={classes.seatCount}>{socketData.realTimeCounts[element]}석</Box>
                   </ListItem>
                 );
               })}
@@ -195,7 +197,7 @@ export default function SeatInfoArea() {
           </Box>
           <Box className={classes.seat}>
             <List dense={true}>
-              {seats.selectedSeat.map((element, idx) => {
+              {socketData.selectedSeats.map((element: any, idx: any) => {
                 return (
                   <ListItem key={idx} className={classes.item}>
                     <Box className={classes.seatLoca}>
@@ -216,7 +218,7 @@ export default function SeatInfoArea() {
           </Box>
         </Box>
       </Paper>
-      <StepButton click={undefined} link="/payment" next="다음단계" />
+      <StepButton click={handleClickPayment} link="/payment" next="다음단계" />
     </>
   );
 }
