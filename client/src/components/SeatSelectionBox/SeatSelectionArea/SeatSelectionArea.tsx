@@ -218,6 +218,8 @@ export default function SeatSelectionArea() {
     if (isDragged) {
       drawOffset.x += movedXOffset;
       drawOffset.y += movedYOffset;
+      movedXOffset = 0;
+      movedYOffset = 0;
     } else {
       const arr = Object.values(componentSeats);
       const length = arr.length;
