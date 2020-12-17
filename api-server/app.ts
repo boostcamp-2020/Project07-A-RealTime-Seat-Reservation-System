@@ -4,7 +4,6 @@ import depthLimit from "graphql-depth-limit";
 import { createServer } from "http";
 import cors from "cors";
 import dotenv from "dotenv";
-
 import connectMongoDB from "./db/mongo";
 import schema from "./schemas";
 
@@ -22,6 +21,4 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path: "/graphql" });
 
 const httpServer = createServer(app);
-httpServer.listen({ port: 7676 }, (): void => {
-  console.log("graphql start");
-});
+httpServer.listen({ port: process.env.API_PORT }, (): void => {});
