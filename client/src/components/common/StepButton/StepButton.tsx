@@ -4,6 +4,7 @@ import { makeStyles, Theme } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
 import { useHistory } from "react-router-dom";
 import { SocketContext } from "../../../stores/SocketStore";
+import WebSharedWorker from "../../../worker/WebWorker";
 
 interface Props {
   link: string;
@@ -44,9 +45,16 @@ export default function StepButton({ link, next, click }: Props) {
   const history = useHistory();
   const classes = useStyles();
   const { socketData } = useContext(SocketContext);
+  const socketWorker = WebSharedWorker;
 
   const handleClickPre = () => {
     history.goBack();
+    if (next === "결제완료") {
+      socketWorker.postMessage({
+        type: "leaveBookingRoom",
+        userId: localStorage.getItem("userid"),
+      });
+    }
   };
 
   const handleClickNext = () => {

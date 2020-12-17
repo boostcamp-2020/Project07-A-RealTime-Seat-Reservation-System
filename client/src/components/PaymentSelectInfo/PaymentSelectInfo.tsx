@@ -126,15 +126,7 @@ export default function PaymentSelectionBox() {
 
   const [bookItem] = useMutation(BOOK_ITEM);
 
-  useEffect(() => {
-    console.log(socketData);
-    return () => {
-      socketWorker.postMessage({
-        type: "leaveBookingRoom",
-        userId: localStorage.getItem("userid"),
-      });
-    };
-  }, []);
+  useEffect(() => {}, []);
 
   const onClickChange = () => {
     history.replace(`/schedule/${concertInfo.id}`);

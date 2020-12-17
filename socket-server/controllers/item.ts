@@ -105,7 +105,6 @@ const setCancelingSeats = async (
 const setBookingSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
   await unSetExpireSeat(userId, scheduleId, seatIdArray);
   await userController.setUserSeatData(userId, seatIdArray);
-  await userController.setScheduleIdOfUser(userId, scheduleId);
 };
 
 const completeSeats = async (scheduleId: string, seatIdArray: [string]) => {
@@ -163,7 +162,6 @@ const deleteSeatData = async (scheduleId: string, seatIdArray: [string]) => {
       return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
     }),
   )) as [string];
-
   const seats = seatData.map((seat) => JSON.parse(seat));
 
   const colorObj: ColorInterface = Color;

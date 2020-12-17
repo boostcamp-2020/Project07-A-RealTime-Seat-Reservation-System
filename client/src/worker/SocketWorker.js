@@ -26,8 +26,8 @@ function SocketWorker() {
     if (data.type === "joinBookingRoom") {
       socket.emit("joinBookingRoom", data.userId, data.scheduleId, data.seatIdArray);
     }
-    if (data.type === "leaveBookinRoom") {
-      socket.emit("leaveCountRoom", data.userId);
+    if (data.type === "leaveBookingRoom") {
+      socket.emit("leaveBookingRoom", data.userId);
     }
     if (data.type === "willCancelBooking") {
       socket.emit("willCancelBooking", data.userId, data.scheduleId, data.seatArray);
