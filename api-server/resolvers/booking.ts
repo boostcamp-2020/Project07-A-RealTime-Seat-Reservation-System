@@ -10,7 +10,7 @@ const getBookingItem = async (_: void, { userId }: any) => {
 
 const bookItem = async (_: void, { userId, itemId, schedule, seats }: any) => {
   const item = await itemModel
-    .findOne({ _id: itemId }, "name,place")
+    .findOne({ _id: itemId }, "name place")
     .populate("place", "name location");
 
   await bookingModel.create({ userId, isAvailable: true, item, schedule, seats });
