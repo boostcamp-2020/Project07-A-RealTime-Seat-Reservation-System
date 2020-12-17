@@ -69,14 +69,23 @@ const getClientNamespace = (io: socketIO.Server) => {
       clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", { seats });
     });
 
-    socket.on("clickSeat", async (userId: string, scheduleId: string, seat: SeatDataInterface) => {
-      const seats = await itemController.clickSeat(userId, scheduleId, seat);
-      const counts = await itemController.getAllClassCount(scheduleId);
+    socket.on(
+      "clickSeat",
+      async (userId: string, scheduleId: string, seat: SeatDataInterface, status: string) => {
+        const seats = await itemController.clickSeat(userId, scheduleId, seat, status);
+        if (seats === null) {
+          socket.emit("clickSeat", null);
+        }
 
-      clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", seats);
-      clientNamespace.to(`${scheduleId}-selection`).emit("receiveCount", counts);
-      clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
-    });
+        if (seats !== null) {
+          socket.emit("clickSeat", seats.seats[0]);
+          const counts = await itemController.getAllClassCount(scheduleId);
+          clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", seats);
+          clientNamespace.to(`${scheduleId}-selection`).emit("receiveCount", counts);
+          clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
+        }
+      },
+    );
 
     socket.on(
       "joinBookingRoom",

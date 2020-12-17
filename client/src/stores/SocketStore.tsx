@@ -73,6 +73,11 @@ export const SocketStore: React.FC = ({ children }) => {
       if (type === "expire") {
         dispatch({ type: "DELETE_SEATS", payload: data });
       }
+      if (type === "click") {
+        if (data !== null) {
+          dispatch({ type: "ADD_SEATS", payload: data });
+        }
+      }
     };
   }, []);
 

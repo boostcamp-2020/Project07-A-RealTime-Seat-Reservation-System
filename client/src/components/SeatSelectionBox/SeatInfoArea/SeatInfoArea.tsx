@@ -132,6 +132,7 @@ export default function SeatInfoArea() {
       userId: localStorage.getItem("userid"),
       scheduleId: concertInfo.scheduleId,
       seat: seat,
+      status: "clicked",
     });
   };
 

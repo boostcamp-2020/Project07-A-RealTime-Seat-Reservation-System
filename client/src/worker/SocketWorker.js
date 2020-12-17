@@ -1,7 +1,8 @@
 function SocketWorker() {
   importScripts("https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.min.js");
 
-  const socket = io.connect("http://localhost:8080/client", {
+  const socketURI = "http://localhost:8080/client";
+  const socket = io.connect(socketURI, {
     transports: ["websocket"],
     upgrade: true,
   });
@@ -9,7 +10,7 @@ function SocketWorker() {
   self.onmessage = function (e) {
     const data = e.data;
     if (data.type === "clickSeat") {
-      socket.emit("clickSeat", data.userId, data.scheduleId, data.seat);
+      socket.emit("clickSeat", data.userId, data.scheduleId, data.seat, data.status);
     }
     if (data.type === "joinSelectionRoom") {
       socket.emit("joinSelectionRoom", data.userId, data.scheduleId);
@@ -47,6 +48,10 @@ function SocketWorker() {
 
   socket.on("expireSeat", (seatId) => {
     self.postMessage({ type: "expire", data: seatId });
+  });
+
+  socket.on("clickSeat", (result) => {
+    self.postMessage({ type: "click", data: result });
   });
 }
 
