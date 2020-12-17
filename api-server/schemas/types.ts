@@ -16,8 +16,8 @@ const typeDefs = gql`
   type Mutation {
     loginUser(userName: String): User
     bookItem(
-      userId: ID
-      item: ItemInput
+      userId: String
+      itemId: String
       schedule: ScheduleInput
       seats: [SeatInput]
     ): BookingResult
@@ -115,24 +115,13 @@ const typeDefs = gql`
     date: String
   }
 
-  input ItemInput {
-    _id: ID
-    name: String
-    place: PlaceInput
-  }
-
-  input PlaceInput {
-    name: String
-    location: String
-  }
-
   input ScheduleInput {
-    _id: ID
+    _id: String
     date: String
   }
 
   input SeatInput {
-    _id: ID
+    _id: String
     name: String
     class: String
   }

@@ -16,7 +16,7 @@ const getClientNamespace = (io: socketIO.Server) => {
         const { scheduleId, seats } = result;
         const counts = await itemController.getAllClassCount(scheduleId);
 
-        clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", seats);
+        clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", { seats });
         clientNamespace.to(`${scheduleId}-selection`).emit("receiveCount", counts);
         clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
       }
@@ -53,6 +53,8 @@ const getClientNamespace = (io: socketIO.Server) => {
     socket.on(
       "willCancelBooking",
       async (userId: string, scheduleId: string, seatArray: [SeatDataInterface]) => {
+        await userController.setUserIdOfSocket(socket.id, userId);
+        await userController.setScheduleIdOfUser(userId, scheduleId);
         const seats = await itemController.setCancelingSeats(userId, scheduleId, seatArray);
 
         clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", seats);
@@ -79,6 +81,8 @@ const getClientNamespace = (io: socketIO.Server) => {
     socket.on(
       "joinBookingRoom",
       async (userId: string, scheduleId: string, seatIdArray: [string]) => {
+        await userController.setUserIdOfSocket(socket.id, userId);
+        await userController.setScheduleIdOfUser(userId, scheduleId);
         await itemController.setBookingSeats(userId, scheduleId, seatIdArray);
       },
     );
@@ -100,7 +104,7 @@ const getClientNamespace = (io: socketIO.Server) => {
     const [userId, scheduleId, seatId] = message.split(":");
     const privateSocket = clientNamespace.sockets.get(userId);
     const expiredSeats = await itemController.expireSeat(scheduleId, seatId);
-    if (!expiredSeats) {
+    if (expiredSeats !== null) {
       const counts = await itemController.getAllClassCount(scheduleId);
 
       clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", expiredSeats);

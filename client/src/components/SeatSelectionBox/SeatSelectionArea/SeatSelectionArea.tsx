@@ -1,7 +1,6 @@
-import { useContext } from "react";
 import { styled, makeStyles } from "@material-ui/core/styles";
 import { Toolbar, Button, Box } from "@material-ui/core";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useContext } from "react";
 import WebSharedWorker from "../../../worker/WebWorker";
 import { SEAT_STATUS } from "../../../constants/seatStatus";
 import { SEAT_COLOR } from "../../../styles/seatColor";
@@ -89,7 +88,7 @@ export default function SeatSelectionArea() {
   const concertInfo = useConcertInfo();
   const classes = useStyles();
 
-  const { loading, error, data } = useQuery(GET_SEATS, {
+  const { loading, error, data, refetch } = useQuery(GET_SEATS, {
     variables: { scheduleId: concertInfo.scheduleId },
   });
 
@@ -289,6 +288,7 @@ export default function SeatSelectionArea() {
   }, []);
 
   useEffect(() => {
+    refetch();
     if (data) {
       componentSeats = data.seats.reduce((acc: any, val: any) => {
         return { ...acc, [val._id]: val };

@@ -41,12 +41,4 @@
 |[@yellow2041](https://github.com/yellow2041)|[@Gunbros](https://github.com/Gunbros)|[@sukstar76](https://github.com/sukstar76)|
 
 ## 기술 스택
-
-### FRONTEND
-<img src= "https://jeonghwan-kim.github.io/static/c5453a21722fae5121a6cd6acb30a2ce/96e86/react-logo.png" width="75" height="75"><img src= "https://media.vlpt.us/post-images/head/14266970-a54c-11e9-9edc-15837886d3a7/material-ui-logo.svg" width="75" height="75"><img src= "https://redux.js.org/img/redux-logo-landscape.png" width="75" height="75"><img src= "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/38763f08-9a9a-4823-a70d-f8a0b1c5405f/d54alet-d3bd2a0a-023e-4731-a1d9-5dbbf3489638.png" width="75" height="75">
-### BACKEND
-<img src= "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Node.js_logo.svg/1200px-Node.js_logo.svg.png" width="75" height="75"><img src= "https://upload.wikimedia.org/wikipedia/en/thumb/6/6b/Redis_Logo.svg/1200px-Redis_Logo.svg.png" width="75" height="75"><img src= "https://cdn.rancher.com/wp-content/uploads/2016/01/26001728/mongodb-logo-300x208.png" width="75" height="75"><img src= "https://miro.medium.com/max/812/0*xAADmPJN52Yy6XJV.jpg" width="75" height="75">
-### COMMON
-<img src= "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1200px-Typescript_logo_2020.svg.png" width="75" height="75"><img src= "https://user-images.githubusercontent.com/841294/53402609-b97a2180-39ba-11e9-8100-812bab86357c.png" width="75" height="75"><img src= "https://twenty-tech.com/wp-content/uploads/2019/01/logo-2.png" width="75" height="75">
-
-
+![기술스택](https://user-images.githubusercontent.com/37579982/102434905-0aa84900-4059-11eb-95d8-7d940012d3a9.png)    

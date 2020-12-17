@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Button } from "@material-ui/core";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import { colors } from "../../../styles/variables";
 import { useHistory } from "react-router-dom";
+import { SocketContext } from "../../../stores/SocketStore";
+import WebSharedWorker from "../../../worker/WebWorker";
 
 interface Props {
   link: string;
@@ -42,9 +44,17 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function StepButton({ link, next, click }: Props) {
   const history = useHistory();
   const classes = useStyles();
+  const { socketData } = useContext(SocketContext);
+  const socketWorker = WebSharedWorker;
 
   const handleClickPre = () => {
     history.goBack();
+    if (next === "결제완료") {
+      socketWorker.postMessage({
+        type: "leaveBookingRoom",
+        userId: localStorage.getItem("userid"),
+      });
+    }
   };
 
   const handleClickNext = () => {
@@ -52,6 +62,7 @@ export default function StepButton({ link, next, click }: Props) {
 
     if (next === "결제완료") {
     }
+
     history.push({
       pathname: link,
     });
@@ -66,7 +77,7 @@ export default function StepButton({ link, next, click }: Props) {
       >
         이전단계
       </Button>
-      {/* {seats.length === 0 ? (
+      {socketData.selectedSeats.length === 0 ? (
         <Button
           size="large"
           variant="contained"
@@ -85,7 +96,7 @@ export default function StepButton({ link, next, click }: Props) {
         >
           {next}
         </Button>
-      )} */}
+      )}
     </Box>
   );
 }

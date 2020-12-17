@@ -241,13 +241,9 @@ export default function CalendarPicker({ setTimeDetail }) {
   };
 
   const handleOnClick = (concert) => {
-    const dateDetail = format(
-      new Date(concert.year, concert.month - 1, concert.date, concert.hour, concert.minute),
-      "yyyy. M. d. (ccc), a h:mm",
-      {
-        locale: ko,
-      },
-    );
+    const dateDetail = format(new Date(concert.date), "yyyy. M. d. (ccc), a h:mm", {
+      locale: ko,
+    });
 
     if (isJoin === true) {
       socketWorker.postMessage({

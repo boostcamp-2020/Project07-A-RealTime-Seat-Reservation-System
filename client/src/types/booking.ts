@@ -1,4 +1,4 @@
-interface Booking {
+export interface Booking {
   _id: string;
   item: { name: string };
   schedule: { _id: string; date: string };

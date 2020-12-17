@@ -137,11 +137,11 @@ export default function SeatInfoArea() {
 
   const handleClickPayment = () => {
     const seatIdArray = socketData.selectedSeats.map((seat: any) => seat._id);
-    localStorage.setItem("bookingSeats", JSON.stringify(socketData.selectedSeats));
 
     socketWorker.postMessage({
       type: "joinBookingRoom",
       userId: localStorage.getItem("userid"),
+      scheduleId: concertInfo.scheduleId,
       seatIdArray,
     });
   };

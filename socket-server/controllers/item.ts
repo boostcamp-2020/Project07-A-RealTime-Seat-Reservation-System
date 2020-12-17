@@ -8,7 +8,7 @@ const setExpireSeat = async (userId: string, scheduleId: string, seatIdArray: [s
   await Promise.all(
     seatIdArray.map((id) => {
       const newExpireKey = getExpireKey(userId, scheduleId, id);
-      return userRedis.setex(newExpireKey, 5, "expire");
+      return userRedis.setex(newExpireKey, 100, "expire");
     }),
   );
 };
@@ -17,7 +17,7 @@ const unSetExpireSeat = async (userId: string, scheduleId: string, seatIdArray: 
   await Promise.all(
     seatIdArray.map((id) => {
       const newExpireKey = getExpireKey(userId, scheduleId, id);
-      return userRedis.del(newExpireKey);
+      return userRedis.set(newExpireKey, "notExpire");
     }),
   );
 };
@@ -96,11 +96,8 @@ const setCancelingSeats = async (
     }),
   );
 
-  await Promise.all(
-    newSeatArray.map((seat) => {
-      return userController.setUserSeatData(userId, seat._id);
-    }),
-  );
+  const newSeatIdArray = newSeatArray.map((seat) => seat._id);
+  await userController.setUserSeatData(userId, newSeatIdArray as [string]);
 
   return { seats: newSeatArray };
 };
@@ -108,7 +105,6 @@ const setCancelingSeats = async (
 const setBookingSeats = async (userId: string, scheduleId: string, seatIdArray: [string]) => {
   await unSetExpireSeat(userId, scheduleId, seatIdArray);
   await userController.setUserSeatData(userId, seatIdArray);
-  await userController.setScheduleIdOfUser(userId, scheduleId);
 };
 
 const completeSeats = async (scheduleId: string, seatIdArray: [string]) => {
@@ -166,7 +162,6 @@ const deleteSeatData = async (scheduleId: string, seatIdArray: [string]) => {
       return itemRedis.hget(getKey(scheduleId, Key.SEATS), id);
     }),
   )) as [string];
-
   const seats = seatData.map((seat) => JSON.parse(seat));
 
   const colorObj: ColorInterface = Color;
