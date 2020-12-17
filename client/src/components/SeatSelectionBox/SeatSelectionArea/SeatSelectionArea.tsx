@@ -65,8 +65,17 @@ let scale: number = 1;
 let xDiff: number = 0;
 let yDiff: number = 0;
 let isDragged: boolean = false;
-let xOffset: number = 0;
-let yOffset: number = 0;
+let movedXOffset: number = 0;
+let movedYOffset: number = 0;
+
+const seatLength = 7;
+const drawOffset = {
+  x: 0,
+  y: 0,
+}
+const seatsImage = new Image();
+seatsImage.src = require("../../../images/seats.jpg").default;
+
 
 export default function SeatSelectionArea() {
   const socketWorker = WebSharedWorker;
@@ -85,14 +94,15 @@ export default function SeatSelectionArea() {
 
   const drawSeats = () => {
     const canvas = canvasRef.current;
+
     ctx.current.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
-    ctx.current.fillStyle = "white";
-    ctx.current.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
+    ctx.current.drawImage(seatsImage, -drawOffset.x - movedXOffset, -drawOffset.y - movedYOffset, canvas.width, canvas.height);
 
     Object.values(componentSeats).forEach((seat: SeatInfo) => {
       ctx.current.fillStyle = seat.color;
-      ctx.current.fillRect(seat.point.x - xOffset, seat.point.y - yOffset, 10, 10);
+      ctx.current.fillRect(seat.point.x -drawOffset.x -movedXOffset, seat.point.y -drawOffset.y - movedYOffset, seatLength, seatLength);
     });
+
   };
 
   const drawRealTimeSeats = (seats: any) => {
@@ -105,10 +115,10 @@ export default function SeatSelectionArea() {
         };
         ctx.current.fillStyle = componentSeats[seat._id].color;
         ctx.current.fillRect(
-          componentSeats[seat._id].point.x - xOffset,
-          componentSeats[seat._id].point.y - yOffset,
-          10,
-          10,
+          componentSeats[seat._id].point.x - movedXOffset - drawOffset.x,
+          componentSeats[seat._id].point.y - movedYOffset - drawOffset.y,
+          seatLength,
+          seatLength,
         );
       }
       if (componentSelectedSeats[seat._id]) {
@@ -121,18 +131,18 @@ export default function SeatSelectionArea() {
 
         ctx.current.fillStyle = componentSeats[seat._id].color;
         ctx.current.fillRect(
-          componentSeats[seat._id].point.x - xOffset,
-          componentSeats[seat._id].point.y - yOffset,
-          10,
-          10,
+          componentSeats[seat._id].point.x - movedXOffset - drawOffset.x,
+          componentSeats[seat._id].point.y - movedYOffset - drawOffset.y,
+          seatLength,
+          seatLength,
         );
       }
     });
   };
 
   const zoomIn = () => {
-    xOffset = 0;
-    yOffset = 0;
+    movedXOffset = 0;
+    movedYOffset = 0;
 
     let currentFrame: number = 0;
     const totalAnimationFrame = 20;
@@ -158,8 +168,8 @@ export default function SeatSelectionArea() {
   };
 
   const zoomOut = () => {
-    xOffset = 0;
-    yOffset = 0;
+    movedXOffset = 0;
+    movedYOffset = 0;
 
     let currentFrame: number = 0;
     const totalAnimationFrame = 20;
@@ -195,8 +205,8 @@ export default function SeatSelectionArea() {
     e.stopPropagation();
     isDragged = true;
     if (xDiff || yDiff) {
-      xOffset = (xDiff - e.offsetX) / scale;
-      yOffset = (yDiff - e.offsetY) / scale;
+      movedXOffset = (xDiff - e.offsetX) / scale;
+      movedYOffset = (yDiff - e.offsetY) / scale;
       drawSeats();
     }
   };
@@ -206,17 +216,8 @@ export default function SeatSelectionArea() {
     xDiff = 0;
     yDiff = 0;
     if (isDragged) {
-      Object.values(componentSeats).forEach((seat: SeatInfo) => {
-        seat = {
-          ...seat,
-          point: { ...seat.point, x: seat.point.x - xOffset, y: seat.point.y - yOffset },
-        };
-        return seat;
-      });
-
-      xOffset = 0;
-      yOffset = 0;
-      drawSeats();
+      drawOffset.x += movedXOffset;
+      drawOffset.y += movedYOffset;
     } else {
       const arr = Object.values(componentSeats);
       const length = arr.length;
@@ -224,10 +225,10 @@ export default function SeatSelectionArea() {
       for (let i = 0; i < length; i += 1) {
         seat = arr[i];
         if (
-          e.offsetX > seat.point.x * scale &&
-          e.offsetX < seat.point.x * scale + 10 * scale &&
-          e.offsetY > seat.point.y * scale &&
-          e.offsetY < seat.point.y * scale + 10 * scale
+          e.offsetX > (seat.point.x -  drawOffset.x) * scale &&
+          e.offsetX < (seat.point.x -  drawOffset.x)* scale + seatLength * scale &&
+          e.offsetY > (seat.point.y -  drawOffset.y) * scale &&
+          e.offsetY < (seat.point.y -  drawOffset.y) * scale + seatLength * scale
         ) {
           if (seat.status === SEAT_STATUS.UNSOLD) {
             selectSeat(seat);
@@ -263,8 +264,11 @@ export default function SeatSelectionArea() {
     xDiff = 0;
     yDiff = 0;
     isDragged = false;
-    xOffset = 0;
-    yOffset = 0;
+    movedXOffset = 0;
+    movedYOffset = 0;
+    drawOffset.x = 0;
+    drawOffset.y = 0;
+
     const canvas = canvasRef.current;
     ctx.current = canvas.getContext("2d");
     canvas.style.width = "100%";
