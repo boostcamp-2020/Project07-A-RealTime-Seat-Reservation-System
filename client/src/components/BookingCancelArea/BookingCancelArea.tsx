@@ -83,10 +83,7 @@ export default function BookingCancelArea() {
     seats: [],
   });
   useEffect(() => {
-    if (!location.state) {
-      alert("취소할 공연을 선택해주세요.");
-      history.replace("/mypage");
-    } else {
+    if (location.state) {
       const { _id, item, schedule, seats } = location.state.booking;
       setConcert({ ...concert, _id: _id, item: item, schedule: schedule, seats: [...seats] });
     }
