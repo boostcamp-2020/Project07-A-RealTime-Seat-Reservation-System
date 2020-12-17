@@ -184,7 +184,7 @@ export default function PaymentSelectionBox() {
     <>
       <Box className={classes.selectInfo}>
         <Box className={classes.title}>
-          <strong className={classes.text}>TEST</strong>
+          <strong className={classes.text}>{concertInfo.name}</strong>
           <Box className={classes.date}>
             {concertInfo.dateDetail}, 총 {socketData.selectedSeats.length}매
           </Box>

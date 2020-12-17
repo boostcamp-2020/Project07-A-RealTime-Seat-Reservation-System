@@ -116,7 +116,6 @@ export default function MyPageArea() {
   useEffect(() => {
     refetch();
     if (data) setBookingList([...data.bookingListByUserId]);
-    console.log(bookingList);
   }, [data]);
 
   const handleClickCancel = (e: any) => {
