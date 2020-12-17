@@ -73,12 +73,12 @@ const getClientNamespace = (io: socketIO.Server) => {
       "clickSeat",
       async (userId: string, scheduleId: string, seat: SeatDataInterface, status: string) => {
         const seats = await itemController.clickSeat(userId, scheduleId, seat, status);
-        if (seats === null) {
+        if (seats === null && status === "unsold") {
           socket.emit("clickSeat", null);
         }
 
         if (seats !== null) {
-          socket.emit("clickSeat", seats.seats[0]);
+          if (status === "unsold") socket.emit("clickSeat", seats.seats[0]);
           const counts = await itemController.getAllClassCount(scheduleId);
           clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", seats);
           clientNamespace.to(`${scheduleId}-selection`).emit("receiveCount", counts);
