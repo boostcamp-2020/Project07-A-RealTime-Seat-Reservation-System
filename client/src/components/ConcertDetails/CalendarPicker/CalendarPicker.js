@@ -258,14 +258,19 @@ export default function CalendarPicker({ setTimeDetail }) {
   };
 
   const handleOnClickBtn = () => {
-    dispatch(setClassInfo(price, color));
-    const selectSeatLink = "/seat";
-    history.push({
-      pathname: selectSeatLink,
-      state: {
-        selectedConcertId,
-      },
-    });
+    if (!localStorage.userid) {
+      alert("로그인이 필요합니다.");
+      history.push("/login");
+    } else {
+      dispatch(setClassInfo(price, color));
+      const selectSeatLink = "/seat";
+      history.push({
+        pathname: selectSeatLink,
+        state: {
+          selectedConcertId,
+        },
+      });
+    }
   };
   //minDate는 최소 날짜 maxDate는 최고 날짜가 보이는 듯
   //tileDisabled는 비활성화 되어야 하는 날짜가 배열로 들어가야함
