@@ -5,7 +5,7 @@ import { useMutation, gql } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { colors } from "../../styles/variables";
-import { StateType } from "../../types/booking";
+import { Booking, StateType } from "../../types/booking";
 import WebSharedWorker from "../../worker/WebWorker";
 
 const useStyles = makeStyles(() => ({
@@ -76,7 +76,22 @@ export default function BookingCancelArea() {
   const classes = useStyles();
   const [booking, setBooking] = useState<any>();
   const location = useLocation<StateType>();
-  const { _id, item, schedule, seats } = location.state.booking;
+  const [concert, setConcert] = useState<Booking>({
+    _id: "",
+    item: { name: "" },
+    schedule: { _id: "", date: "" },
+    seats: [],
+  });
+  useEffect(() => {
+    if (!location.state) {
+      alert("취소할 공연을 선택해주세요.");
+      history.replace("/mypage");
+    } else {
+      const { _id, item, schedule, seats } = location.state.booking;
+      setConcert({ ...concert, _id: _id, item: item, schedule: schedule, seats: [...seats] });
+    }
+  }, []);
+
   const socketWorker = WebSharedWorker;
 
   const CANCEL_ITEM = gql`
@@ -94,7 +109,7 @@ export default function BookingCancelArea() {
       cancelItem({
         variables: {
           userId: localStorage.getItem("userid"),
-          bookingId: _id,
+          bookingId: concert._id,
         },
       });
       history.replace("/mypage");
@@ -107,7 +122,7 @@ export default function BookingCancelArea() {
       history.replace("/mypage");
     }
   };
-
+  const { _id, item, schedule, seats } = concert;
   return (
     <>
       <Box className={classes.card}>
