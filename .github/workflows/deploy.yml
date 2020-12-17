@@ -31,7 +31,9 @@ jobs:
           yarn install &&
           yarn build &&
           pm2 reload all &&
-          cd ../client &&
+          cd .. &&
+          sudo cp SocketWorker.js ./client/src/worker/SocketWorker.js &&
+          cd client &&
           yarn install &&
           yarn build &&
           sudo service nginx reload
