@@ -67,6 +67,7 @@ let yDiff: number = 0;
 let isDragged: boolean = false;
 let movedXOffset: number = 0;
 let movedYOffset: number = 0;
+let zoomCount: number = 0;
 
 const seatLength = 7;
 const drawOffset = {
@@ -155,6 +156,8 @@ export default function SeatSelectionArea() {
   const zoomIn = () => {
     movedXOffset = 0;
     movedYOffset = 0;
+    if (zoomCount >= 2) return;
+    zoomCount++;
 
     let currentFrame: number = 0;
     const totalAnimationFrame = 20;
@@ -176,12 +179,14 @@ export default function SeatSelectionArea() {
         scale *= 2;
         return;
       }
-    }, 10);
+    }, 5);
   };
 
   const zoomOut = () => {
     movedXOffset = 0;
     movedYOffset = 0;
+    if (zoomCount <= 0) return;
+    zoomCount--;
 
     let currentFrame: number = 0;
     const totalAnimationFrame = 20;
@@ -203,7 +208,7 @@ export default function SeatSelectionArea() {
         scale *= 0.5;
         return;
       }
-    }, 10);
+    }, 5);
   };
 
   const mouseDown = (e: any) => {
@@ -330,7 +335,7 @@ export default function SeatSelectionArea() {
   }, [socketData.selectedSeats]);
 
   useEffect(() => {
-    console.log("소켓 실시간 좌석",socketData.realTimeSeats);
+    // console.log("소켓 실시간 좌석",socketData.realTimeSeats);
     drawRealTimeSeats(socketData.realTimeSeats);
   }, [socketData.realTimeSeats]);
 
