@@ -105,6 +105,7 @@ const getClientNamespace = (io: socketIO.Server) => {
 
       clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", { seats });
       clientNamespace.to(`${scheduleId}-selection`).emit("receiveCount", counts);
+      clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     });
   });
 
@@ -117,6 +118,7 @@ const getClientNamespace = (io: socketIO.Server) => {
       const counts = await itemController.getAllClassCount(scheduleId);
 
       clientNamespace.to(`${scheduleId}-selection`).emit("receiveSeat", expiredSeats);
+      clientNamespace.to(`${scheduleId}-selection`).emit("receiveCount", counts);
       clientNamespace.to(`${scheduleId}-count`).emit("receiveCount", counts);
     }
 
