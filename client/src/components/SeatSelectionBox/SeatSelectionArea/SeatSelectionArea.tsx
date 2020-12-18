@@ -72,10 +72,9 @@ const seatLength = 7;
 const drawOffset = {
   x: 0,
   y: 0,
-}
+};
 const seatsImage = new Image();
 seatsImage.src = require("../../../images/seats.jpg").default;
-
 
 export default function SeatSelectionArea() {
   const socketWorker = WebSharedWorker;
@@ -96,17 +95,30 @@ export default function SeatSelectionArea() {
     const canvas = canvasRef.current;
 
     ctx.current.clearRect(0, 0, canvas.width / scale, canvas.height / scale);
-    ctx.current.drawImage(seatsImage, -drawOffset.x - movedXOffset, -drawOffset.y - movedYOffset, canvas.width, canvas.height);
+    ctx.current.drawImage(
+      seatsImage,
+      -drawOffset.x - movedXOffset,
+      -drawOffset.y - movedYOffset,
+      canvas.width,
+      canvas.height,
+    );
 
     Object.values(componentSeats).forEach((seat: SeatInfo) => {
       ctx.current.fillStyle = seat.color;
-      ctx.current.fillRect(seat.point.x -drawOffset.x -movedXOffset, seat.point.y -drawOffset.y - movedYOffset, seatLength, seatLength);
+      ctx.current.fillRect(
+        seat.point.x - drawOffset.x - movedXOffset,
+        seat.point.y - drawOffset.y - movedYOffset,
+        seatLength,
+        seatLength,
+      );
     });
-
   };
 
   const drawRealTimeSeats = (seats: any) => {
     seats.forEach((seat: any) => {
+      if (!componentSeats[seat._id] || !componentSeats[seat._id].point) {
+        return;
+      }
       if (componentSelectedSeats[seat._id] === undefined) {
         componentSeats[seat._id] = {
           ...componentSeats[seat._id],
@@ -227,10 +239,10 @@ export default function SeatSelectionArea() {
       for (let i = 0; i < length; i += 1) {
         seat = arr[i];
         if (
-          e.offsetX > (seat.point.x -  drawOffset.x) * scale &&
-          e.offsetX < (seat.point.x -  drawOffset.x)* scale + seatLength * scale &&
-          e.offsetY > (seat.point.y -  drawOffset.y) * scale &&
-          e.offsetY < (seat.point.y -  drawOffset.y) * scale + seatLength * scale
+          e.offsetX > (seat.point.x - drawOffset.x) * scale &&
+          e.offsetX < (seat.point.x - drawOffset.x) * scale + seatLength * scale &&
+          e.offsetY > (seat.point.y - drawOffset.y) * scale &&
+          e.offsetY < (seat.point.y - drawOffset.y) * scale + seatLength * scale
         ) {
           if (seat.status === SEAT_STATUS.UNSOLD) {
             selectSeat(seat);
@@ -318,6 +330,7 @@ export default function SeatSelectionArea() {
   }, [socketData.selectedSeats]);
 
   useEffect(() => {
+    console.log("소켓 실시간 좌석",socketData.realTimeSeats);
     drawRealTimeSeats(socketData.realTimeSeats);
   }, [socketData.realTimeSeats]);
 
