@@ -116,6 +116,9 @@ export default function SeatSelectionArea() {
 
   const drawRealTimeSeats = (seats: any) => {
     seats.forEach((seat: any) => {
+      if (!componentSeats[seat._id] || !componentSeats[seat._id].point) {
+        return;
+      }
       if (componentSelectedSeats[seat._id] === undefined) {
         componentSeats[seat._id] = {
           ...componentSeats[seat._id],
@@ -327,6 +330,7 @@ export default function SeatSelectionArea() {
   }, [socketData.selectedSeats]);
 
   useEffect(() => {
+    console.log("소켓 실시간 좌석",socketData.realTimeSeats);
     drawRealTimeSeats(socketData.realTimeSeats);
   }, [socketData.realTimeSeats]);
 
