@@ -319,6 +319,8 @@ export default function SeatSelectionArea() {
     movedYOffset = 0;
     drawOffset.x = 0;
     drawOffset.y = 0;
+    zoomCount = 0;
+
 
     const canvas = canvasRef.current;
     ctx.current = canvas.getContext("2d");
