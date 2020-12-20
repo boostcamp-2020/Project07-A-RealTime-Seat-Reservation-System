@@ -8,6 +8,8 @@ import { SeatInfo } from "../../../types/seatInfo";
 import useConcertInfo from "../../../hooks/useConcertInfo";
 import { useQuery, gql } from "@apollo/client";
 import { SocketContext } from "../../../stores/SocketStore";
+import { throttling } from "../../../lib/throttle";
+
 import { Loading } from "../../common";
 
 const GET_SEATS = gql`
@@ -69,7 +71,9 @@ let movedXOffset: number = 0;
 let movedYOffset: number = 0;
 let zoomCount: number = 0;
 
+const totalAnimationFrame = 20;
 const seatLength = 7;
+const throttler = throttling();
 const drawOffset = {
   x: 0,
   y: 0,
@@ -160,7 +164,6 @@ export default function SeatSelectionArea() {
     zoomCount++;
 
     let currentFrame: number = 0;
-    const totalAnimationFrame = 20;
     let animationScale: number = 1;
     ctx.current.save();
 
@@ -189,16 +192,20 @@ export default function SeatSelectionArea() {
     zoomCount--;
 
     let currentFrame: number = 0;
-    const totalAnimationFrame = 20;
     let animationScale: number = 1;
     ctx.current.save();
-
+    const tempX = drawOffset.x / totalAnimationFrame;
+    const tempY = drawOffset.y / totalAnimationFrame;
     const zoomOutAnimation = setInterval(function () {
       if (currentFrame <= totalAnimationFrame) {
         ctx.current.restore();
         ctx.current.save();
         scale *= animationScale;
         ctx.current.scale(animationScale, animationScale);
+        if (zoomCount === 0) {
+          drawOffset.x -= tempX;
+          drawOffset.y -= tempY;
+        } 
         drawSeats();
         scale /= animationScale;
         currentFrame++;
@@ -220,10 +227,35 @@ export default function SeatSelectionArea() {
 
   const dragging = (e: any) => {
     e.stopPropagation();
+    const canvas = canvasRef.current;
     isDragged = true;
+    let lastX = e.offsetX;
+    let lastY = e.offsetY;
+
+    if (e.target.id === "root") {
+      lastX = e.pageX - canvas.offsetLeft;
+      lastY = e.pageY - canvas.offsetTop;
+    }
+
     if (xDiff || yDiff) {
-      movedXOffset = (xDiff - e.offsetX) / scale;
-      movedYOffset = (yDiff - e.offsetY) / scale;
+      movedXOffset = (xDiff -lastX) / scale;
+      movedYOffset = (yDiff - lastY) / scale;
+
+      if (movedXOffset + drawOffset.x < 0) {
+        movedXOffset = -drawOffset.x;
+      }
+
+      if (movedYOffset + drawOffset.y < 0) {
+        movedYOffset = -drawOffset.y;
+      }
+
+      if (movedXOffset + drawOffset.x > canvas.width - canvas.width / scale) {
+        movedXOffset = canvas.width - canvas.width / scale - drawOffset.x;
+      }
+
+      if (movedYOffset + drawOffset.y > canvas.height - canvas.height / scale) {
+        movedYOffset = canvas.height - canvas.height / scale - drawOffset.y;
+      }
       drawSeats();
     }
   };
@@ -294,6 +326,7 @@ export default function SeatSelectionArea() {
     canvas.style.height = "100%";
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
+
     canvas.addEventListener("mousedown", mouseDown);
     canvas.addEventListener("mouseup", mouseUp);
     canvas.addEventListener("mousemove", dragging);
@@ -335,7 +368,6 @@ export default function SeatSelectionArea() {
   }, [socketData.selectedSeats]);
 
   useEffect(() => {
-    // console.log("소켓 실시간 좌석",socketData.realTimeSeats);
     drawRealTimeSeats(socketData.realTimeSeats);
   }, [socketData.realTimeSeats]);
 
@@ -343,8 +375,8 @@ export default function SeatSelectionArea() {
     <>
       <CanvasContainer>
         <ButtonBox>
-          <ZoomButton onClick={() => zoomIn()}>+</ZoomButton>
-          <ZoomButton onClick={() => zoomOut()}>-</ZoomButton>
+          <ZoomButton onClick={() => throttler.throttle(zoomIn, 150)}>+</ZoomButton>
+          <ZoomButton onClick={() => throttler.throttle(zoomOut, 150)}>-</ZoomButton>
         </ButtonBox>
         <canvas ref={canvasRef} />
       </CanvasContainer>
